@@ -1,0 +1,18 @@
+Things to define:
+    Lookahead - we can't feasibly evaluate a tree down to a terminal node as the game tree is too big. Instead, we define a maximum depth, d, to look ahead to, and come up with a function to evaluate how successful the sequence of plays between the current node and nodes at depth d. 
+
+Heuristics
+    Maxmimise number of points gained from your move
+        Passing over your pot will increase your score by one. Passing over your opponent's pot will also increase their score by one. Using this heuristic alone would form the most intuitive min-max algorithm.
+    Maximise counters on your side of the board
+        When one side of the board is empty, all counters on the other side of the board go to it's player's pot.
+    Maximise number of potential moves available to you
+        More moves = more better(?)
+    Create situations where we can gain another turn
+        Placing the last counter of a play into your pot will give you another turn.
+    Maximise empty pots on your side
+        Placing the last counter of a play into an empty slot will move all of the counters in the same slot on the opponents side to your pot, as well as the one token placed on your side.
+    
+Perform a min max algorithm based on the sum of these heuristics?
+Heuristics may need to be weighted - could we do a genetic algorithm to determine weighting?
+    Need to be careful of overfitting - if we constantly play against the example agent, we'll end up being _really_ good at beating that and only that agent.
