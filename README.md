@@ -5,9 +5,9 @@ A bot to play Mancala 7-7, written for COMP34120 (The University Of Manchester).
 
 The usage is:
 
-java -jar ManKalah.jar <agent1> <agent2>
+java -jar ManKalah.jar \<agent1> \<agent2>
 
-where <agent1> and <agent2> are programs which play the game. These could both be your bot, for example, or one could be yours and one could be one of your friends. We provide you with several agents, one is called 'MKRefAgent.jar'. The agents are entered as strings, enclosed in quotes.
+where \<agent1> and \<agent2> are programs which play the game. These could both be your bot, for example, or one could be yours and one could be one of your friends. We provide you with several agents, one is called 'MKRefAgent.jar'. The agents are entered as strings, enclosed in quotes.
 
 The game-playing agents interact with the game engine via a protocol which is described informally in /opt/info/courses/COMP34120/Project1_2018/protocol/Protocol-info.txt, and in Backus-Naur form in /opt/info/courses/COMP34120/Project1_2018/protocol.txt.
 
