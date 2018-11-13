@@ -1,3 +1,5 @@
+package org.AIandGames.mancalabot;
+
 /**
  * Types of messages the game engine can send to the agent.
  */

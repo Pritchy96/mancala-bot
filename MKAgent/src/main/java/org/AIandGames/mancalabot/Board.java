@@ -1,7 +1,11 @@
+package org.AIandGames.mancalabot;
+
 import java.util.Observable;
 
+import static org.AIandGames.mancalabot.Side.*;
+
 /**
- * Representation of the Kalah board.<BR><BR>
+ * Representation of the org.AIandGames.mancalabot.Kalah board.<BR><BR>
  * The board has two sides: "North" and
  * "South". On each side there is a number of linearly arranged "holes" (the
  * same number on each side) and a "store" for each side. Holes are numbered

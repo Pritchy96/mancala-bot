@@ -1,5 +1,7 @@
+package org.AIandGames.mancalabot;
+
 /**
- * The side of the Kalah board a player can choose.
+ * The side of the org.AIandGames.mancalabot.Kalah board a player can choose.
  */
 public enum Side
 {
