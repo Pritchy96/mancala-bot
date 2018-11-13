@@ -1,4 +1,3 @@
-package MKAgent;
 /**
  * The side of the Kalah board a player can choose.
  */
@@ -7,7 +6,7 @@ public enum Side
 	NORTH, SOUTH;
 
 	/**
-	 * @return the side opposite to this one. 
+	 * @return the side opposite to this one.
 	 */
 	public Side opposite()
 	{

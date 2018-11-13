@@ -1,4 +1,3 @@
-package MKAgent;
 /**
  * This class deals with moves on a Kalah board.
  */
@@ -45,7 +44,7 @@ public class Kalah
      * collected into their store as well (so that all holes are empty).<BR>
      * The "notifyObservers()" method of the board is called with the "move"
      * as argument.
-     * 
+     *
      * @param move The move to make.
      * @return The side who's turn it is after the move. Arbitrary if the
      *         game is over.
@@ -87,7 +86,7 @@ public class Kalah
      * collected into their store as well (so that all holes are empty).<BR>
      * The "notifyObservers()" method of the board is called with the "move"
      * as argument.
-     * 
+     *
      * @param board The board to make the move on.
      * @param move The move to make.
      * @return The side who's turn it is after the move. Arbitrary if the

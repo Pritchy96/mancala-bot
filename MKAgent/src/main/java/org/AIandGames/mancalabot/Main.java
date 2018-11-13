@@ -1,4 +1,5 @@
-package MKAgent;
+package org.AIandGames.mancalabot;
+
 import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
@@ -54,6 +55,15 @@ public class Main
 	 */
 	public static void main(String[] args)
 	{
-		// TODO: implement
+        try
+        {
+            System.out.println("Hello World");
+            String test = recvMsg();
+            System.out.println(test);
+        }
+        catch (IOException e)
+        {
+            System.err.println(e.getMessage());
+        }
 	}
 }

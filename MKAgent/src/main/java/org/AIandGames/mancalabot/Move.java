@@ -1,5 +1,3 @@
-package MKAgent;
-
 /**
  * Represents a move (not a turn) in the Kalah game.
  */
