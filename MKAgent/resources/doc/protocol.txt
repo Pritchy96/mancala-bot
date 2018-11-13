@@ -1,4 +1,4 @@
-Protocol
+org.AIandGames.mancalabot.Protocol
 ========
 
 
@@ -54,7 +54,7 @@ Messages from the game engine to the agent (game engine -> agent):
 
      A "SWAP" means that the opponent chose to swap the places after the
      starting player's first move, according to the pie rule (or swap rule).
-     
+
   <STATE> ::= (<NAT> ",")*n <NAT> "," (<NAT> ",")*n <NAT>
   <NAT> ::= "0" | "1" | "2" | ... | k
      where n is the number of holes per side and k the number of seeds in the

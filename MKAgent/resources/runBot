@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mvn clean install -f ../pom.xml
+
+java -jar ./example-jars/ManKalah.jar "./example-jars/JimmyPlayer.jar" "java -jar ../target/mancalaBot-1.0-SNAPSHOT.jar"

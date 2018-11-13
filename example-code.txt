@@ -9,16 +9,16 @@
 				s = recvMsg();
 				System.err.print("Received: " + s);
 				try {
-					MsgType mt = Protocol.getMessageType(s);
+					org.AIandGames.mancalabot.MsgType mt = org.AIandGames.mancalabot.Protocol.getMessageType(s);
 					switch (mt)
 					{
 						case START: System.err.println("A start.");
-							boolean first = Protocol.interpretStartMsg(s);
+							boolean first = org.AIandGames.mancalabot.Protocol.interpretStartMsg(s);
 							System.err.println("Starting player? " + first);
 							break;
 						case STATE: System.err.println("A state.");
-							Board b = new Board(6,6);
-							Protocol.MoveTurn r = Protocol.interpretStateMsg (s, b);
+							org.AIandGames.mancalabot.Board b = new org.AIandGames.mancalabot.Board(6,6);
+							org.AIandGames.mancalabot.Protocol.MoveTurn r = org.AIandGames.mancalabot.Protocol.interpretStateMsg (s, b);
 							System.err.println("This was the move: " + r.move);
 							System.err.println("Is the game over? " + r.end);
 							if (!r.end) System.err.println("Is it our turn again? " + r.again);
@@ -26,8 +26,8 @@
 							break;
 						case END: System.err.println("An end. Bye bye!"); return;
 					}
-					
-				} catch (InvalidMessageException e) {
+
+				} catch (org.AIandGames.mancalabot.InvalidMessageException e) {
 					System.err.println(e.getMessage());
 				}
 			}

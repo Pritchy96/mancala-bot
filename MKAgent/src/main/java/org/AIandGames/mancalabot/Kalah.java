@@ -1,6 +1,7 @@
-package MKAgent;
+package org.AIandGames.mancalabot;
+
 /**
- * This class deals with moves on a Kalah board.
+ * This class deals with moves on a org.AIandGames.mancalabot.Kalah board.
  */
 public class Kalah
 {
@@ -45,7 +46,7 @@ public class Kalah
      * collected into their store as well (so that all holes are empty).<BR>
      * The "notifyObservers()" method of the board is called with the "move"
      * as argument.
-     * 
+     *
      * @param move The move to make.
      * @return The side who's turn it is after the move. Arbitrary if the
      *         game is over.
@@ -87,7 +88,7 @@ public class Kalah
      * collected into their store as well (so that all holes are empty).<BR>
      * The "notifyObservers()" method of the board is called with the "move"
      * as argument.
-     * 
+     *
      * @param board The board to make the move on.
      * @param move The move to make.
      * @return The side who's turn it is after the move. Arbitrary if the
@@ -104,7 +105,7 @@ public class Kalah
 		      opponent's kalahah is skipped.
 		   2. outcome:
 		    	1. if the last counter is put into the player's kalahah, the player is allowed to
-		    	   move again (such a move is called a Kalah-move);
+		    	   move again (such a move is called a org.AIandGames.mancalabot.Kalah-move);
 		    	2. if the last counter is put in an empty hole on the player's side of the board
 		    	   and the opposite hole is non-empty,
 		    	   a capture takes place: all stones in the opposite opponents pit and the last
