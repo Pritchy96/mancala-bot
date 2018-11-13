@@ -2,12 +2,4 @@
 
 mvn clean install -f ../pom.xml
 
-if [ "$(uname)" == "Darwin" ]
-then
- serverCat=netcat
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]
-then
- serverCat=ncat
-fi
-
-$serverCat -lnvp 12345 -e "`which java` -jar ../target/mancalaBot-1.0-SNAPSHOT.jar"
+ncat -lnvp 12345 -e "`which java` -jar ../target/mancalaBot-1.0-SNAPSHOT.jar"
