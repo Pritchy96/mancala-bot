@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mvn clean install -f ../pom.xml
+
+ncat -lnvp 12345 -e "`which java` -jar ../target/mancalaBot-1.0-SNAPSHOT.jar"

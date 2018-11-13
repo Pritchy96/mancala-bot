@@ -55,15 +55,44 @@ public class Main
 	 */
 	public static void main(String[] args)
 	{
-        try
-        {
-            System.out.println("Hello World");
-            String test = recvMsg();
-            System.out.println(test);
-        }
-        catch (IOException e)
-        {
-            System.err.println(e.getMessage());
-        }
+        System.err.println("Starting Test Bot");
+
+		try
+		{
+			String s;
+			while (true)
+			{
+				System.err.println();
+				s = recvMsg();
+				System.err.print("Received: " + s);
+				try {
+					org.AIandGames.mancalabot.MsgType mt = org.AIandGames.mancalabot.Protocol.getMessageType(s);
+					switch (mt)
+					{
+						case START: System.err.println("A start.");
+							boolean first = org.AIandGames.mancalabot.Protocol.interpretStartMsg(s);
+							System.err.println("Starting player? " + first);
+							break;
+						case STATE: System.err.println("A state.");
+							org.AIandGames.mancalabot.Board b = new org.AIandGames.mancalabot.Board(6,6);
+							org.AIandGames.mancalabot.Protocol.MoveTurn r = org.AIandGames.mancalabot.Protocol.interpretStateMsg (s, b);
+							System.err.println("This was the move: " + r.move);
+							System.err.println("Is the game over? " + r.end);
+							if (!r.end) System.err.println("Is it our turn again? " + r.again);
+							System.err.print("The board:\n" + b);
+							break;
+						case END: System.err.println("An end. Bye bye!"); return;
+					}
+
+				} catch (org.AIandGames.mancalabot.InvalidMessageException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			System.err.println("This shouldn't happen: " + e.getMessage());
+		}
+
 	}
 }
