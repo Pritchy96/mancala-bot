@@ -1,5 +1,7 @@
 package org.AIandGames.mancalabot;
 
+import java.util.Observable;
+
 /**
  * This class deals with moves on a org.AIandGames.mancalabot.Kalah board.
  */
@@ -21,7 +23,21 @@ public class Kalah
     	this.board = board;
     }
 
-    /**
+	private Kalah(Builder builder) {
+		board = builder.board;
+	}
+
+	public static Builder newBuilder() {
+		return new Builder();
+	}
+
+	public static Builder newBuilder(Kalah copy) {
+		Builder builder = new Builder();
+		builder.board = copy.getBoard();
+		return builder;
+	}
+
+	/**
      * @return The board this object operates on.
      */
     public Board getBoard ()
@@ -52,7 +68,7 @@ public class Kalah
      *         game is over.
      * @see #isLegalMove(Move)
      * @see #gameOver()
-     * @see java.util.Observable#notifyObservers(Object)
+     * @see Observable#notifyObservers(Object)
      */
     public Side makeMove (Move move)
     {
@@ -95,7 +111,7 @@ public class Kalah
      *         game is over.
      * @see #isLegalMove(Board, Move)
      * @see #gameOver(Board)
-     * @see java.util.Observable#notifyObservers(Object)
+     * @see Observable#notifyObservers(Object)
      */
     public static Side makeMove (Board board, Move move)
     {
@@ -233,5 +249,21 @@ public class Kalah
 
     	return holesEmpty(board, Side.NORTH) || holesEmpty(board, Side.SOUTH);
     }
+
+	public static final class Builder {
+		private Board board;
+
+		private Builder() {
+		}
+
+		public Builder withBoard(Board val) {
+			board = val;
+			return this;
+		}
+
+		public Kalah build() {
+			return new Kalah(this);
+		}
+	}
 }
 

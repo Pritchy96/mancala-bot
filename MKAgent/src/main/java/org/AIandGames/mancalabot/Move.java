@@ -31,7 +31,23 @@ public class Move
     	this.hole = hole;
     }
 
-    /**
+	private Move(Builder builder) {
+		side = builder.side;
+		hole = builder.hole;
+	}
+
+	public static Builder newBuilder() {
+		return new Builder();
+	}
+
+	public static Builder newBuilder(Move copy) {
+		Builder builder = new Builder();
+		builder.side = copy.getSide();
+		builder.hole = copy.getHole();
+		return builder;
+	}
+
+	/**
      * @return The side of the board the player making the move is playing on.
      */
     public Side getSide()
@@ -47,4 +63,27 @@ public class Move
     {
 		return hole;
     }
+
+
+	public static final class Builder {
+		private Side side;
+		private int hole;
+
+		private Builder() {
+		}
+
+		public Builder withSide(Side val) {
+			side = val;
+			return this;
+		}
+
+		public Builder withHole(int val) {
+			hole = val;
+			return this;
+		}
+
+		public Move build() {
+			return new Move(this);
+		}
+	}
 }
