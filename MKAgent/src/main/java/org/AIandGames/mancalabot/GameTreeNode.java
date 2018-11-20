@@ -29,21 +29,13 @@ class GameTreeNode {
     void generateChildren() {
         for (int i = 1; i <= 7; i++) {
             if (this.board.getSeeds(currentSide, i) > 0) {
-                Kalah k = Kalah.newBuilder()
-                        .withBoard(this.board)
-                        .build();
-
                 GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
+                Kalah kalah = Kalah.newBuilder().withBoard(this.board).build();
 
-                Move m = Move.builder()
-                        .hole(i)
-                        .side(currentSide)
-                        .build();
-
-                k.makeMove(m);
+                makeMoveFromPot(kalah, i);
 
                 GameTreeNode newChildNode = newChildNBuilder
-                        .board(k.getBoard())
+                        .board(kalah.getBoard())
                         .depth(this.depth + 1)
                         .parent(this)
                         .children(new ArrayList<>())
@@ -53,7 +45,18 @@ class GameTreeNode {
                         .build();
 
                 this.children.add(newChildNode);
+            } else {
+                this.children.add(null);
             }
         }
+    }
+
+    private void makeMoveFromPot(Kalah kalah, int i) {
+        Move move = Move.builder()
+                .hole(i)
+                .side(currentSide)
+                .build();
+
+        kalah.makeMove(move);
     }
 }

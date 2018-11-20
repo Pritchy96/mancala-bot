@@ -1,6 +1,7 @@
 package org.AIandGames.mancalabot;
 
 import org.AIandGames.mancalabot.Enums.TerminalState;
+import org.apache.commons.collections4.ListUtils;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -9,7 +10,7 @@ import java.io.Reader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * The main application class. It also provides methods for communication
@@ -88,22 +89,16 @@ public class Main {
 
         root.generateChildren();
 
-        root.getChildren().forEach(child -> {
-            if (child != null) {
-                child.generateChildren();
-            }
-        });
 
-        root.getChildren().forEach(child ->
-                child.getChildren().forEach(System.out::println));
+        ListUtils.emptyIfNull(root.getChildren()).stream()
+                .filter(Objects::nonNull)
+                .forEach(GameTreeNode::generateChildren);
 
-
-//		Move m1 = new Move(Side.SOUTH, 1);
-//		Kalah k = new Kalah(board);
-//
-//		k.makeMove(m1);
-//
-//		System.out.println(k.getBoard().toString());
-
+        ListUtils.emptyIfNull(root.getChildren()).stream()
+                .filter(Objects::nonNull)
+                .forEach(child ->
+                            ListUtils.emptyIfNull(child.getChildren()).stream()
+                                    .filter(Objects::nonNull)
+                                    .forEach(System.out::println));
     }
 }
