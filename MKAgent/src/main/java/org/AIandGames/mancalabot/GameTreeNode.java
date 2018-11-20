@@ -59,7 +59,7 @@ public class GameTreeNode {
 
     public void generateChildren() {
         for (int i = 1; i <= 7; i++) {
-            if (this.board.getSeeds(currentSide,i) > 0) {
+            if (this.board.getSeeds(currentSide, i) > 0) {
                 Kalah k = Kalah.newBuilder()
                         .withBoard(this.board)
                         .build();
@@ -74,14 +74,14 @@ public class GameTreeNode {
                 k.makeMove(m);
 
                 GameTreeNode newChildNode = newChildNBuilder
-                                            .withBoard(k.getBoard())
-                                            .withDepth(this.depth + 1)
-                                            .withParent(this)
-                                            .withChildren(new ArrayList<>())
-                                            .withTerminalState(TerminalState.NON_TERMINAL)
-                                            .withCurrentSide(this.currentSide.opposite())
-                                            .withPlayersTurn(!this.playersTurn)
-                                            .build();
+                        .withBoard(k.getBoard())
+                        .withDepth(this.depth + 1)
+                        .withParent(this)
+                        .withChildren(new ArrayList<>())
+                        .withTerminalState(TerminalState.NON_TERMINAL)
+                        .withCurrentSide(this.currentSide.opposite())
+                        .withPlayersTurn(!this.playersTurn)
+                        .build();
 
                 this.children.add(newChildNode);
             } else {
@@ -89,7 +89,6 @@ public class GameTreeNode {
             }
         }
     }
-
 
 
     public Board getBoard() {
