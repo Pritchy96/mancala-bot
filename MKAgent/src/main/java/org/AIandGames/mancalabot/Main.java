@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * The main application class. It also provides methods for communication
@@ -71,16 +72,16 @@ public class Main {
         System.out.println(board.toString());
 
 
-        GameTreeNode root = GameTreeNode.newBuilder()
-                .withTerminalState(TerminalState.NON_TERMINAL)
-                .withCurrentSide(Side.SOUTH)
-                .withParent(null)
-                .withDepth(0)
-                .withBoard(board)
-                .withChildren(new ArrayList<>())
-                .withHValues(null)
-                .withPlayersTurn(true)
-                .withValue(0)
+        GameTreeNode root = GameTreeNode.builder()
+                .terminalState(TerminalState.NON_TERMINAL)
+                .currentSide(Side.SOUTH)
+                .parent(null)
+                .depth(0)
+                .board(board)
+                .children(new ArrayList<>())
+                .hValues(null)
+                .playersTurn(true)
+                .value(0)
                 .build();
 
         System.out.println(root.toString());
@@ -93,7 +94,8 @@ public class Main {
             }
         });
 
-        root.getChildren().forEach(child -> child.getChildren().forEach(System.out::println));
+        root.getChildren().forEach(child ->
+                child.getChildren().forEach(System.out::println));
 
 
 //		Move m1 = new Move(Side.SOUTH, 1);
