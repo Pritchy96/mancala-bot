@@ -1,5 +1,10 @@
 package org.AIandGames.mancalabot.Heutristics;
 
-public interface Heuristic extends Runnable {
-    long getValue();
+import org.AIandGames.mancalabot.Enums.Heuristics;
+
+import java.util.concurrent.Callable;
+
+public interface Heuristic extends Callable<Long> {
+
+    public Heuristics getKey();
 }

@@ -1,5 +1,6 @@
 package org.AIandGames.mancalabot;
 
+import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.apache.commons.collections4.ListUtils;
 
@@ -11,6 +12,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * The main application class. It also provides methods for communication
@@ -68,7 +73,11 @@ public class Main {
      *
      * @param args Command line arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CloneNotSupportedException {
+
+        ExecutorService threadPool = Executors.newFixedThreadPool(15);
+
+
         Board board = new Board(7, 7);
         System.out.println(board.toString());
 
@@ -78,27 +87,26 @@ public class Main {
                 .currentSide(Side.SOUTH)
                 .parent(null)
                 .depth(0)
-                .board(board)
+                .board(board.clone())
                 .children(new ArrayList<>())
                 .hValues(null)
                 .playersTurn(true)
                 .value(0)
                 .build();
 
-        System.out.println(root.toString());
+        root.generateChildren(7);
 
-        root.generateChildren();
+        root.generateHeuristicValues(threadPool);
 
 
-        ListUtils.emptyIfNull(root.getChildren()).stream()
-                .filter(Objects::nonNull)
-                .forEach(GameTreeNode::generateChildren);
+//        ListUtils.emptyIfNull(root.getChildren()).stream()
+//                .filter(Objects::nonNull)
+//                .forEach(child ->
+//                            ListUtils.emptyIfNull(child.getChildren()).stream()
+//                                    .filter(Objects::nonNull)
+//                                    .forEach(System.out::println));
 
-        ListUtils.emptyIfNull(root.getChildren()).stream()
-                .filter(Objects::nonNull)
-                .forEach(child ->
-                            ListUtils.emptyIfNull(child.getChildren()).stream()
-                                    .filter(Objects::nonNull)
-                                    .forEach(System.out::println));
+
+        threadPool.shutdown();
     }
 }
