@@ -68,7 +68,7 @@ public class Main {
      *
      * @param args Command line arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CloneNotSupportedException {
         Board board = new Board(7, 7);
         System.out.println(board.toString());
 
@@ -78,7 +78,7 @@ public class Main {
                 .currentSide(Side.SOUTH)
                 .parent(null)
                 .depth(0)
-                .board(board)
+                .board(board.clone())
                 .children(new ArrayList<>())
                 .hValues(null)
                 .playersTurn(true)
@@ -87,12 +87,8 @@ public class Main {
 
         System.out.println(root.toString());
 
-        root.generateChildren();
+        root.generateChildren(5);
 
-
-        ListUtils.emptyIfNull(root.getChildren()).stream()
-                .filter(Objects::nonNull)
-                .forEach(GameTreeNode::generateChildren);
 
         ListUtils.emptyIfNull(root.getChildren()).stream()
                 .filter(Objects::nonNull)

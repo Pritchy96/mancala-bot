@@ -7,6 +7,7 @@ import org.AIandGames.mancalabot.Enums.TerminalState;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -26,29 +27,46 @@ class GameTreeNode {
     private long value;
 
 
-    void generateChildren() {
-        for (int i = 1; i <= 7; i++) {
-            if (this.board.getSeeds(currentSide, i) > 0) {
-                GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
-                Kalah kalah = Kalah.newBuilder().withBoard(this.board).build();
+    void generateChildren(int depth) throws CloneNotSupportedException {
 
-                makeMoveFromPot(kalah, i);
+        if (depth > 0) {
+            for (int i = 1; i <= 7; i++) {
+                if (this.board.getSeeds(currentSide, i) > 0) {
+                    GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
+                    Kalah kalah = Kalah.newBuilder().withBoard(this.board.clone()).build();
 
-                GameTreeNode newChildNode = newChildNBuilder
-                        .board(kalah.getBoard())
-                        .depth(this.depth + 1)
-                        .parent(this)
-                        .children(new ArrayList<>())
-                        .terminalState(TerminalState.NON_TERMINAL)
-                        .currentSide(this.currentSide.opposite())
-                        .playersTurn(!this.playersTurn)
-                        .build();
+                    makeMoveFromPot(kalah, i);
 
-                this.children.add(newChildNode);
-            } else {
-                this.children.add(null);
+                    GameTreeNode newChildNode = newChildNBuilder
+                            .board(kalah.getBoard().clone())
+                            .depth(this.depth + 1)
+                            .parent(this)
+                            .children(new ArrayList<>())
+                            .terminalState(TerminalState.NON_TERMINAL)
+                            .currentSide(this.currentSide.opposite())
+                            .playersTurn(!this.playersTurn)
+                            .build();
+
+                    this.children.add(newChildNode);
+                } else {
+                    this.children.add(null);
+                }
             }
+
+            final int newDepth = depth - 1;
+
+            this.getChildren().stream()
+                    .filter(Objects::nonNull)
+                    .forEach(child -> {
+                        try {
+                            child.generateChildren(newDepth);
+                        } catch (CloneNotSupportedException e) {
+                            e.printStackTrace();
+                        }
+                    });
         }
+
+
     }
 
     private void makeMoveFromPot(Kalah kalah, int i) {
