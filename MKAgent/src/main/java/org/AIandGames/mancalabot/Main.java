@@ -87,7 +87,11 @@ public class Main {
 
         System.out.println(root.toString());
 
-        root.generateChildren(5);
+        TreeCreatorHelper treeCreatorHelper = new TreeCreatorHelper(root);
+
+        treeCreatorHelper.generateTree(30);
+
+//        root.generateChildren(8);
 
 
         ListUtils.emptyIfNull(root.getChildren()).stream()

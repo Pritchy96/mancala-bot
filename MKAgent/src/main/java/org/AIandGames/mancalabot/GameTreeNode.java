@@ -16,9 +16,9 @@ import java.util.Objects;
 @NoArgsConstructor
 @ToString(exclude = {"children"})
 class GameTreeNode {
+    private List<GameTreeNode> children;
     private Board board;
     private Map<Heuristics, Long> hValues;
-    private List<GameTreeNode> children;
     private GameTreeNode parent;
     private TerminalState terminalState;
     private int depth;
@@ -28,6 +28,9 @@ class GameTreeNode {
 
 
     void generateChildren(int depth) throws CloneNotSupportedException {
+        if (depth == 8) {
+            System.out.println("60606060");
+        }
 
         if (depth > 0) {
             for (int i = 1; i <= 7; i++) {
@@ -48,8 +51,6 @@ class GameTreeNode {
                             .build();
 
                     this.children.add(newChildNode);
-                } else {
-                    this.children.add(null);
                 }
             }
 
