@@ -236,6 +236,10 @@ public class Kalah {
         return holesEmpty(board, Side.NORTH) || holesEmpty(board, Side.SOUTH);
     }
 
+    public static boolean gameWon(Board board) {
+        return board.getSeedsInStore(Side.NORTH) >=50 || board.getSeedsInStore(Side.SOUTH) >=50;
+    }
+
     public static final class Builder {
         private Board board;
 
