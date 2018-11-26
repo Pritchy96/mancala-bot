@@ -1,7 +1,5 @@
 package org.AIandGames.mancalabot;
 
-import lombok.AllArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +14,6 @@ class TreeGenerator {
         threadPool = new ThreadPoolExecutor(9, 9, 10000L, TimeUnit.SECONDS, threadedQueue);
 
     }
-
 
 
     private static final int SINGLE_THREAD_DEPTH = 2;
@@ -40,7 +37,8 @@ class TreeGenerator {
             runnables.forEach(threadPool::submit);
 
 
-            while (threadedQueue.size() > 0) {} // nasty but works
+            while (threadedQueue.size() > 0) {
+            } // nasty but works
 
 
             threadPool.shutdown();
