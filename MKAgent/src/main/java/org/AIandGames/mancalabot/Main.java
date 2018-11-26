@@ -70,8 +70,7 @@ public class Main {
      */
     public static void main(String[] args) throws CloneNotSupportedException {
         Board board = new Board(7, 7);
-        System.out.println(board.toString());
-
+        TreeGenerator generator = new TreeGenerator();
 
         GameTreeNode root = GameTreeNode.builder()
                 .terminalState(TerminalState.NON_TERMINAL)
@@ -85,16 +84,10 @@ public class Main {
                 .value(0)
                 .build();
 
-        System.out.println(root.toString());
 
-        root.generateChildren(5);
-
-
-        ListUtils.emptyIfNull(root.getChildren()).stream()
-                .filter(Objects::nonNull)
-                .forEach(child ->
-                            ListUtils.emptyIfNull(child.getChildren()).stream()
-                                    .filter(Objects::nonNull)
-                                    .forEach(System.out::println));
+        final long initTime = System.currentTimeMillis();
+        generator.generateTree(root, 9);
+        final long afterTime = System.currentTimeMillis();
+        System.out.println("Time: " + (afterTime - initTime));
     }
 }

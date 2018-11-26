@@ -1,83 +1,6 @@
 package org.AIandGames.mancalabot;
 
-import lombok.*;
-import org.AIandGames.mancalabot.Enums.Heuristics;
-import org.AIandGames.mancalabot.Enums.TerminalState;
-
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-@Getter
-@Setter
-@Builder(toBuilder = true)
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString(exclude = {"children"})
-class GameTreeNode {
-    private Board board;
-    private Map<Heuristics, Long> hValues;
-    private List<GameTreeNode> children;
-    private GameTreeNode parent;
-    private TerminalState terminalState;
-    private int depth;
-    private boolean playersTurn;
-    private Side currentSide;
-    private long value;
-
-
-
-    void generateChildren(int depth) throws CloneNotSupportedException {
-
-        if (depth > 0) {
-            for (int i = 1; i <= 7; i++) {
-                if (this.board.getSeeds(currentSide, i) > 0) {
-                    GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
-                    //Kalah kalah = Kalah.newBuilder().withBoard(this.board.clone()).build();
-
-                    Board newBoard = this.board.clone();
-                    makeMove(newBoard, i, currentSide);
-                    //makeMoveFromPot(kalah, i);
-
-                    GameTreeNode newChildNode = newChildNBuilder
-                            .board(newBoard)
-                            .depth(this.depth + 1)
-                            .parent(this)
-                            .children(new ArrayList<>())
-                            .terminalState(TerminalState.NON_TERMINAL)
-                            .currentSide(this.currentSide.opposite())
-                            .playersTurn(!this.playersTurn)
-                            .build();
-
-                    this.children.add(newChildNode);
-                } else {
-                    this.children.add(null);
-                }
-            }
-
-            final int newDepth = depth - 1;
-
-            this.getChildren().stream()
-                    .filter(Objects::nonNull)
-                    .forEach(child -> {
-                        try {
-                            child.generateChildren(newDepth);
-                        } catch (CloneNotSupportedException e) {
-                            e.printStackTrace();
-                        }
-                    });
-        }
-    }
-
-    private void makeMoveFromPot(Kalah kalah, int i) {
-        Move move = Move.builder()
-                .hole(i)
-                .side(currentSide)
-                .build();
-
-        kalah.makeMove(move);
-    }
+public class MoveMakerHelper {
 
     static void makeMove(Board board, int hole, Side side) {
         /* from the documentation:
@@ -186,4 +109,3 @@ class GameTreeNode {
         return true;
     }
 }
-
