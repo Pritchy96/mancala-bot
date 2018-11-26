@@ -4,10 +4,10 @@ import lombok.*;
 import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.TerminalState;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -27,18 +27,15 @@ class GameTreeNode {
     private long value;
 
 
-
     void generateChildren(int depth) throws CloneNotSupportedException {
 
         if (depth > 0) {
             for (int i = 1; i <= 7; i++) {
                 if (this.board.getSeeds(currentSide, i) > 0) {
                     GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
-                    //Kalah kalah = Kalah.newBuilder().withBoard(this.board.clone()).build();
 
                     Board newBoard = this.board.clone();
                     makeMove(newBoard, i, currentSide);
-                    //makeMoveFromPot(kalah, i);
 
                     GameTreeNode newChildNode = newChildNBuilder
                             .board(newBoard)
@@ -70,14 +67,6 @@ class GameTreeNode {
         }
     }
 
-    private void makeMoveFromPot(Kalah kalah, int i) {
-        Move move = Move.builder()
-                .hole(i)
-                .side(currentSide)
-                .build();
-
-        kalah.makeMove(move);
-    }
 
     static void makeMove(Board board, int hole, Side side) {
         /* from the documentation:
