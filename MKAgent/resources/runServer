@@ -1,3 +1,0 @@
-#!/bin/bash
-
-nc -l localhost 12345

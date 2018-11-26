@@ -266,18 +266,20 @@ public class Board extends Observable implements Cloneable {
     public String toString() {
         StringBuilder boardString = new StringBuilder();
 
-        boardString.append(board[NORTH_ROW][0] + "| [");
-        for (int i = holes; i >= 1; i--)
-            boardString.append(board[NORTH_ROW][i] + "] [");
-
-
-        boardString.append("| \n");
-        boardString.append(" | [");
-        for (int i = 1; i <= holes; i++)
+        boardString.append(board[NORTH_ROW][0] + " | [");
+        for (int i = holes; i > 1; i--) {
+            boardString.append(board[NORTH_ROW][i]);
+            boardString.append("] [");
+        }
+        boardString.append(board[NORTH_ROW][1]);
+        boardString.append("] | \n");
+        boardString.append("   | [");
+        for (int i = 1; i < holes; i++) {
             boardString.append(board[SOUTH_ROW][i] + "] [");
-
-
-        boardString.append(" |" + board[SOUTH_ROW][0] + "\n");
+        }
+        boardString.append(board[SOUTH_ROW][holes]);
+        boardString.append("] | ");
+        boardString.append(board[SOUTH_ROW][0] + "\n");
 
         return boardString.toString();
     }

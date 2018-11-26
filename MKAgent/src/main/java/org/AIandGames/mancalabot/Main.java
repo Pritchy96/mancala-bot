@@ -3,10 +3,7 @@ package org.AIandGames.mancalabot;
 import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.apache.commons.collections4.ListUtils;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -63,38 +60,56 @@ public class Main {
         return message.toString();
     }
 
+    public static void setupSocketServer() {
+        try {
+            server = new ServerSocket(12345); // Setup server on localhost port 12345
+            clientSocket = server.accept(); // client socket on port 12345
+            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            output = new PrintWriter(clientSocket.getOutputStream(), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * The main method, invoked when the program is started.
      *
      * @param args Command line arguments.
      */
-    public static void main(String[] args) throws CloneNotSupportedException {
-        Board board = new Board(7, 7);
-        System.out.println(board.toString());
+    public static void main(String[] args) {
+        setupSocketServer();
 
-
-        GameTreeNode root = GameTreeNode.builder()
-                .terminalState(TerminalState.NON_TERMINAL)
-                .currentSide(Side.SOUTH)
-                .parent(null)
-                .depth(0)
-                .board(board.clone())
-                .children(new ArrayList<>())
-                .hValues(null)
-                .playersTurn(true)
-                .value(0)
-                .build();
-
-        System.out.println(root.toString());
-
-        root.generateChildren(5);
-
-
-        ListUtils.emptyIfNull(root.getChildren()).stream()
-                .filter(Objects::nonNull)
-                .forEach(child ->
-                            ListUtils.emptyIfNull(child.getChildren()).stream()
-                                    .filter(Objects::nonNull)
-                                    .forEach(System.out::println));
+        String msg;
+        while (true) {
+            try {
+                msg = recvMsg();
+                MsgType msgType = Protocol.getMessageType(msg);
+                switch (msgType) {
+                    case START:
+                        System.err.println("Game start");
+                        boolean first = Protocol.interpretStartMsg(msg);
+                        System.err.println("Us to go first :: " + first);
+                        break;
+                    case STATE:
+                        System.err.println("State");
+                        Board board = new Board(7,7);
+                        Protocol.MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
+                        System.err.println("The move :: " + moveTurn.move);
+                        System.err.println("End of game :: " + moveTurn.end);
+                        if (!moveTurn.end) {
+                            System.err.println("Our turn :: " + moveTurn.again);
+                        }
+                        System.err.println("The board ::\n " + board);
+                        break;
+                    case END:
+                        System.err.println("The end.");
+                        break;
+                }
+            } catch (InvalidMessageException ime) {
+                ime.printStackTrace();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }
     }
 }
