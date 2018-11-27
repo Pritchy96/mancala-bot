@@ -141,7 +141,7 @@ class GameRunner {
     }
 
     private boolean canWeSwap() {
-        return !wePlayFirst;
+        return !wePlayFirst && ourMoveCount == 0;
     }
 
     private void runStartCase(String msg, Thread thread) throws InvalidMessageException, CloneNotSupportedException {
