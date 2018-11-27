@@ -39,7 +39,9 @@ class TreeGenerator implements Runnable {
             rootNode.generateChildren(2);
 
 
-            rootNode.getChildren().forEach(childNode -> leafNodesToRunThreaded.addAll(childNode.getChildren()));
+            rootNode.getChildren().stream()
+                    .filter(Objects::nonNull)
+                    .forEach(childNode -> leafNodesToRunThreaded.addAll(childNode.getChildren()));
 
             leafNodesToRunThreaded.stream()
                     .filter(Objects::nonNull)
@@ -59,4 +61,7 @@ class TreeGenerator implements Runnable {
         }
     }
 
+    public GameTreeNode getRootNode() {
+        return rootNode;
+    }
 }

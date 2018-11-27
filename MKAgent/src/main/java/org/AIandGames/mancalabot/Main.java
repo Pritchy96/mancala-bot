@@ -1,13 +1,9 @@
 package org.AIandGames.mancalabot;
 
-import org.AIandGames.mancalabot.Enums.TerminalState;
-import org.apache.commons.collections4.ListUtils;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * The main application class. It also provides methods for communication
@@ -85,11 +81,12 @@ public class Main {
         boolean wePlayFirst = false;
         boolean opponentWentLast = true; //no other way to explicitly track who went last from server output?
 
+        Board board = new Board(7, 7);
+        Protocol.MoveTurn moveTurn;
+        GameTreeNode tree = null;
+
         while (true) {
             try {
-
-
-
                 msg = recvMsg();
                 MsgType msgType = Protocol.getMessageType(msg);
 
@@ -99,58 +96,51 @@ public class Main {
 
                         wePlayFirst = Protocol.interpretStartMsg(msg);
                         ourSide = printStartMessage(ourSide, wePlayFirst);
+
+                        tree = generateInitialTree(msg, ourSide);
+
+                        if (!thread.isAlive()) {
+                            Runnable createTreeRunner = new TreeGenerator(tree, 6);
+                            thread = new Thread(createTreeRunner);
+                            thread.start();
+                        }
+
                         break;
 
                     case STATE:
-
-                        GameTreeNode tree;
-
-                        Board board = new Board(7, 7);
-                        Protocol.MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
+                       moveTurn = Protocol.interpretStateMsg(msg, board);
 
                         // is it not our turn?
                         if (!moveTurn.again) {
-                            tree = GameTreeNode.builder()
-                                    .board(board.clone())
-                                    .children(new ArrayList<>())
-                                    .currentSide(ourSide)
-                                    .depth(0)
-                                    .parent(null)
-                                    .playersTurn(moveTurn.again)
-                                    .build();
-
-                            if (!thread.isAlive()) {
-                                Runnable createTreeRunner = new TreeGenerator(tree, 6);
-                                thread = new Thread(createTreeRunner);
-                                thread.start();
-                            }
-
+                            System.err.println("Not our turn - continuing to make tree");
                         } else {
                             try {
-                            thread.join();
+                                thread.join();
+
+                                Kalah testKalah = new Kalah(board);
+
+                                printCurrentState(opponentWentLast, board, moveTurn);
+
+                                if (!wePlayFirst) {
+                                    sendMsg(Protocol.createSwapMsg());
+                                    ourSide = ourSide.opposite();
+                                    wePlayFirst = true;
+                                    System.err.println("We swapped to :: " + ourSide);
+                                    System.err.println("||-------------------------------------||\n");
+                                    break;
+                                }
+
+                                opponentWentLast = moveAsNormal(ourSide, opponentWentLast, moveTurn, testKalah);
+
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
-
-                        Kalah testKalah = new Kalah(board);
-
                         printCurrentState(opponentWentLast, board, moveTurn);
 
-                        if (!wePlayFirst) {
-                            sendMsg(Protocol.createSwapMsg());
-                            ourSide = ourSide.opposite();
-                            wePlayFirst = true;
-                            System.err.println("We swapped to :: " + ourSide);
-                            System.err.println("||-------------------------------------||\n");
-                            break;
-                        }
-
-                        opponentWentLast = moveAsNormal(ourSide, opponentWentLast, moveTurn, testKalah);
                         break;
 
                     case END:
-
                         System.err.println("The end.");
                         return;
                 }
@@ -158,6 +148,22 @@ public class Main {
                 ime.printStackTrace();
             }
         }
+    }
+
+    private static GameTreeNode generateInitialTree(String msg, Side ourSide) throws InvalidMessageException, CloneNotSupportedException {
+        GameTreeNode tree;
+        Board boardInit = new Board(7, 7);
+        boolean moveTurnInit = Protocol.interpretStartMsg(msg);
+
+        tree = GameTreeNode.builder()
+                .board(boardInit.clone())
+                .children(new ArrayList<>())
+                .currentSide(ourSide)
+                .depth(0)
+                .parent(null)
+                .playersTurn(moveTurnInit)
+                .build();
+        return tree;
     }
 
     private static boolean moveAsNormal(Side ourSide, boolean opponentWentLast, Protocol.MoveTurn moveTurn, Kalah testKalah) {
