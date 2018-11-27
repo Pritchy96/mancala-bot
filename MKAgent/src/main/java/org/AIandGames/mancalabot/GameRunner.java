@@ -29,6 +29,15 @@ class GameRunner {
 
         output.print(msg);
         output.flush();
+        opponentWentLast = false;
+    }
+
+    private void sendSwapMsg() {
+        System.out.print(Protocol.createSwapMsg());
+        System.out.flush();
+
+        output.print(Protocol.createSwapMsg());
+        output.flush();
     }
 
     /**
@@ -152,7 +161,6 @@ class GameRunner {
 
         if (wePlayFirst) {
             sendMsg(Protocol.createMoveMsg(7));
-            opponentWentLast = false;
         }
 
         if (!thread.isAlive()) {
@@ -163,7 +171,7 @@ class GameRunner {
     }
 
     private void performSwap() {
-        sendMsg(Protocol.createSwapMsg());
+        sendSwapMsg();
         ourSide = ourSide.opposite();
         wePlayFirst = true;
         System.err.println("We swapped to :: " + ourSide);
@@ -188,7 +196,6 @@ class GameRunner {
             Move testMove = new Move(ourSide, i);
             if (testKalah.isLegalMove(testMove)) {
                 sendMsg(Protocol.createMoveMsg(i));
-                opponentWentLast = false;
                 System.err.println("We play hole :: " + i);
                 System.err.println("||-------------------------------------||\n");
                 break;
