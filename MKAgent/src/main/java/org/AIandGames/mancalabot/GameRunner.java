@@ -105,6 +105,12 @@ class GameRunner {
     private void runStateCase(String msg, Board board, Thread thread) throws InvalidMessageException {
         moveTurn = Protocol.interpretStateMsg(msg, board);
 
+
+        if (opponentWentLast && moveTurn.move == -1) {
+            ourSide = ourSide.opposite();
+        }
+
+
         // is it not our turn?
         if (!moveTurn.ourTurn) {
             printCurrentState(board);
@@ -143,6 +149,11 @@ class GameRunner {
 
         printStartMessage();
         generateRootNode();
+
+        if (wePlayFirst) {
+            sendMsg(Protocol.createMoveMsg(7));
+            opponentWentLast = false;
+        }
 
         if (!thread.isAlive()) {
             Runnable createTreeRunner = new TreeGenerator(tree, 6);
