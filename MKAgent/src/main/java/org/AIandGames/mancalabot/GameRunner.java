@@ -6,6 +6,8 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Optional;
 
 class GameRunner {
     private Reader input;
@@ -132,6 +134,8 @@ class GameRunner {
 
                 printCurrentState(board);
 
+                updateGameTree(board);
+
                 Kalah testKalah = new Kalah(board);
                 if (canWeSwap() && shouldWeSwap()) {
                     performSwap();
@@ -143,6 +147,25 @@ class GameRunner {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void updateGameTree(Board board)  {
+
+        try {
+            final GameTreeNode newRoot = tree.getChildren().stream()
+                    .filter(Objects::nonNull)
+                    .filter(child -> !child.getBoard().equals(board))
+                    .findFirst()
+                    .orElseThrow(Exception::new);
+
+            newRoot.setParent(null);
+            tree = newRoot;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     private boolean shouldWeSwap() {
@@ -197,7 +220,6 @@ class GameRunner {
             Move testMove = new Move(ourSide, i);
             if (testKalah.isLegalMove(testMove)) {
                 sendMsg(Protocol.createMoveMsg(i));
-                opponentWentLast = false;
                 System.err.println("We play hole :: " + i);
                 System.err.println("||-------------------------------------||\n");
                 break;
