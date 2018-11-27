@@ -1,13 +1,9 @@
 package org.AIandGames.mancalabot;
 
-import org.AIandGames.mancalabot.Enums.TerminalState;
-import org.apache.commons.collections4.ListUtils;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * The main application class. It also provides methods for communication
@@ -77,6 +73,7 @@ public class Main {
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
+        Thread thread = new Thread();
         setupSocketServer();
 
         String msg;
@@ -84,9 +81,12 @@ public class Main {
         boolean wePlayFirst = false;
         boolean opponentWentLast = true; //no other way to explicitly track who went last from server output?
 
+        Board board = new Board(7, 7);
+        Protocol.MoveTurn moveTurn;
+        GameTreeNode tree = null;
+
         while (true) {
             try {
-
                 msg = recvMsg();
                 MsgType msgType = Protocol.getMessageType(msg);
 
@@ -96,54 +96,88 @@ public class Main {
 
                         wePlayFirst = Protocol.interpretStartMsg(msg);
                         ourSide = printStartMessage(ourSide, wePlayFirst);
+
+                        tree = generateRootNode(msg, ourSide);
+
+                        if (!thread.isAlive()) {
+                            Runnable createTreeRunner = new TreeGenerator(tree, 6);
+                            thread = new Thread(createTreeRunner);
+                            thread.start();
+                        }
+
                         break;
 
                     case STATE:
+                        moveTurn = Protocol.interpretStateMsg(msg, board);
 
-                        Board board = new Board(7, 7);
-                        Protocol.MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
-                        Kalah testKalah = new Kalah(board);
-
-                        printCurrentState(opponentWentLast, board, moveTurn);
-
-                        if (!wePlayFirst) {
-                            sendMsg(Protocol.createSwapMsg());
-                            ourSide = ourSide.opposite();
-                            wePlayFirst = true;
-                            System.err.println("We swapped to :: " + ourSide);
+                        // is it not our turn?
+                        if (!moveTurn.ourTurn) {
+                            printCurrentState(opponentWentLast, board, moveTurn);
+                            opponentWentLast = true;
+                            System.err.println("Not our turn - continuing to make tree");
                             System.err.println("||-------------------------------------||\n");
-                            break;
+                        } else {
+                            try {
+                                thread.join();
+
+                                Kalah testKalah = new Kalah(board);
+
+                                printCurrentState(opponentWentLast, board, moveTurn);
+
+                                if (!wePlayFirst) {
+                                    sendMsg(Protocol.createSwapMsg());
+                                    ourSide = ourSide.opposite();
+                                    wePlayFirst = true;
+                                    System.err.println("We swapped to :: " + ourSide);
+                                    System.err.println("||-------------------------------------||\n");
+                                    break;
+                                }
+
+                                opponentWentLast = moveAsNormal(ourSide, opponentWentLast, moveTurn, testKalah);
+
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
 
-                        opponentWentLast = moveAsNormal(ourSide, opponentWentLast, moveTurn, testKalah);
                         break;
 
                     case END:
-
                         System.err.println("The end.");
                         return;
                 }
-            } catch (InvalidMessageException | IOException ime) {
-                ime.printStackTrace();
+            } catch (InvalidMessageException | IOException | CloneNotSupportedException e) {
+                e.printStackTrace();
             }
         }
     }
 
+    private static GameTreeNode generateRootNode(String msg, Side ourSide) throws InvalidMessageException, CloneNotSupportedException {
+        GameTreeNode tree;
+        Board boardInit = new Board(7, 7);
+        boolean moveTurnInit = Protocol.interpretStartMsg(msg);
+
+        tree = GameTreeNode.builder()
+                .board(boardInit.clone())
+                .children(new ArrayList<>())
+                .currentSide(ourSide)
+                .depth(0)
+                .parent(null)
+                .playersTurn(moveTurnInit)
+                .build();
+        return tree;
+    }
+
     private static boolean moveAsNormal(Side ourSide, boolean opponentWentLast, Protocol.MoveTurn moveTurn, Kalah testKalah) {
-        if (!moveTurn.end && moveTurn.again) {
-            for (int i = 7; i > 0; i--) {
-                Move testMove = new Move(ourSide, i);
-                if (testKalah.isLegalMove(testMove)) {
-                    sendMsg(Protocol.createMoveMsg(i));
-                    opponentWentLast = false;
-                    System.err.println("We play hole :: " + i);
-                    System.err.println("||-------------------------------------||\n");
-                    break;
-                }
+        for (int i = 7; i > 0; i--) {
+            Move testMove = new Move(ourSide, i);
+            if (testKalah.isLegalMove(testMove)) {
+                sendMsg(Protocol.createMoveMsg(i));
+                opponentWentLast = false;
+                System.err.println("We play hole :: " + i);
+                System.err.println("||-------------------------------------||\n");
+                break;
             }
-        } else if (!moveTurn.end && !moveTurn.again) {
-            opponentWentLast = true;
-            System.err.println("||-------------------------------------||\n");
         }
         return opponentWentLast;
     }
