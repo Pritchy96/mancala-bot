@@ -120,7 +120,6 @@ class GameRunner {
             ourMoveCount--;
         }
 
-
         // is it not our turn?
         if (!moveTurn.ourTurn) {
             printCurrentState(board);
@@ -198,6 +197,7 @@ class GameRunner {
             Move testMove = new Move(ourSide, i);
             if (testKalah.isLegalMove(testMove)) {
                 sendMsg(Protocol.createMoveMsg(i));
+                opponentWentLast = false;
                 System.err.println("We play hole :: " + i);
                 System.err.println("||-------------------------------------||\n");
                 break;
