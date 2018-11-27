@@ -1,6 +1,6 @@
 package org.AIandGames.mancalabot;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
 
 
 @AllArgsConstructor

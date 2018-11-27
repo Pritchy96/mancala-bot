@@ -5,29 +5,6 @@ package org.AIandGames.mancalabot;
  */
 public class Protocol {
     /**
-     * An object of this type is returned by interpretStateMsg().
-     *
-     * @see Protocol#interpretStateMsg(String, Board)
-     */
-    public static class MoveTurn {
-        /**
-         * "true" if the game is over, "false" otherwise.
-         */
-        public boolean end;
-        /**
-         * "true" if it's this agent's turn again, "false" otherwise.
-         */
-        public boolean again;
-        /**
-         * The number of the hole that characterises the move which has been
-         * made (the move starts with picking the seeds from the given hole)
-         * or -1 if the opponent has made a swap.
-         */
-        public int move;
-    }
-
-
-    /**
      * Creates a "move" message.
      *
      * @param hole The hole to pick the seeds from.
@@ -154,16 +131,38 @@ public class Protocol {
         // 3rd argument: who's turn?
         moveTurn.end = false;
         if (msgParts[3].equals("YOU\n"))
-            moveTurn.again = true;
+            moveTurn.ourTurn = true;
         else if (msgParts[3].equals("OPP\n"))
-            moveTurn.again = false;
+            moveTurn.ourTurn = false;
         else if (msgParts[3].equals("END\n")) {
             moveTurn.end = true;
-            moveTurn.again = false;
+            moveTurn.ourTurn = false;
         } else
             throw new InvalidMessageException("Illegal value for turn parameter: " + msgParts[3]);
 
         return moveTurn;
+    }
+
+    /**
+     * An object of this type is returned by interpretStateMsg().
+     *
+     * @see Protocol#interpretStateMsg(String, Board)
+     */
+    public static class MoveTurn {
+        /**
+         * "true" if the game is over, "false" otherwise.
+         */
+        public boolean end;
+        /**
+         * "true" if it's this agent's turn ourTurn, "false" otherwise.
+         */
+        public boolean ourTurn;
+        /**
+         * The number of the hole that characterises the move which has been
+         * made (the move starts with picking the seeds from the given hole)
+         * or -1 if the opponent has made a swap.
+         */
+        public int move;
     }
 }
 

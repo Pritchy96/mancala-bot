@@ -1,7 +1,6 @@
 package org.AIandGames.mancalabot;
 
 
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Observable;
@@ -42,22 +41,6 @@ public class Board extends Observable implements Cloneable {
     private int[][] board;
 
     /**
-     * @param side A side of the board.
-     * @return The index of side "side" for the first dimension of "board".
-     */
-    private static int indexOfSide(Side side) {
-        switch (side) {
-            case NORTH:
-                return NORTH_ROW;
-            case SOUTH:
-                return SOUTH_ROW;
-            default:
-                return -1;  // should never get here
-        }
-    }
-
-
-    /**
      * Creates a new board.
      *
      * @param holes The number of holes per side (must be >= 1).
@@ -81,6 +64,7 @@ public class Board extends Observable implements Cloneable {
         }
     }
 
+
     /**
      * Creates a new board as the copy of a given one. Both copies can then be
      * altered independently.
@@ -95,6 +79,21 @@ public class Board extends Observable implements Cloneable {
         for (int i = 0; i <= holes; i++) {
             board[NORTH_ROW][i] = original.board[NORTH_ROW][i];
             board[SOUTH_ROW][i] = original.board[SOUTH_ROW][i];
+        }
+    }
+
+    /**
+     * @param side A side of the board.
+     * @return The index of side "side" for the first dimension of "board".
+     */
+    private static int indexOfSide(Side side) {
+        switch (side) {
+            case NORTH:
+                return NORTH_ROW;
+            case SOUTH:
+                return SOUTH_ROW;
+            default:
+                return -1;  // should never get here
         }
     }
 
@@ -272,7 +271,7 @@ public class Board extends Observable implements Cloneable {
 
         boardString.append(getPaddedValue(0, NORTH_ROW)).append(" | [");
         for (int i = holes; i > 1; i--) {
-            boardString.append(getPaddedValue(i,NORTH_ROW));
+            boardString.append(getPaddedValue(i, NORTH_ROW));
             boardString.append("] [");
         }
         boardString.append(getPaddedValue(1, NORTH_ROW));
@@ -289,7 +288,7 @@ public class Board extends Observable implements Cloneable {
     }
 
     private String getPaddedValue(int i, int northOrSouth) {
-        return StringUtils.leftPad(((Integer)board[northOrSouth][i]).toString(),2, "0");
+        return StringUtils.leftPad(((Integer) board[northOrSouth][i]).toString(), 2, "0");
     }
 }
 

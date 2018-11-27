@@ -97,7 +97,7 @@ public class Main {
                         wePlayFirst = Protocol.interpretStartMsg(msg);
                         ourSide = printStartMessage(ourSide, wePlayFirst);
 
-                        tree = generateInitialTree(msg, ourSide);
+                        tree = generateRootNode(msg, ourSide);
 
                         if (!thread.isAlive()) {
                             Runnable createTreeRunner = new TreeGenerator(tree, 6);
@@ -108,11 +108,14 @@ public class Main {
                         break;
 
                     case STATE:
-                       moveTurn = Protocol.interpretStateMsg(msg, board);
+                        moveTurn = Protocol.interpretStateMsg(msg, board);
 
                         // is it not our turn?
-                        if (!moveTurn.again) {
+                        if (!moveTurn.ourTurn) {
+                            printCurrentState(opponentWentLast, board, moveTurn);
+                            opponentWentLast = true;
                             System.err.println("Not our turn - continuing to make tree");
+                            System.err.println("||-------------------------------------||\n");
                         } else {
                             try {
                                 thread.join();
@@ -136,7 +139,6 @@ public class Main {
                                 e.printStackTrace();
                             }
                         }
-                        printCurrentState(opponentWentLast, board, moveTurn);
 
                         break;
 
@@ -144,13 +146,13 @@ public class Main {
                         System.err.println("The end.");
                         return;
                 }
-            } catch (InvalidMessageException | IOException | CloneNotSupportedException ime) {
-                ime.printStackTrace();
+            } catch (InvalidMessageException | IOException | CloneNotSupportedException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    private static GameTreeNode generateInitialTree(String msg, Side ourSide) throws InvalidMessageException, CloneNotSupportedException {
+    private static GameTreeNode generateRootNode(String msg, Side ourSide) throws InvalidMessageException, CloneNotSupportedException {
         GameTreeNode tree;
         Board boardInit = new Board(7, 7);
         boolean moveTurnInit = Protocol.interpretStartMsg(msg);
@@ -167,20 +169,15 @@ public class Main {
     }
 
     private static boolean moveAsNormal(Side ourSide, boolean opponentWentLast, Protocol.MoveTurn moveTurn, Kalah testKalah) {
-        if (!moveTurn.end && moveTurn.again) {
-            for (int i = 7; i > 0; i--) {
-                Move testMove = new Move(ourSide, i);
-                if (testKalah.isLegalMove(testMove)) {
-                    sendMsg(Protocol.createMoveMsg(i));
-                    opponentWentLast = false;
-                    System.err.println("We play hole :: " + i);
-                    System.err.println("||-------------------------------------||\n");
-                    break;
-                }
+        for (int i = 7; i > 0; i--) {
+            Move testMove = new Move(ourSide, i);
+            if (testKalah.isLegalMove(testMove)) {
+                sendMsg(Protocol.createMoveMsg(i));
+                opponentWentLast = false;
+                System.err.println("We play hole :: " + i);
+                System.err.println("||-------------------------------------||\n");
+                break;
             }
-        } else if (!moveTurn.end && !moveTurn.again) {
-            opponentWentLast = true;
-            System.err.println("||-------------------------------------||\n");
         }
         return opponentWentLast;
     }
