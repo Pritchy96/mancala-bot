@@ -77,6 +77,7 @@ public class Main {
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
+        Thread thread = new Thread();
         setupSocketServer();
 
         String msg;
@@ -86,6 +87,8 @@ public class Main {
 
         while (true) {
             try {
+
+
 
                 msg = recvMsg();
                 MsgType msgType = Protocol.getMessageType(msg);
@@ -100,8 +103,36 @@ public class Main {
 
                     case STATE:
 
+                        GameTreeNode tree;
+
                         Board board = new Board(7, 7);
                         Protocol.MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
+
+                        // is it not our turn?
+                        if (!moveTurn.again) {
+                            tree = GameTreeNode.builder()
+                                    .board(board.clone())
+                                    .children(new ArrayList<>())
+                                    .currentSide(ourSide)
+                                    .depth(0)
+                                    .parent(null)
+                                    .playersTurn(moveTurn.again)
+                                    .build();
+
+                            if (!thread.isAlive()) {
+                                Runnable createTreeRunner = new TreeGenerator(tree, 6);
+                                thread = new Thread(createTreeRunner);
+                                thread.start();
+                            }
+
+                        } else {
+                            try {
+                            thread.join();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
                         Kalah testKalah = new Kalah(board);
 
                         printCurrentState(opponentWentLast, board, moveTurn);
@@ -123,7 +154,7 @@ public class Main {
                         System.err.println("The end.");
                         return;
                 }
-            } catch (InvalidMessageException | IOException ime) {
+            } catch (InvalidMessageException | IOException | CloneNotSupportedException ime) {
                 ime.printStackTrace();
             }
         }
