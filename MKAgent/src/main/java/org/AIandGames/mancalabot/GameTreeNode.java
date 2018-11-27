@@ -3,11 +3,10 @@ package org.AIandGames.mancalabot;
 import lombok.*;
 import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.TerminalState;
+import org.AIandGames.mancalabot.Heuristics.Heuristic;
+import org.AIandGames.mancalabot.Heuristics.MKPointDifference;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 @Setter
@@ -15,17 +14,36 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"children"})
-class GameTreeNode {
+public class GameTreeNode {
     private Board board;
-    private Map<Heuristics, Long> hValues;
+    private Map<Heuristics, Integer> hValues;
     private List<GameTreeNode> children;
     private GameTreeNode parent;
     private TerminalState terminalState;
     private int depth;
     private boolean playersTurn;
     private Side currentSide;
-    private long value;
+    private int value;
 
+
+    public Side getOurSide() {
+        if (isPlayersTurn()) {
+            return currentSide;
+        } else {
+            return currentSide.opposite();
+        }
+    }
+
+    public void runHeuristics() {
+        hValues = new HashMap<>();
+
+        MKPointDifference mkPointDifference = new MKPointDifference(this);
+
+        ArrayList<Heuristic> hs = new ArrayList<>();
+        hs.add(mkPointDifference);
+
+        hs.forEach(h -> hValues.put(h.getName(), h.getValue()));
+    }
 
     void generateChildren(int depth) throws CloneNotSupportedException {
 

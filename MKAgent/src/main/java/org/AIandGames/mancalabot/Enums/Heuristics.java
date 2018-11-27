@@ -1,9 +1,8 @@
 package org.AIandGames.mancalabot.Enums;
 
 public enum Heuristics {
-    DO_WE_HAVE_15("DO_WE_HAVE_15"),
-    STEAL("STEAL");
+    MK_POINT_DIFFERENCE("MK_POINT_DIFFERENCE");
 
-    Heuristics(String heuritic) {
+    Heuristics(String heuristic) {
     }
 }
