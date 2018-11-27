@@ -80,36 +80,94 @@ public class Main {
         setupSocketServer();
 
         String msg;
+        Side ourSide = Side.NORTH;
+        boolean wePlayFirst = false;
+        boolean opponentWentLast = true; //no other way to explicitly track who went last from server output?
+
         while (true) {
             try {
+
                 msg = recvMsg();
                 MsgType msgType = Protocol.getMessageType(msg);
+
                 switch (msgType) {
+
                     case START:
-                        System.err.println("Game start");
-                        boolean first = Protocol.interpretStartMsg(msg);
-                        System.err.println("Us to go first :: " + first);
+
+                        wePlayFirst = Protocol.interpretStartMsg(msg);
+                        ourSide = printStartMessage(ourSide, wePlayFirst);
                         break;
+
                     case STATE:
-                        System.err.println("State");
-                        Board board = new Board(7,7);
+
+                        Board board = new Board(7, 7);
                         Protocol.MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
-                        System.err.println("The move :: " + moveTurn.move);
-                        System.err.println("End of game :: " + moveTurn.end);
-                        if (!moveTurn.end) {
-                            System.err.println("Our turn :: " + moveTurn.again);
+                        Kalah testKalah = new Kalah(board);
+
+                        printCurrentState(opponentWentLast, board, moveTurn);
+
+                        if (!wePlayFirst) {
+                            sendMsg(Protocol.createSwapMsg());
+                            ourSide = ourSide.opposite();
+                            wePlayFirst = true;
+                            System.err.println("We swapped to :: " + ourSide);
+                            System.err.println("||-------------------------------------||\n");
+                            break;
                         }
-                        System.err.println("The board ::\n " + board);
+
+                        opponentWentLast = moveAsNormal(ourSide, opponentWentLast, moveTurn, testKalah);
                         break;
+
                     case END:
+
                         System.err.println("The end.");
-                        break;
+                        return;
                 }
-            } catch (InvalidMessageException ime) {
+            } catch (InvalidMessageException | IOException ime) {
                 ime.printStackTrace();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
             }
         }
     }
+
+    private static boolean moveAsNormal(Side ourSide, boolean opponentWentLast, Protocol.MoveTurn moveTurn, Kalah testKalah) {
+        if (!moveTurn.end && moveTurn.again) {
+            for (int i = 7; i > 0; i--) {
+                Move testMove = new Move(ourSide, i);
+                if (testKalah.isLegalMove(testMove)) {
+                    sendMsg(Protocol.createMoveMsg(i));
+                    opponentWentLast = false;
+                    System.err.println("We play hole :: " + i);
+                    System.err.println("||-------------------------------------||\n");
+                    break;
+                }
+            }
+        } else if (!moveTurn.end && !moveTurn.again) {
+            opponentWentLast = true;
+            System.err.println("||-------------------------------------||\n");
+        }
+        return opponentWentLast;
+    }
+
+    private static void printCurrentState(boolean opponentWentLast, Board board, Protocol.MoveTurn moveTurn) {
+        System.err.println("||----------------STATE----------------||");
+        if (Kalah.gameWon(board))
+            System.err.println("We've already reached a terminal node!");
+        if (opponentWentLast)
+            System.err.println("Opponent played last with hole :: " + moveTurn.move);
+        else
+            System.err.println("We played last with hole :: " + moveTurn.move);
+        System.err.println("The board ::\n " + board);
+    }
+
+    private static Side printStartMessage(Side ourSide, boolean wePlayFirst) {
+        if (wePlayFirst) {
+            ourSide = Side.SOUTH;
+        }
+        System.err.println("||--------------GAME START-------------||");
+        System.err.println("Us to go first :: " + wePlayFirst);
+        System.err.println("We are :: " + ourSide);
+        return ourSide;
+    }
+
+
 }

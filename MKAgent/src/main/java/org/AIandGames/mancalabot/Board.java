@@ -1,5 +1,9 @@
 package org.AIandGames.mancalabot;
 
+
+
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Observable;
 
 /**
@@ -266,22 +270,26 @@ public class Board extends Observable implements Cloneable {
     public String toString() {
         StringBuilder boardString = new StringBuilder();
 
-        boardString.append(board[NORTH_ROW][0] + " | [");
+        boardString.append(getPaddedValue(0, NORTH_ROW)).append(" | [");
         for (int i = holes; i > 1; i--) {
-            boardString.append(board[NORTH_ROW][i]);
+            boardString.append(getPaddedValue(i,NORTH_ROW));
             boardString.append("] [");
         }
-        boardString.append(board[NORTH_ROW][1]);
+        boardString.append(getPaddedValue(1, NORTH_ROW));
         boardString.append("] | \n");
-        boardString.append("   | [");
+        boardString.append("    | [");
         for (int i = 1; i < holes; i++) {
-            boardString.append(board[SOUTH_ROW][i] + "] [");
+            boardString.append(getPaddedValue(i, SOUTH_ROW)).append("] [");
         }
-        boardString.append(board[SOUTH_ROW][holes]);
+        boardString.append(getPaddedValue(holes, SOUTH_ROW));
         boardString.append("] | ");
-        boardString.append(board[SOUTH_ROW][0] + "\n");
+        boardString.append(getPaddedValue(0, SOUTH_ROW)).append("\n");
 
         return boardString.toString();
+    }
+
+    private String getPaddedValue(int i, int northOrSouth) {
+        return StringUtils.leftPad(((Integer)board[northOrSouth][i]).toString(),2, "0");
     }
 }
 
