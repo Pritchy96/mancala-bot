@@ -1,5 +1,7 @@
 package org.AIandGames.mancalabot;
 
+import java.lang.Runtime;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,8 +16,10 @@ class TreeGenerator implements Runnable {
     TreeGenerator(GameTreeNode rootNode, int overallDepth) {
         this.rootNode = rootNode;
         this.overallDepth = overallDepth;
+
         threadedQueue = new LinkedBlockingDeque<>();
-        threadPool = new ThreadPoolExecutor(9, 9, 10000L, TimeUnit.SECONDS, threadedQueue);
+        int logicalCores = Runtime.getRuntime().availableProcessors();
+        threadPool = new ThreadPoolExecutor(logicalCores, logicalCores, 10000L, TimeUnit.SECONDS, threadedQueue);
     }
 
     public TreeGenerator() {
