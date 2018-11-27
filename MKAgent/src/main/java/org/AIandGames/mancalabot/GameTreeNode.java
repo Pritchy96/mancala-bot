@@ -30,26 +30,28 @@ class GameTreeNode {
     void generateChildren(int depth) throws CloneNotSupportedException {
 
         if (depth > 0) {
-            for (int i = 1; i <= 7; i++) {
-                if (this.board.getSeeds(currentSide, i) > 0) {
-                    GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
+            if (this.children.isEmpty()) {
+                for (int i = 1; i <= 7; i++) {
+                    if (this.board.getSeeds(currentSide, i) > 0) {
+                        GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
 
-                    Board newBoard = this.board.clone();
-                    makeMove(newBoard, i, currentSide);
+                        Board newBoard = this.board.clone();
+                        makeMove(newBoard, i, currentSide);
 
-                    GameTreeNode newChildNode = newChildNBuilder
-                            .board(newBoard)
-                            .depth(this.depth + 1)
-                            .parent(this)
-                            .children(new ArrayList<>())
-                            .terminalState(TerminalState.NON_TERMINAL)
-                            .currentSide(this.currentSide.opposite())
-                            .playersTurn(!this.playersTurn)
-                            .build();
+                        GameTreeNode newChildNode = newChildNBuilder
+                                .board(newBoard)
+                                .depth(this.depth + 1)
+                                .parent(this)
+                                .children(new ArrayList<>())
+                                .terminalState(TerminalState.NON_TERMINAL)
+                                .currentSide(this.currentSide.opposite())
+                                .playersTurn(!this.playersTurn)
+                                .build();
 
-                    this.children.add(newChildNode);
-                } else {
-                    this.children.add(null);
+                        this.children.add(newChildNode);
+                    } else {
+                        this.children.add(null);
+                    }
                 }
             }
 
