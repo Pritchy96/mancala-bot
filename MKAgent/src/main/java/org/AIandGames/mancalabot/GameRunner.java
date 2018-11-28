@@ -5,7 +5,10 @@ import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 class GameRunner {
@@ -18,7 +21,6 @@ class GameRunner {
     private long ourMoveCount = 0;
     private Side ourSide;
     private Thread thread = new Thread();
-    private Stack<Board> opponentMoveStack = new Stack<>();
 
 
     /**
@@ -141,8 +143,6 @@ class GameRunner {
 
                 printCurrentState(board);
 
-                //updateGameTreeFromOppMoves(board);
-
                 Kalah testKalah = new Kalah(board);
 
 
@@ -186,25 +186,8 @@ class GameRunner {
 
     }
 
-    private void updateGameTreeFromOppMoves(Board board) {
-        try {
 
-            while (!opponentMoveStack.empty()) {
-                final Board oppMove = opponentMoveStack.pop();
-
-                tree = tree.getChildren().stream()
-                        .filter(Objects::nonNull)
-                        .filter(child -> child.getBoard().equals(oppMove))
-                        .findFirst()
-                        .orElseThrow(Exception::new);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void updateGameTree(Board board)  {
+    private void updateGameTree(Board board) {
 
         try {
             final GameTreeNode newRoot = tree.getChildren().stream()
