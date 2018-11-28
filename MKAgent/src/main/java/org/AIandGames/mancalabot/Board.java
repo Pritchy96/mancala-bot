@@ -1,6 +1,7 @@
 package org.AIandGames.mancalabot;
 
 
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Observable;
@@ -15,6 +16,7 @@ import java.util.Observable;
  * <BR>
  * Initially, there is the same number of "seeds" in each hole.
  */
+@EqualsAndHashCode
 public class Board extends Observable implements Cloneable {
     /**
      * @see #board

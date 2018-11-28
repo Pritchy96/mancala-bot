@@ -46,51 +46,84 @@ public class GameTreeNode {
         hs.forEach(h -> hValues.put(h.getName(), h.getValue()));
     }
 
-    void generateChildren(int depth) throws CloneNotSupportedException {
+    public void generateChildren(int depth, boolean allowSwap) throws CloneNotSupportedException {
+        boolean firstRun = true;
+        if (depth == 0) {
+            return;
+        }
 
-        if (depth > 0) {
-            if (this.children.isEmpty()) {
-                for (int i = 1; i <= 7; i++) {
-                    if (this.board.getSeeds(currentSide, i) > 0) {
-                        GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
+        if (this.children.isEmpty()) {
+            generateUpTo7Children();
+            addSwapNodeIfApplicable(allowSwap);
+        } else {
+            firstRun = false;
+        }
 
-                        Board newBoard = this.board.clone();
-                        makeMove(newBoard, i, currentSide);
+        final int newDepth = depth - 1;
+        final boolean shouldDecrementDepth = !firstRun;
 
-                        GameTreeNode newChildNode = newChildNBuilder
-                                .board(newBoard)
-                                .depth(this.depth + 1)
-                                .parent(this)
-                                .children(new ArrayList<>())
-                                .terminalState(TerminalState.NON_TERMINAL)
-                                .currentSide(this.currentSide.opposite())
-                                .playersTurn(!this.playersTurn)
-                                .holeNumber(i)
+        this.getChildren().stream()
+                .filter(Objects::nonNull)
+                .forEach(child -> {
+                    if (shouldDecrementDepth) {
+                        child.setDepth(child.getDepth() - 1);
+                    }
+                    try {
+                        child.generateChildren(newDepth, allowSwap);
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+                });
+
+    }
+
+    private void generateUpTo7Children() throws CloneNotSupportedException {
+        for (int i = 1; i <= 7; i++) {
+            if (this.board.getSeeds(currentSide, i) > 0) {
+                GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
+
+                Board newBoard = this.board.clone();
+                makeMove(newBoard, i, currentSide);
+
+                GameTreeNode newChildNode = newChildNBuilder
+                        .board(newBoard)
+                        .depth(this.depth + 1)
+                        .parent(this)
+                        .children(new ArrayList<>())
+                        .terminalState(TerminalState.NON_TERMINAL)   // not always
+                        .currentSide(this.currentSide.opposite())    // not always
+                        .playersTurn(!this.playersTurn)              // not always
+                        .holeNumber(i)
                                 .build();
 
-                        this.children.add(newChildNode);
-                    } else {
-                        this.children.add(null);
-                    }
-                }
+                this.children.add(newChildNode);
+            } else {
+                this.children.add(null);
             }
-
-            final int newDepth = depth - 1;
-
-            this.getChildren().stream()
-                    .filter(Objects::nonNull)
-                    .forEach(child -> {
-                        try {
-                            child.generateChildren(newDepth);
-                        } catch (CloneNotSupportedException e) {
-                            e.printStackTrace();
-                        }
-                    });
         }
     }
 
+    private void addSwapNodeIfApplicable(boolean allowSwap) throws CloneNotSupportedException {
+        if (isSwapPossible() && allowSwap) {
+            GameTreeNode swapNode = this.toBuilder()
+                    .board(this.board.clone())
+                    .depth(this.depth + 1)
+                    .parent(this)
+                    .children(new ArrayList<>())
+                    .terminalState(TerminalState.NON_TERMINAL)
+                    .currentSide(this.currentSide)
+                    .playersTurn(!this.playersTurn)
+                    .build();
+            this.children.add(swapNode);
+        }
+    }
 
-    void makeMove(Board board, int hole, Side side) {
+    private boolean isSwapPossible() {
+        return this.depth == 1 && parent != null && parent.parent == null;
+    }
+
+
+    private void makeMove(Board board, int hole, Side side) {
         /* from the documentation:
 		  "1. The counters are lifted from this hole and sown in anti-clockwise direction, starting
 		      with the next hole. The player's own kalahah is included in the sowing, but the

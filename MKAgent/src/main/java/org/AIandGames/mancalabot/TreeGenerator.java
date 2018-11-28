@@ -11,10 +11,12 @@ class TreeGenerator implements Runnable {
     private ExecutorService threadPool;
     private GameTreeNode rootNode;
     private int overallDepth;
+    private boolean allowSwap;
 
-    TreeGenerator(GameTreeNode rootNode, int overallDepth) {
+    TreeGenerator(GameTreeNode rootNode, int overallDepth, boolean allowSwap) {
         this.rootNode = rootNode;
         this.overallDepth = overallDepth;
+        this.allowSwap = allowSwap;
 
         threadedQueue = new LinkedBlockingDeque<>();
         int logicalCores = Runtime.getRuntime().availableProcessors();
@@ -32,7 +34,7 @@ class TreeGenerator implements Runnable {
             ArrayList<Runnable> runnables = new ArrayList<>();
             final List<GameTreeNode> leafNodesToRunThreaded = new ArrayList<>();
 
-            rootNode.generateChildren(2);
+            rootNode.generateChildren(2, allowSwap);
 
 
             rootNode.getChildren().stream()
@@ -41,7 +43,7 @@ class TreeGenerator implements Runnable {
 
             leafNodesToRunThreaded.stream()
                     .filter(Objects::nonNull)
-                    .forEach(node -> runnables.add(new GeneratorRunnable(node, depthPerThread)));
+                    .forEach(node -> runnables.add(new GeneratorRunnable(node, depthPerThread, allowSwap)));
 
             runnables.forEach(threadPool::submit);
 

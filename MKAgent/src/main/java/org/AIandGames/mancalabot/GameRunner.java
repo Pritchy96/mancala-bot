@@ -18,6 +18,7 @@ class GameRunner {
     private MoveTurn moveTurn = null;
     private long ourMoveCount = 0;
     private Side ourSide;
+    private Thread thread = new Thread();
 
 
     /**
@@ -83,7 +84,6 @@ class GameRunner {
 
 
     void run() {
-        Thread thread = new Thread();
         Board board = new Board(7, 7);
 
         setupSocketServer();
@@ -134,18 +134,36 @@ class GameRunner {
 
                 printCurrentState(board);
 
-                updateGameTree(board);
+                updateGameTreeFromOppMove(board);
 
                 Kalah testKalah = new Kalah(board);
+
+
                 if (canWeSwap() && shouldWeSwap()) {
                     performSwap();
                 } else {
                     moveAsNormal(testKalah);
                 }
+
+                updateGameTree(board);
+
                 ourMoveCount++;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void updateGameTreeFromOppMove(Board board) {
+        try {
+            tree = tree.getChildren().stream()
+                    .filter(Objects::nonNull)
+                    .filter(child -> child.getBoard().equals(board))
+                    .findFirst()
+                    .orElseThrow(Exception::new);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -154,12 +172,17 @@ class GameRunner {
         try {
             final GameTreeNode newRoot = tree.getChildren().stream()
                     .filter(Objects::nonNull)
-                    .filter(child -> !child.getBoard().equals(board))
+                    .filter(child -> child.getBoard().equals(board))
                     .findFirst()
                     .orElseThrow(Exception::new);
 
-            newRoot.setParent(null);
+            newRoot.setDepth(0);
             tree = newRoot;
+            TreeGenerator tg = new TreeGenerator(tree, 6, false);
+            thread = new Thread(tg);
+            thread.start();
+            newRoot.setParent(null);
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -188,7 +211,7 @@ class GameRunner {
         }
 
         if (!thread.isAlive()) {
-            Runnable createTreeRunner = new TreeGenerator(tree, 6);
+            Runnable createTreeRunner = new TreeGenerator(tree, 6, true);
             thread = new Thread(createTreeRunner);
             thread.start();
         }
@@ -208,7 +231,7 @@ class GameRunner {
         tree = GameTreeNode.builder()
                 .board(boardInit.clone())
                 .children(new ArrayList<>())
-                .currentSide(ourSide)
+                .currentSide(ourSide.opposite())
                 .depth(0)
                 .parent(null)
                 .playersTurn(wePlayFirst)
@@ -220,6 +243,7 @@ class GameRunner {
             Move testMove = new Move(ourSide, i);
             if (testKalah.isLegalMove(testMove)) {
                 sendMsg(Protocol.createMoveMsg(i));
+                testKalah.makeMove(testMove);
                 System.err.println("We play hole :: " + i);
                 System.err.println("||-------------------------------------||\n");
                 break;
