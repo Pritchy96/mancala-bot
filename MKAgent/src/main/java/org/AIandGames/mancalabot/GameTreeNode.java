@@ -15,6 +15,7 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"children"})
+@EqualsAndHashCode(exclude = {"children", "parent"})
 public class GameTreeNode {
     private Board board;
     private Map<Heuristics, Integer> hValues;
@@ -83,7 +84,8 @@ public class GameTreeNode {
                 GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
 
                 Board newBoard = this.board.clone();
-                makeMove(newBoard, i, currentSide);
+                final Side newSide = makeMove(newBoard, i, currentSide);
+                final Boolean ourTurn = newSide != this.currentSide;
 
                 GameTreeNode newChildNode = newChildNBuilder
                         .board(newBoard)
@@ -91,8 +93,8 @@ public class GameTreeNode {
                         .parent(this)
                         .children(new ArrayList<>())
                         .terminalState(TerminalState.NON_TERMINAL)   // not always
-                        .currentSide(this.currentSide.opposite())    // not always
-                        .playersTurn(!this.playersTurn)              // not always
+                        .currentSide(newSide)
+                        .playersTurn(ourTurn)
                         .holeNumber(i)
                                 .build();
 
@@ -123,7 +125,7 @@ public class GameTreeNode {
     }
 
 
-    private void makeMove(Board board, int hole, Side side) {
+    private Side makeMove(Board board, int hole, Side side) {
         /* from the documentation:
 		  "1. The counters are lifted from this hole and sown in anti-clockwise direction, starting
 		      with the next hole. The player's own kalahah is included in the sowing, but the
@@ -214,6 +216,12 @@ public class GameTreeNode {
             }
             board.addSeedsToStore(collectingSide, seeds);
         }
+
+        // who's turn is it?
+        if (sowHole == 0)  // the store (implies (sowSide == move.getSide()))
+            return side;  // move ourTurn
+        else
+            return side.opposite();
     }
 
     /**

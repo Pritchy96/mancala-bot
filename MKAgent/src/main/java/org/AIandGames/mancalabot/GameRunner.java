@@ -5,9 +5,8 @@ import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 class GameRunner {
     private Reader input;
@@ -19,6 +18,7 @@ class GameRunner {
     private long ourMoveCount = 0;
     private Side ourSide;
     private Thread thread = new Thread();
+    private Stack<Board> opponentMoveStack = new Stack<>();
 
 
     /**
@@ -113,9 +113,8 @@ class GameRunner {
         }
     }
 
-    private void runStateCase(String msg, Board board, Thread thread) throws InvalidMessageException {
+    private void runStateCase(String msg, Board board, Thread thread) throws InvalidMessageException, CloneNotSupportedException {
         moveTurn = Protocol.interpretStateMsg(msg, board);
-
 
         if (opponentWentLast && moveTurn.move == -1) {
             ourSide = ourSide.opposite();
@@ -124,6 +123,7 @@ class GameRunner {
 
         // is it not our turn?
         if (!moveTurn.ourTurn) {
+            //opponentMoveStack.push(board.clone());
             printCurrentState(board);
             System.err.println("Not our turn - continuing to make tree");
             System.err.println("||-------------------------------------||\n");
@@ -132,9 +132,16 @@ class GameRunner {
             try {
                 thread.join();
 
+                // here board has the current state of the game board after the opp move
+                // check if our tree's root is in the correct position
+                // else move the root of the tree to the correct position
+                // if it is not in the tree assume it was a double move that got us here so just ignore.
+                checkTree(board);
+
+
                 printCurrentState(board);
 
-                updateGameTreeFromOppMove(board);
+                //updateGameTreeFromOppMoves(board);
 
                 Kalah testKalah = new Kalah(board);
 
@@ -154,13 +161,43 @@ class GameRunner {
         }
     }
 
-    private void updateGameTreeFromOppMove(Board board) {
-        try {
-            tree = tree.getChildren().stream()
+    private void checkTree(Board board) { // BFS
+        final Queue<GameTreeNode> nodesToVisit = new LinkedBlockingQueue<>();
+        final HashSet<GameTreeNode> visitedNodes = new HashSet<>();
+
+        nodesToVisit.add(tree);
+
+        while (!nodesToVisit.isEmpty()) {
+            final GameTreeNode visitingNode = nodesToVisit.remove();
+
+            if (visitingNode.getBoard().equals(board)) {
+                tree = visitingNode;
+                tree.setParent(null);
+                return;
+            }
+
+            visitingNode.getChildren().stream()
                     .filter(Objects::nonNull)
-                    .filter(child -> child.getBoard().equals(board))
-                    .findFirst()
-                    .orElseThrow(Exception::new);
+                    .filter(child -> !visitedNodes.contains(child))
+                    .forEach(nodesToVisit::add);
+
+            visitedNodes.add(visitingNode);
+        }
+
+    }
+
+    private void updateGameTreeFromOppMoves(Board board) {
+        try {
+
+            while (!opponentMoveStack.empty()) {
+                final Board oppMove = opponentMoveStack.pop();
+
+                tree = tree.getChildren().stream()
+                        .filter(Objects::nonNull)
+                        .filter(child -> child.getBoard().equals(oppMove))
+                        .findFirst()
+                        .orElseThrow(Exception::new);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
