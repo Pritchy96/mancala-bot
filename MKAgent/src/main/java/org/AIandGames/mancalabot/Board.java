@@ -2,6 +2,7 @@ package org.AIandGames.mancalabot;
 
 
 import lombok.EqualsAndHashCode;
+import org.AIandGames.mancalabot.Enums.Side;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Observable;

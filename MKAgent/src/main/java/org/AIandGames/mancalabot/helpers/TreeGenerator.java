@@ -1,11 +1,14 @@
-package org.AIandGames.mancalabot;
+package org.AIandGames.mancalabot.helpers;
+
+import org.AIandGames.mancalabot.GameTreeNode;
+import org.AIandGames.mancalabot.GeneratorRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
 
-class TreeGenerator implements Runnable {
+public class TreeGenerator implements Runnable {
     private static final int SINGLE_THREAD_DEPTH = 2;
     private BlockingDeque<Runnable> threadedQueue;
     private ExecutorService threadPool;
@@ -13,7 +16,7 @@ class TreeGenerator implements Runnable {
     private int overallDepth;
     private boolean allowSwap;
 
-    TreeGenerator(GameTreeNode rootNode, int overallDepth, boolean allowSwap) {
+    public TreeGenerator(GameTreeNode rootNode, int overallDepth, boolean allowSwap) {
         this.rootNode = rootNode;
         this.overallDepth = overallDepth;
         this.allowSwap = allowSwap;

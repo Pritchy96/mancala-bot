@@ -1,5 +1,7 @@
 package org.AIandGames.mancalabot;
 
+import org.AIandGames.mancalabot.Enums.Side;
+
 import java.util.Observable;
 
 /**

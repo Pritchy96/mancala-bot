@@ -1,4 +1,4 @@
-package org.AIandGames.mancalabot;
+package org.AIandGames.mancalabot.exceptions;
 
 /**
  * Thrown to indicate that a message is invalid according to the protocol.

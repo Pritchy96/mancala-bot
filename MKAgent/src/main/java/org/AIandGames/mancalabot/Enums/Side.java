@@ -1,4 +1,4 @@
-package org.AIandGames.mancalabot;
+package org.AIandGames.mancalabot.Enums;
 
 /**
  * The side of the org.AIandGames.mancalabot.Kalah board a player can choose.

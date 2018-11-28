@@ -2,6 +2,7 @@ package org.AIandGames.mancalabot;
 
 import lombok.*;
 import org.AIandGames.mancalabot.Enums.Heuristics;
+import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.Heuristics.Heuristic;
 import org.AIandGames.mancalabot.Heuristics.MKPointDifference;

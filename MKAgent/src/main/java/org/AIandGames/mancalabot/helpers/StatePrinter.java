@@ -1,0 +1,38 @@
+package org.AIandGames.mancalabot.helpers;
+
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.AIandGames.mancalabot.Board;
+import org.AIandGames.mancalabot.Enums.Side;
+import org.AIandGames.mancalabot.Kalah;
+import org.AIandGames.mancalabot.Protocol.MoveTurn;
+
+public class StatePrinter {
+
+    public void printCurrentState(Board board, Boolean opponentWentLast, Long ourMoveCount, MoveTurn moveTurn) {
+        System.err.println("||----------------STATE----------------||");
+        if (Kalah.gameWon(board))
+            System.err.println("We've already reached a terminal node!");
+        if (opponentWentLast)
+            System.err.println("Opponent played last with hole :: " + moveTurn.move
+                    + "\nnumber of moves we have made: " + ourMoveCount);
+        else
+            System.err.println("We played last with hole :: " + moveTurn.move
+                    + "\nnumber of moves we have made: " + ourMoveCount);
+        System.err.println("The board ::\n " + board);
+    }
+
+    public Side printStartMessage(Boolean wePlayFirst) {
+        Side ourSide;
+        if (wePlayFirst) {
+            ourSide = Side.SOUTH;
+        } else {
+            ourSide = Side.NORTH;
+        }
+        System.err.println("||--------------GAME START-------------||");
+        System.err.println("Us to go first :: " + wePlayFirst);
+        System.err.println("We are :: " + ourSide);
+        System.err.println("||-------------------------------------||\n");
+
+        return ourSide;
+    }
+}

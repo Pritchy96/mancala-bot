@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.AIandGames.mancalabot.Enums.Side;
 
 /**
  * Represents a move (not a turn) in the org.AIandGames.mancalabot.Kalah game.
