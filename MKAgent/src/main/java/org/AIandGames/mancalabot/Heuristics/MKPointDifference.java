@@ -1,10 +1,15 @@
 package org.AIandGames.mancalabot.Heuristics;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.GameTreeNode;
 
+@EqualsAndHashCode
+@ToString
 public class MKPointDifference implements Heuristic {
     private GameTreeNode node;
+
 
     public MKPointDifference(GameTreeNode node) {
         this.node = node;
@@ -17,6 +22,6 @@ public class MKPointDifference implements Heuristic {
 
     @Override
     public int getValue() {
-        return node.getBoard().getSeedsInStore(node.getCurrentSide()) - node.getBoard().getSeedsInStore(node.getCurrentSide().opposite());
+        return node.getBoard().getSeedsInStore(node.getOurSide()) - node.getBoard().getSeedsInStore(node.getOurSide().opposite());
     }
 }
