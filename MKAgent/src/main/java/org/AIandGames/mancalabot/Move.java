@@ -13,6 +13,7 @@ import org.AIandGames.mancalabot.Enums.Side;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class Move {
     /**
      * The side of the board the player making the move is playing on.

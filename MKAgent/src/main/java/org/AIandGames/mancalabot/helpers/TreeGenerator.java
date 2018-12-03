@@ -57,11 +57,6 @@ public class TreeGenerator implements Runnable {
             while (threadedQueue.size() > 0) {
             } // nasty but works
 
-
-
-
-
-            
             threadPool.shutdown();
 
         } catch (CloneNotSupportedException e) {

@@ -167,7 +167,8 @@ public class GameRunner {
 
     private boolean moveBestGuess(Kalah kalah) {
         Move bestGuess = tree.getBestMove();
-        if (makeMoveIfLegal(bestGuess, kalah)) {
+        System.err.println("Our best guess is :: " + bestGuess);
+        if (bestGuess != null && makeMoveIfLegal(bestGuess, kalah)) {
             return true;
         }
         else {
@@ -177,6 +178,7 @@ public class GameRunner {
 
     private boolean makeMoveIfLegal(Move move, Kalah kalah) {
         if (kalah.isLegalMove(move)) {
+            System.err.println("We Made this move :: " + move);
             messageHelper.sendMsg(Protocol.createMoveMsg(move.getHole()), opponentWentLast);
             return true;
         }
