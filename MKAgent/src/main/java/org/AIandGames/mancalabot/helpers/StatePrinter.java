@@ -1,6 +1,5 @@
 package org.AIandGames.mancalabot.helpers;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.AIandGames.mancalabot.Board;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.Kalah;

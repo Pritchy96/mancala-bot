@@ -94,8 +94,9 @@ public class GameRunner {
         } else {
             try {
                 thread.join();
+                System.err.println("tree depth pre cull: " + treeHelper.getMaxDepthOfTree(Arrays.asList(tree)));
                 tree = treeHelper.checkTree(tree, board);
-                System.err.println("tree depth: " + treeHelper.getMaxDepthOfTree(Arrays.asList(tree)));
+                System.err.println("tree depth post cull: " + treeHelper.getMaxDepthOfTree(Arrays.asList(tree)));
 //                List<GameTreeNode> pHead = tree.getChildren();
 //                int depthChild = tree.getDepth();
 //                while( !pHead.isEmpty() ) {
