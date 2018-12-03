@@ -11,10 +11,7 @@ import org.AIandGames.mancalabot.helpers.TreeHelper;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 
 public class GameRunner {
@@ -98,8 +95,7 @@ public class GameRunner {
             try {
                 thread.join();
                 tree = treeHelper.checkTree(tree, board);
-                System.err.println("root depth: " + tree.getDepth());
-
+                System.err.println("tree depth: " + treeHelper.getMaxDepthOfTree(Arrays.asList(tree)));
 //                List<GameTreeNode> pHead = tree.getChildren();
 //                int depthChild = tree.getDepth();
 //                while( !pHead.isEmpty() ) {

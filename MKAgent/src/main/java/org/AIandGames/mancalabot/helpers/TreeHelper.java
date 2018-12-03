@@ -44,7 +44,17 @@ public class TreeHelper {
         }
         return tree;
     }
+    public int getMaxDepthOfTree(List<GameTreeNode> tree) {
 
+        List<GameTreeNode> nodeList = new ArrayList<>();
+        if ( tree.isEmpty() )
+            return 0;
+        else {
+            tree.stream().filter(Objects::nonNull).forEach(n -> nodeList.addAll(n.getChildren()));// + countChildren(node.getRight());
+            return 1 + getMaxDepthOfTree(nodeList);
+        }
+    }
+    
     public Thread updateGameTree(Board board, GameTreeNode tree) {
         try {
             Thread thread;
