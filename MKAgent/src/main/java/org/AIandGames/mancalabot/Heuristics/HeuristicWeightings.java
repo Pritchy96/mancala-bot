@@ -14,6 +14,7 @@ public class HeuristicWeightings {
         weightings = new HashMap<>();
         weightings.put(Heuristics.MK_POINT_DIFFERENCE, 1.0);
         weightings.put(Heuristics.RIGHT_MOST_POT, 0.00001);
+        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 0.2);
     }
 
     public static double applyWeightings(Map<Heuristics, Integer> hValues) {

@@ -3,10 +3,7 @@ package org.AIandGames.mancalabot;
 import lombok.*;
 import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.TerminalState;
-import org.AIandGames.mancalabot.Heuristics.Heuristic;
-import org.AIandGames.mancalabot.Heuristics.HeuristicWeightings;
-import org.AIandGames.mancalabot.Heuristics.MKPointDifference;
-import org.AIandGames.mancalabot.Heuristics.RightMostPot;
+import org.AIandGames.mancalabot.Heuristics.*;
 
 import java.util.*;
 
@@ -98,6 +95,7 @@ public class GameTreeNode {
         ArrayList<Heuristic> hs = new ArrayList<>();
         hs.add(new MKPointDifference(this));
         hs.add(new RightMostPot(this));
+        hs.add(new NumberOfEmptyPots(this));
 
         hs.forEach(h -> hValues.put(h.getName(), h.getValue()));
     }
