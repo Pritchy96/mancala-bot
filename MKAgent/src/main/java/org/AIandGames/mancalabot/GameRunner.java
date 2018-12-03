@@ -30,14 +30,19 @@ class GameRunner {
         output.print(msg);
         output.flush();
         opponentWentLast = false;
+
+        System.err.println("||-------------------------------------||\n");
     }
 
     private void sendSwapMsg() {
-        System.out.print(Protocol.createSwapMsg());
+        String swapMessage = Protocol.createSwapMsg();
+        System.out.print(swapMessage);
         System.out.flush();
 
-        output.print(Protocol.createSwapMsg());
+        output.print(swapMessage);
         output.flush();
+
+        System.err.println("||-------------------------------------||\n");
     }
 
     /**
@@ -137,7 +142,13 @@ class GameRunner {
                 if (canWeSwap() && shouldWeSwap()) {
                     performSwap();
                 } else {
-                    moveAsNormal(testKalah);
+                    // Tries to make the best guess move, if its not legal, defaults to right most pot.
+                    if (!moveBestGuess(testKalah)) {
+                        System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        System.err.println("OUR BEST GUESS IS NOT LEGAL! Big Problem! - Playing right most pot");
+                        System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        moveRightMostPot(testKalah);
+                    }
                 }
                 ourMoveCount++;
             } catch (InterruptedException e) {
@@ -162,6 +173,7 @@ class GameRunner {
 
         if (wePlayFirst) {
             sendMsg(Protocol.createMoveMsg(7));
+            // TODO Whats our best opening move ?
             ourMoveCount++;
         }
 
@@ -193,16 +205,32 @@ class GameRunner {
                 .build();
     }
 
-    private void moveAsNormal(Kalah testKalah) {
+    private void moveRightMostPot(Kalah testKalah) {
         for (int i = 7; i > 0; i--) {
             Move testMove = new Move(ourSide, i);
-            if (testKalah.isLegalMove(testMove)) {
-                sendMsg(Protocol.createMoveMsg(i));
-                System.err.println("We play hole :: " + i);
-                System.err.println("||-------------------------------------||\n");
+            if (makeMoveIfLegal(testMove, testKalah)) {
                 break;
             }
         }
+    }
+
+    private boolean moveBestGuess(Kalah kalah) {
+        Move bestGuess = tree.getBestMove();
+        if (makeMoveIfLegal(bestGuess, kalah)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private boolean makeMoveIfLegal(Move move, Kalah kalah) {
+        if (kalah.isLegalMove(move)) {
+            sendMsg(Protocol.createMoveMsg(move.getHole()));
+            return true;
+        }
+        return false;
+
     }
 
     private void printCurrentState(Board board) {

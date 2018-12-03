@@ -35,19 +35,19 @@ class TreeGenerator implements Runnable {
             rootNode.generateChildren(2);
 
 
-            rootNode.getChildren().stream()
-                    .filter(Objects::nonNull)
-                    .forEach(childNode -> leafNodesToRunThreaded.addAll(childNode.getChildren()));
-
-            leafNodesToRunThreaded.stream()
-                    .filter(Objects::nonNull)
-                    .forEach(node -> runnables.add(new GeneratorRunnable(node, depthPerThread)));
-
-            runnables.forEach(threadPool::submit);
-
-
-            while (threadedQueue.size() > 0) {
-            } // nasty but works
+//            rootNode.getChildren().stream()
+//                    .filter(Objects::nonNull)
+//                    .forEach(childNode -> leafNodesToRunThreaded.addAll(childNode.getChildren()));
+//
+//            leafNodesToRunThreaded.stream()
+//                    .filter(Objects::nonNull)
+//                    .forEach(node -> runnables.add(new GeneratorRunnable(node, depthPerThread)));
+//
+//            runnables.forEach(threadPool::submit);
+//
+//
+//            while (threadedQueue.size() > 0) {
+//            } // nasty but works
 
 
             threadPool.shutdown();
