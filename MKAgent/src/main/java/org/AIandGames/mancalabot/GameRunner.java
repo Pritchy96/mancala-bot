@@ -104,9 +104,15 @@ public class GameRunner {
                 if (canWeSwap() && shouldWeSwap()) {
                     performSwap();
                 } else {
-                    moveAsNormal(testKalah);
+                    // Tries to make the best guess move, if its not legal, defaults to right most pot.
+                    if (!moveBestGuess(testKalah)) {
+                        System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        System.err.println("OUR BEST GUESS IS NOT LEGAL! Big Problem! - Playing right most pot");
+                        System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        moveRightMostPot(testKalah);
+                    }
                     opponentWentLast = false;
-                }
+                 }
 
                 ourMoveCount++;
                 thread = treeHelper.updateGameTree(board, tree);
@@ -150,17 +156,31 @@ public class GameRunner {
         System.err.println("||-------------------------------------||\n");
     }
 
-    private void moveAsNormal(Kalah testKalah) {
+    private void moveRightMostPot(Kalah testKalah) {
         for (int i = 7; i > 0; i--) {
             Move testMove = new Move(ourSide, i);
-            if (testKalah.isLegalMove(testMove)) {
-                messageHelper.sendMsg(Protocol.createMoveMsg(i), opponentWentLast);
-                testKalah.makeMove(testMove);
-                System.err.println("We play hole :: " + i);
-                System.err.println("||-------------------------------------||\n");
+            if (makeMoveIfLegal(testMove, testKalah)) {
                 break;
             }
         }
     }
 
+    private boolean moveBestGuess(Kalah kalah) {
+        Move bestGuess = tree.getBestMove();
+        if (makeMoveIfLegal(bestGuess, kalah)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private boolean makeMoveIfLegal(Move move, Kalah kalah) {
+        if (kalah.isLegalMove(move)) {
+            messageHelper.sendMsg(Protocol.createMoveMsg(move.getHole()), opponentWentLast);
+            return true;
+        }
+        return false;
+
+    }
 }

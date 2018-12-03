@@ -6,6 +6,7 @@ import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.Heuristics.Heuristic;
+import org.AIandGames.mancalabot.Heuristics.HeuristicWeightings;
 import org.AIandGames.mancalabot.Heuristics.MKPointDifference;
 import org.AIandGames.mancalabot.Heuristics.RightMostPot;
 
@@ -26,10 +27,63 @@ public class GameTreeNode {
     private TerminalState terminalState;
     private boolean playersTurn;
     private Side currentSide;
-    private long value;
     private int depth;
     private int holeNumber;
 
+    private double getValue() {
+        if (this.children.isEmpty()) { // Leaf node
+            if (this.terminalState == TerminalState.WIN_TERMINAL) {
+                return Integer.MAX_VALUE;
+            } else if (this.terminalState == TerminalState.LOSE_TERMINAL) {
+                return Integer.MIN_VALUE;
+            } else {
+                runHeuristics();
+                return HeuristicWeightings.applyWeightings(hValues);
+            }
+        } else {
+
+            double value = 0;
+
+            GameTreeNode child = null;
+            boolean encounteredNonNullChild = false;
+            for (int i = 0; i < children.size(); i++) {
+                child = this.children.get(i);
+                if (child == null) {
+                    continue;
+                }
+
+                if (!encounteredNonNullChild) {
+                    encounteredNonNullChild = true;
+                    value = child.getValue();
+                } else {
+                    double childVal = child.getValue();
+                    if ((child.isPlayersTurn() && childVal > value) || (!child.isPlayersTurn() && childVal < value)) {
+                        value = childVal;
+                    }
+                }
+            }
+            return value;
+        }
+    }
+
+    public Move getBestMove() {
+        GameTreeNode bestChild = null;
+        double maxValue = Integer.MIN_VALUE;
+
+        for (GameTreeNode child : children) {
+            if (child == null) {
+                continue;
+            }
+
+            double val = child.getValue();
+            if (val >= maxValue) {
+                bestChild = child;
+                maxValue = val;
+            }
+        }
+
+        return new Move(this.getOurSide(), bestChild.holeNumber);
+    }
 
     public Side getOurSide() {
         if (isPlayersTurn()) {
@@ -70,7 +124,7 @@ public class GameTreeNode {
                         e.printStackTrace();
                     }
                 });
-
+                
     }
 
     private void generateUpTo7Children() throws CloneNotSupportedException {

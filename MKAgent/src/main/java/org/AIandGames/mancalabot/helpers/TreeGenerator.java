@@ -40,6 +40,9 @@ public class TreeGenerator implements Runnable {
             rootNode.generateChildren(2, allowSwap);
 
 
+
+
+
             rootNode.getChildren().stream()
                     .filter(Objects::nonNull)
                     .forEach(childNode -> leafNodesToRunThreaded.addAll(childNode.getChildren()));
@@ -55,6 +58,10 @@ public class TreeGenerator implements Runnable {
             } // nasty but works
 
 
+
+
+
+            
             threadPool.shutdown();
 
         } catch (CloneNotSupportedException e) {
