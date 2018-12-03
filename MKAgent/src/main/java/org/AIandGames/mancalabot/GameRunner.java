@@ -19,13 +19,12 @@ public class GameRunner {
     private Boolean wePlayFirst = false;
     private Boolean opponentWentLast = true;
     private GameTreeNode tree = null;
-    private MoveTurn moveTurn = null;
     private long ourMoveCount = 0;
     private Side ourSide;
     private Thread thread = new Thread();
     private MessageHelper messageHelper;
-    private StatePrinter statePrinter = new StatePrinter();
-    private TreeHelper treeHelper = new TreeHelper();
+    private final StatePrinter statePrinter = new StatePrinter();
+    private final TreeHelper treeHelper = new TreeHelper();
 
 
     private void setupSocketServer() {
@@ -78,7 +77,7 @@ public class GameRunner {
     }
 
     private void runStateCase(String msg, Board board, Thread thread) throws InvalidMessageException, CloneNotSupportedException {
-        moveTurn = Protocol.interpretStateMsg(msg, board);
+        MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
 
         if (opponentWentLast && moveTurn.move == -1) {
             ourSide = ourSide.opposite();
@@ -87,7 +86,6 @@ public class GameRunner {
 
         // is it not our turn?
         if (!moveTurn.ourTurn) {
-            //opponentMoveStack.push(board.clone());
             statePrinter.printCurrentState(board, opponentWentLast, ourMoveCount, moveTurn);
             System.err.println("Not our turn - continuing to make tree");
             System.err.println("||-------------------------------------||\n");
@@ -95,16 +93,11 @@ public class GameRunner {
         } else {
             try {
                 thread.join();
-
-                // here board has the current state of the game board after the opp move
-                // check if our tree's root is in the correct position
-                // else move the root of the tree to the correct position
-                // if it is not in the tree assume it was a double move that got us here so just ignore.
-                tree = treeHelper.checkTree(tree, board);
-
+                thread = treeHelper.updateGameTree(board, tree);
+                thread.join();
+                //tree = treeHelper.checkTree(tree, board);
 
                 statePrinter.printCurrentState(board, opponentWentLast, ourMoveCount, moveTurn);
-
                 Kalah testKalah = new Kalah(board);
 
 
@@ -114,7 +107,7 @@ public class GameRunner {
                     moveAsNormal(testKalah);
                 }
 
-                treeHelper.updateGameTree(board, thread, tree);
+                //thread = treeHelper.updateGameTree(testKalah.getBoard(), tree);
 
                 ourMoveCount++;
             } catch (InterruptedException e) {
@@ -143,7 +136,7 @@ public class GameRunner {
         }
 
         if (!thread.isAlive()) {
-            Runnable createTreeRunner = new TreeGenerator(tree, 6, true);
+            Runnable createTreeRunner = new TreeGenerator(tree, 8, true);
             thread = new Thread(createTreeRunner);
             thread.start();
         }

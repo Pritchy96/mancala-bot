@@ -4,10 +4,7 @@ import org.AIandGames.mancalabot.Board;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.GameTreeNode;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TreeHelper {
@@ -19,7 +16,6 @@ public class TreeHelper {
                 .board(boardInit.clone())
                 .children(new ArrayList<>())
                 .currentSide(ourSide.opposite())
-                .depth(0)
                 .parent(null)
                 .playersTurn(wePlayFirst)
                 .build();
@@ -46,30 +42,25 @@ public class TreeHelper {
 
             visitedNodes.add(visitingNode);
         }
-
         return tree;
-
     }
 
-    public void updateGameTree(Board board, Thread thread, GameTreeNode tree) {
+    public Thread updateGameTree(Board board, GameTreeNode tree) {
         try {
-            final GameTreeNode newRoot = tree.getChildren().stream()
-                    .filter(Objects::nonNull)
-                    .filter(child -> child.getBoard().equals(board))
-                    .findFirst()
-                    .orElseThrow(Exception::new);
+            Thread thread;
+            tree = checkTree(tree, board);
 
-            newRoot.setDepth(0);
-            tree = newRoot;
-            TreeGenerator tg = new TreeGenerator(tree, 6, false);
+            TreeGenerator tg = new TreeGenerator(tree, 8, false);
             thread = new Thread(tg);
             thread.start();
-            newRoot.setParent(null);
-
+            tree.setParent(null);
+            return thread;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 
 

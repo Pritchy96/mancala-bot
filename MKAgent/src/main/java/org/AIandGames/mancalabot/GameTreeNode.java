@@ -23,12 +23,21 @@ public class GameTreeNode {
     private List<GameTreeNode> children;
     private GameTreeNode parent;
     private TerminalState terminalState;
-    private int depth;
     private boolean playersTurn;
     private Side currentSide;
     private int value;
     private int holeNumber;
 
+    // note this is only safe after thread.join()
+    public int getDepth() {
+        GameTreeNode pHead = this.parent;
+        int depth = 0;
+        while (pHead != null) {
+            depth++;
+            pHead = pHead.parent;
+        }
+        return depth;
+    }
 
     public Side getOurSide() {
         if (isPlayersTurn()) {
@@ -49,7 +58,6 @@ public class GameTreeNode {
     }
 
     public void generateChildren(int depth, boolean allowSwap) throws CloneNotSupportedException {
-        boolean firstRun = true;
         if (depth == 0) {
             return;
         }
@@ -57,19 +65,13 @@ public class GameTreeNode {
         if (this.children.isEmpty()) {
             generateUpTo7Children();
             addSwapNodeIfApplicable(allowSwap);
-        } else {
-            firstRun = false;
         }
 
         final int newDepth = depth - 1;
-        final boolean shouldDecrementDepth = !firstRun;
 
         this.getChildren().stream()
                 .filter(Objects::nonNull)
                 .forEach(child -> {
-                    if (shouldDecrementDepth) {
-                        child.setDepth(child.getDepth() - 1);
-                    }
                     try {
                         child.generateChildren(newDepth, allowSwap);
                     } catch (CloneNotSupportedException e) {
@@ -90,7 +92,6 @@ public class GameTreeNode {
 
                 GameTreeNode newChildNode = newChildNBuilder
                         .board(newBoard)
-                        .depth(this.depth + 1)
                         .parent(this)
                         .children(new ArrayList<>())
                         .terminalState(TerminalState.NON_TERMINAL)   // not always
@@ -110,7 +111,6 @@ public class GameTreeNode {
         if (isSwapPossible() && allowSwap) {
             GameTreeNode swapNode = this.toBuilder()
                     .board(this.board.clone())
-                    .depth(this.depth + 1)
                     .parent(this)
                     .children(new ArrayList<>())
                     .terminalState(TerminalState.NON_TERMINAL)
@@ -122,7 +122,7 @@ public class GameTreeNode {
     }
 
     private boolean isSwapPossible() {
-        return this.depth == 1 && parent != null && parent.parent == null;
+        return getDepth() == 1 && parent != null && parent.parent == null;
     }
 
 
@@ -237,6 +237,11 @@ public class GameTreeNode {
             if (board.getSeeds(side, hole) != 0)
                 return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Depth: " + getDepth();
     }
 }
 
