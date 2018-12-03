@@ -18,6 +18,6 @@ public class RightMostPot implements Heuristic {
 
     @Override
     public int getValue() {
-        return node.getBoard().getSeeds(node.getOurSide(), node.getHoleNumber());
+        return node.getHoleNumber();
     }
 }
