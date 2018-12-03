@@ -78,7 +78,9 @@ public class GameTreeNode {
                 maxValue = val;
             }
         }
-
+        if (bestChild == null) {
+            return null;
+        }
         return new Move(this.getOurSide(), bestChild.holeNumber);
     }
 

@@ -1,9 +1,6 @@
 package org.AIandGames.mancalabot;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * Represents a move (not a turn) in the org.AIandGames.mancalabot.Kalah game.
@@ -12,6 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class Move {
     /**
      * The side of the board the player making the move is playing on.
