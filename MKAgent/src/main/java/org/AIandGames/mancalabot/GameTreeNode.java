@@ -1,5 +1,6 @@
 package org.AIandGames.mancalabot;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.*;
 import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.Side;
@@ -29,16 +30,6 @@ public class GameTreeNode {
     private int depth;
     private int holeNumber;
 
-//    // note this is only safe after thread.join()
-//    public int getDepth() {
-//        GameTreeNode pHead = this.parent;
-//        int depth = 0;
-//        while (pHead != null) {
-//            depth++;
-//            pHead = pHead.parent;
-//        }
-//        return depth;
-//    }
 
     public Side getOurSide() {
         if (isPlayersTurn()) {
@@ -244,7 +235,7 @@ public class GameTreeNode {
 
     @Override
     public String toString() {
-        return "Depth: " + getDepth();
+        return "Depth: " + getDepth() + " sizeOfChildren: " + getChildren().size();
     }
 }
 

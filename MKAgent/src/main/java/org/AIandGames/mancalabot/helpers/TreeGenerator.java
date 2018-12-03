@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.*;
 
 public class TreeGenerator implements Runnable {
-    private static final int SINGLE_THREAD_DEPTH = 2;
+    private static final int SINGLE_THREAD_DEPTH = 3;
     private BlockingDeque<Runnable> threadedQueue;
     private ExecutorService threadPool;
     private GameTreeNode rootNode;

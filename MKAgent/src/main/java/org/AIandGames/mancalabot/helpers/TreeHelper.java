@@ -1,5 +1,6 @@
 package org.AIandGames.mancalabot.helpers;
 
+import lombok.AllArgsConstructor;
 import org.AIandGames.mancalabot.Board;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.GameTreeNode;
@@ -7,7 +8,9 @@ import org.AIandGames.mancalabot.GameTreeNode;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
+@AllArgsConstructor
 public class TreeHelper {
+    private int overallDepth;
 
     public GameTreeNode generateRootNode(Side ourSide, Boolean wePlayFirst) throws CloneNotSupportedException {
         Board boardInit = new Board(7, 7);
@@ -30,7 +33,7 @@ public class TreeHelper {
         while (!nodesToVisit.isEmpty()) {
             final GameTreeNode visitingNode = nodesToVisit.remove();
 
-            if (visitingNode.getBoard().equals(board)) {
+            if (visitingNode.getBoard().equals(board)  && !visitingNode.equals(tree)) {
                 visitingNode.setParent(null);
                 return visitingNode;
             }
@@ -50,20 +53,20 @@ public class TreeHelper {
         if ( tree.isEmpty() )
             return 0;
         else {
-            tree.stream().filter(Objects::nonNull).forEach(n -> nodeList.addAll(n.getChildren()));// + countChildren(node.getRight());
+            tree.stream().filter(Objects::nonNull).forEach(n -> nodeList.addAll(n.getChildren()));
             return 1 + getMaxDepthOfTree(nodeList);
         }
     }
-    
+
     public Thread updateGameTree(Board board, GameTreeNode tree) {
         try {
             Thread thread;
             tree = checkTree(tree, board);
+            tree.setParent(null);
 
-            TreeGenerator tg = new TreeGenerator(tree, 8, false);
+            TreeGenerator tg = new TreeGenerator(tree, this.overallDepth - 1, false);
             thread = new Thread(tg);
             thread.start();
-            tree.setParent(null);
             return thread;
 
         } catch (Exception e) {

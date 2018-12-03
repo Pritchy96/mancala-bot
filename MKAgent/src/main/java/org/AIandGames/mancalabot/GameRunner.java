@@ -15,6 +15,7 @@ import java.util.*;
 
 
 public class GameRunner {
+    private static final int OVERALL_DEPTH = 9;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -25,7 +26,7 @@ public class GameRunner {
     private Thread thread = new Thread();
     private MessageHelper messageHelper;
     private final StatePrinter statePrinter = new StatePrinter();
-    private final TreeHelper treeHelper = new TreeHelper();
+    private final TreeHelper treeHelper = new TreeHelper(OVERALL_DEPTH);
 
 
     private void setupSocketServer() {
@@ -77,7 +78,7 @@ public class GameRunner {
         }
     }
 
-    private void runStateCase(String msg, Board board, Thread thread) throws InvalidMessageException, CloneNotSupportedException {
+    private void runStateCase(String msg, Board board, Thread thread) throws InvalidMessageException {
         MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
 
         if (opponentWentLast && moveTurn.move == -1) {
@@ -94,24 +95,7 @@ public class GameRunner {
         } else {
             try {
                 thread.join();
-                System.err.println("tree depth pre cull: " + treeHelper.getMaxDepthOfTree(Arrays.asList(tree)));
                 tree = treeHelper.checkTree(tree, board);
-                System.err.println("tree depth post cull: " + treeHelper.getMaxDepthOfTree(Arrays.asList(tree)));
-//                List<GameTreeNode> pHead = tree.getChildren();
-//                int depthChild = tree.getDepth();
-//                while( !pHead.isEmpty() ) {
-//                    depthChild++;
-//                    final Optional<GameTreeNode> first = pHead.stream().filter(Objects::nonNull).findFirst();
-//
-//                    if (first.isPresent()) {
-//                        pHead = first.get().getChildren();
-//                    } else {
-//                        pHead = new ArrayList<>();
-//                    }
-//                }
-//
-//                System.err.println("child depth: " + depthChild);
-//                System.err.println("depth diff: " + (depthChild - tree.getDepth()));
 
                 statePrinter.printCurrentState(board, opponentWentLast, ourMoveCount, moveTurn);
                 Kalah testKalah = new Kalah(board);
@@ -121,6 +105,7 @@ public class GameRunner {
                     performSwap();
                 } else {
                     moveAsNormal(testKalah);
+                    opponentWentLast = false;
                 }
 
                 ourMoveCount++;
@@ -151,7 +136,7 @@ public class GameRunner {
         }
 
         if (!thread.isAlive()) {
-            Runnable createTreeRunner = new TreeGenerator(tree, 8, true);
+            Runnable createTreeRunner = new TreeGenerator(tree, OVERALL_DEPTH, true);
             thread = new Thread(createTreeRunner);
             thread.start();
         }
