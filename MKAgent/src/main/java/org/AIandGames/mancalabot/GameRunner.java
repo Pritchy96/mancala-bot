@@ -117,6 +117,7 @@ class GameRunner {
 
         if (opponentWentLast && moveTurn.move == -1) {
             ourSide = ourSide.opposite();
+            ourMoveCount--;
         }
 
 
@@ -161,6 +162,7 @@ class GameRunner {
 
         if (wePlayFirst) {
             sendMsg(Protocol.createMoveMsg(7));
+            ourMoveCount++;
         }
 
         if (!thread.isAlive()) {
