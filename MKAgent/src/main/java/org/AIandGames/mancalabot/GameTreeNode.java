@@ -65,6 +65,7 @@ public class GameTreeNode {
                                 .terminalState(TerminalState.NON_TERMINAL)
                                 .currentSide(this.currentSide.opposite())
                                 .playersTurn(!this.playersTurn)
+                                .holeNumber(i)
                                 .build();
 
                         this.children.add(newChildNode);
