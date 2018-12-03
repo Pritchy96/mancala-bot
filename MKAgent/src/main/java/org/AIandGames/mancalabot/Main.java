@@ -99,6 +99,11 @@ public class Main {
 
                         tree = generateRootNode(msg, ourSide);
 
+                        if (wePlayFirst) {
+                            sendMsg(Protocol.createMoveMsg(7));
+                            opponentWentLast = false;
+                        }
+
                         if (!thread.isAlive()) {
                             Runnable createTreeRunner = new TreeGenerator(tree, 6);
                             thread = new Thread(createTreeRunner);
@@ -109,6 +114,10 @@ public class Main {
 
                     case STATE:
                         moveTurn = Protocol.interpretStateMsg(msg, board);
+
+                        if (opponentWentLast && moveTurn.move == -1) {
+                            ourSide = ourSide.opposite();
+                        }
 
                         // is it not our turn?
                         if (!moveTurn.ourTurn) {
