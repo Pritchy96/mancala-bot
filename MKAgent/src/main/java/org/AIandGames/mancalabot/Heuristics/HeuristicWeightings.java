@@ -2,6 +2,7 @@ package org.AIandGames.mancalabot.Heuristics;
 
 import lombok.Getter;
 import org.AIandGames.mancalabot.Enums.Heuristics;
+import org.AIandGames.mancalabot.GameTreeNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ public class HeuristicWeightings {
         weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 0.2);
     }
 
-    public static double applyWeightings(Map<Heuristics, Integer> hValues) {
+    public static double applyWeightings(Map<Heuristics, Integer> hValues, GameTreeNode node) {
         // for each heuristic
 
         if (weightings == null) {
@@ -31,10 +32,27 @@ public class HeuristicWeightings {
             double value1 = hValues.get(key);
             double value2 = weightings.get(key);
             // TODO: Check what happens when null, should auto to 0
-
-            overallValue += value1 * value2;
+            
+            
+            if (key == Heuristics.RIGHT_MOST_POT) {
+                overallValue += value1 * value2 * getProgressBasedWeighting(node);
+            } else {
+                overallValue += value1 * value2;
+            }
         }
         return overallValue;
     }
 
+    //A measure of how close either player is to winning.
+    public static int getProgressBasedWeighting(GameTreeNode node) {
+        return node.getBoard().getSeedsInStore(node.getOurSide()) 
+            + node.getBoard().getSeedsInStore(node.getOurSide().opposite())/98;
+    }
+
+    //A ratio of how close we are winning compared to the opponent.
+    public static int getWinBasedWeighting(GameTreeNode node) {
+        return node.getBoard().getSeedsInStore(node.getOurSide()) 
+            / node.getBoard().getSeedsInStore(node.getOurSide().opposite());
+    }
+    
 }
