@@ -25,19 +25,20 @@ public class GameTreeNode {
     private TerminalState terminalState;
     private boolean playersTurn;
     private Side currentSide;
-    private int value;
+    private long value;
+    private int depth;
     private int holeNumber;
 
-    // note this is only safe after thread.join()
-    public int getDepth() {
-        GameTreeNode pHead = this.parent;
-        int depth = 0;
-        while (pHead != null) {
-            depth++;
-            pHead = pHead.parent;
-        }
-        return depth;
-    }
+//    // note this is only safe after thread.join()
+//    public int getDepth() {
+//        GameTreeNode pHead = this.parent;
+//        int depth = 0;
+//        while (pHead != null) {
+//            depth++;
+//            pHead = pHead.parent;
+//        }
+//        return depth;
+//    }
 
     public Side getOurSide() {
         if (isPlayersTurn()) {
@@ -98,7 +99,8 @@ public class GameTreeNode {
                         .currentSide(newSide)
                         .playersTurn(ourTurn)
                         .holeNumber(i)
-                                .build();
+                        .depth(this.depth + 1)
+                        .build();
 
                 this.children.add(newChildNode);
             } else {
@@ -116,6 +118,7 @@ public class GameTreeNode {
                     .terminalState(TerminalState.NON_TERMINAL)
                     .currentSide(this.currentSide)
                     .playersTurn(!this.playersTurn)
+                    .depth(this.depth + 1)
                     .build();
             this.children.add(swapNode);
         }

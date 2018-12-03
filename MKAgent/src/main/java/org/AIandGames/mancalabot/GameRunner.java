@@ -11,6 +11,10 @@ import org.AIandGames.mancalabot.helpers.TreeHelper;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 
 public class GameRunner {
@@ -93,9 +97,24 @@ public class GameRunner {
         } else {
             try {
                 thread.join();
-                thread = treeHelper.updateGameTree(board, tree);
-                thread.join();
-                //tree = treeHelper.checkTree(tree, board);
+                tree = treeHelper.checkTree(tree, board);
+                System.err.println("root depth: " + tree.getDepth());
+
+//                List<GameTreeNode> pHead = tree.getChildren();
+//                int depthChild = tree.getDepth();
+//                while( !pHead.isEmpty() ) {
+//                    depthChild++;
+//                    final Optional<GameTreeNode> first = pHead.stream().filter(Objects::nonNull).findFirst();
+//
+//                    if (first.isPresent()) {
+//                        pHead = first.get().getChildren();
+//                    } else {
+//                        pHead = new ArrayList<>();
+//                    }
+//                }
+//
+//                System.err.println("child depth: " + depthChild);
+//                System.err.println("depth diff: " + (depthChild - tree.getDepth()));
 
                 statePrinter.printCurrentState(board, opponentWentLast, ourMoveCount, moveTurn);
                 Kalah testKalah = new Kalah(board);
@@ -107,9 +126,8 @@ public class GameRunner {
                     moveAsNormal(testKalah);
                 }
 
-                //thread = treeHelper.updateGameTree(testKalah.getBoard(), tree);
-
                 ourMoveCount++;
+                thread = treeHelper.updateGameTree(board, tree);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
