@@ -5,6 +5,7 @@ import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.Heuristics.Heuristic;
 import org.AIandGames.mancalabot.Heuristics.MKPointDifference;
+import org.AIandGames.mancalabot.Heuristics.RightMostPot;
 
 import java.util.*;
 
@@ -24,6 +25,7 @@ public class GameTreeNode {
     private boolean playersTurn;
     private Side currentSide;
     private int value;
+    private int holeNumber;
 
 
     public Side getOurSide() {
@@ -37,10 +39,9 @@ public class GameTreeNode {
     public void runHeuristics() {
         hValues = new HashMap<>();
 
-        MKPointDifference mkPointDifference = new MKPointDifference(this);
-
         ArrayList<Heuristic> hs = new ArrayList<>();
-        hs.add(mkPointDifference);
+        hs.add(new MKPointDifference(this));
+        hs.add(new RightMostPot(this));
 
         hs.forEach(h -> hValues.put(h.getName(), h.getValue()));
     }
