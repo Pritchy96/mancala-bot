@@ -20,19 +20,18 @@ public class GameTreeNode {
     private GameTreeNode parent;
     private TerminalState terminalState;
     private int depth;
-    private boolean playersTurn;
     private Side currentSide;
     private int holeNumber;
 
-    private double getValue() {
+    private double getValue(Side ourSide) {
         if (this.children.isEmpty()) { // Leaf node
             if (this.terminalState == TerminalState.WIN_TERMINAL) {
                 return Integer.MAX_VALUE;
             } else if (this.terminalState == TerminalState.LOSE_TERMINAL) {
                 return Integer.MIN_VALUE;
             } else {
-                runHeuristics();
-                return HeuristicWeightings.applyWeightings(hValues, this);
+                runHeuristics(ourSide);
+                return HeuristicWeightings.applyWeightings(hValues, this, ourSide);
             }
         } else {
 
@@ -40,6 +39,13 @@ public class GameTreeNode {
 
             GameTreeNode child = null;
             boolean encounteredNonNullChild = false;
+//
+//            children.stream()
+//                    .filter(Objects::nonNull)
+//                    .forEach(child -> {
+//
+//                    });
+
             for (int i = 0; i < children.size(); i++) {
                 child = this.children.get(i);
                 if (child == null) {
@@ -48,10 +54,10 @@ public class GameTreeNode {
 
                 if (!encounteredNonNullChild) {
                     encounteredNonNullChild = true;
-                    value = child.getValue();
+                    value = child.getValue(ourSide);
                 } else {
-                    double childVal = child.getValue();
-                    if ((child.isPlayersTurn() && childVal > value) || (!child.isPlayersTurn() && childVal < value)) {
+                    double childVal = child.getValue(ourSide);
+                    if ((child.getPlayersTurn(ourSide) && childVal > value) || (!child.getPlayersTurn(ourSide) && childVal < value)) {
                         value = childVal;
                     }
                 }
@@ -60,7 +66,11 @@ public class GameTreeNode {
         }
     }
 
-    public Move getBestMove() {
+    public boolean getPlayersTurn(Side ourSide) {
+        return currentSide.equals(ourSide);
+    }
+
+    public Move getBestMove(Side ourSide) {
         GameTreeNode bestChild = null;
         double maxValue = Integer.MIN_VALUE;
 
@@ -69,7 +79,7 @@ public class GameTreeNode {
                 continue;
             }
 
-            double val = child.getValue();
+            double val = child.getValue(ourSide);
             if (val >= maxValue) {
                 bestChild = child;
                 maxValue = val;
@@ -78,18 +88,11 @@ public class GameTreeNode {
         if (bestChild == null) {
             return null;
         }
-        return new Move(this.getOurSide(), bestChild.holeNumber);
+        return new Move(ourSide, bestChild.holeNumber);
     }
 
-    public Side getOurSide() {
-        if (isPlayersTurn()) {
-            return currentSide;
-        } else {
-            return currentSide.opposite();
-        }
-    }
 
-    public void runHeuristics() {
+    public void runHeuristics(Side ourSide) {
         hValues = new HashMap<>();
 
         ArrayList<Heuristic> hs = new ArrayList<>();
@@ -97,7 +100,7 @@ public class GameTreeNode {
         hs.add(new RightMostPot(this));
         hs.add(new NumberOfEmptyPots(this));
 
-        hs.forEach(h -> hValues.put(h.getName(), h.getValue()));
+        hs.forEach(h -> hValues.put(h.getName(), h.getValue(ourSide)));
     }
 
     void generateChildren(int depth) throws CloneNotSupportedException {
@@ -109,7 +112,12 @@ public class GameTreeNode {
                         GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
 
                         Board newBoard = this.board.clone();
-                        makeMove(newBoard, i, currentSide);
+                        Side s = makeMove(newBoard, i, currentSide);
+                        boolean repeatTurn = false;
+
+                        if (s.equals(currentSide)) {
+                            repeatTurn = true;
+                        }
 
                         GameTreeNode newChildNode = newChildNBuilder
                                 .board(newBoard)
@@ -117,8 +125,7 @@ public class GameTreeNode {
                                 .parent(this)
                                 .children(new ArrayList<>())
                                 .terminalState(TerminalState.NON_TERMINAL)
-                                .currentSide(this.currentSide.opposite())
-                                .playersTurn(!this.playersTurn)
+                                .currentSide(s)
                                 .holeNumber(i)
                                 .build();
 
@@ -144,7 +151,7 @@ public class GameTreeNode {
     }
 
 
-    void makeMove(Board board, int hole, Side side) {
+    Side makeMove(Board board, int hole, Side side) {
         /* from the documentation:
 		  "1. The counters are lifted from this hole and sown in anti-clockwise direction, starting
 		      with the next hole. The player's own kalahah is included in the sowing, but the
@@ -235,6 +242,12 @@ public class GameTreeNode {
             }
             board.addSeedsToStore(collectingSide, seeds);
         }
+
+        // who's turn is it?
+        if (sowHole == 0)  // the store (implies (sowSide == move.getSide()))
+            return side;  // move ourTurn
+        else
+            return side.opposite();
     }
 
     /**

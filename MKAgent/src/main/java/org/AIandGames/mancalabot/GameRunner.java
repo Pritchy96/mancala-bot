@@ -201,7 +201,6 @@ class GameRunner {
                 .currentSide(ourSide)
                 .depth(0)
                 .parent(null)
-                .playersTurn(wePlayFirst)
                 .build();
     }
 
@@ -215,7 +214,7 @@ class GameRunner {
     }
 
     private boolean moveBestGuess(Kalah kalah) {
-        Move bestGuess = tree.getBestMove();
+        Move bestGuess = tree.getBestMove(ourSide);
         System.err.println("Our best guess is :: " + bestGuess);
         if (bestGuess != null && makeMoveIfLegal(bestGuess, kalah)) {
             return true;

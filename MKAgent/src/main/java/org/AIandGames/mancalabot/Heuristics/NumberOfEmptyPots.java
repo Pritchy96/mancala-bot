@@ -23,9 +23,8 @@ public class NumberOfEmptyPots implements Heuristic {
     }
 
     @Override
-    public int getValue() {
+    public int getValue(Side ourSide) {
         int numberOfPots = 0;
-        Side ourSide = node.getOurSide();
         for (int i = 1; i < 8; i++) {
             if (node.getBoard().getSeeds(ourSide, i) == 0) {
                 numberOfPots++;
