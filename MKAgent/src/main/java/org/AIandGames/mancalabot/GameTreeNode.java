@@ -19,7 +19,6 @@ public class GameTreeNode {
     private Board board;
     private Map<Heuristics, Integer> hValues;
     private List<GameTreeNode> children;
-    private GameTreeNode parent;
     private TerminalState terminalState;
     private boolean playersTurn;
     private Side currentSide;
@@ -134,7 +133,6 @@ public class GameTreeNode {
 
                 GameTreeNode newChildNode = newChildNBuilder
                         .board(newBoard)
-                        .parent(this)
                         .children(new ArrayList<>())
                         .terminalState(TerminalState.NON_TERMINAL)   // not always
                         .currentSide(newSide)
@@ -153,7 +151,6 @@ public class GameTreeNode {
         if (isSwapPossible() && allowSwap) {
             GameTreeNode swapNode = this.toBuilder()
                     .board(this.board.clone())
-                    .parent(this)
                     .children(new ArrayList<>())
                     .terminalState(TerminalState.NON_TERMINAL)
                     .currentSide(this.currentSide)
@@ -164,7 +161,7 @@ public class GameTreeNode {
     }
 
     private boolean isSwapPossible() {
-        return getDepth() == 1 && parent != null && parent.parent == null;
+        return getDepth() == 1;
     }
 
 

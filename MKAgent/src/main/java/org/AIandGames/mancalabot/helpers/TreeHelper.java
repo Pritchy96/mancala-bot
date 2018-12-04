@@ -19,7 +19,6 @@ public class TreeHelper {
                 .board(boardInit.clone())
                 .children(new ArrayList<>())
                 .currentSide(ourSide.opposite())
-                .parent(null)
                 .playersTurn(wePlayFirst)
                 .build();
     }
@@ -34,7 +33,6 @@ public class TreeHelper {
             final GameTreeNode visitingNode = nodesToVisit.remove();
 
             if (visitingNode.getBoard().equals(board)  && !visitingNode.equals(tree)) {
-                visitingNode.setParent(null);
                 return visitingNode;
             }
 
@@ -62,7 +60,6 @@ public class TreeHelper {
         try {
             Thread thread;
             tree = checkTree(tree, board);
-            tree.setParent(null);
 
             TreeGenerator tg = new TreeGenerator(tree, this.overallDepth - 1, false);
             thread = new Thread(tg);

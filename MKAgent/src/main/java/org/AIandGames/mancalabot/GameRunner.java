@@ -1,6 +1,7 @@
 package org.AIandGames.mancalabot;
 
 import org.AIandGames.mancalabot.Enums.Side;
+import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
 import org.AIandGames.mancalabot.helpers.MessageHelper;
@@ -105,7 +106,10 @@ public class GameRunner {
                     performSwap();
                 } else {
                     // Tries to make the best guess move, if its not legal, defaults to right most pot.
-                    if (!moveBestGuess(testKalah)) {
+                    if (tree.getTerminalState() != TerminalState.NON_TERMINAL) {
+                        moveRightMostPot(testKalah);
+                    }
+                    else if (!moveBestGuess(testKalah)) {
                         System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                         System.err.println("OUR BEST GUESS IS NOT LEGAL! Big Problem! - Playing right most pot");
                         System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -123,7 +127,7 @@ public class GameRunner {
     }
 
     private boolean shouldWeSwap() {
-        return true; // for now
+        return false; // for now
     }
 
     private boolean canWeSwap() {
