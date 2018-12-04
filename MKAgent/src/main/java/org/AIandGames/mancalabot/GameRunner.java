@@ -1,22 +1,29 @@
 package org.AIandGames.mancalabot;
 
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.Enums.TerminalState;
-import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
 import org.AIandGames.mancalabot.helpers.MessageHelper;
 import org.AIandGames.mancalabot.helpers.StatePrinter;
 import org.AIandGames.mancalabot.helpers.TreeGenerator;
 import org.AIandGames.mancalabot.helpers.TreeHelper;
 
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.*;
-
-
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 9;
+    private static final int OVERALL_DEPTH = 8;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -66,7 +73,7 @@ public class GameRunner {
                         break;
 
                     case STATE:
-                        runStateCase(msg, board, thread);
+                        // runStateCase(msg, board, thread);
                         break;
 
                     case END:
@@ -120,6 +127,8 @@ public class GameRunner {
 
                 ourMoveCount++;
                 thread = treeHelper.updateGameTree(board, tree);
+
+                
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -150,6 +159,18 @@ public class GameRunner {
             Runnable createTreeRunner = new TreeGenerator(tree, OVERALL_DEPTH, true);
             thread = new Thread(createTreeRunner);
             thread.start();
+        }
+        try {
+            thread.join();  
+        } catch (Exception e) {
+
+        }
+
+        try (Writer writer = new FileWriter("Output.json")) {
+            Gson gson = new GsonBuilder().create();
+            gson.toJson(tree, writer);
+        } catch (Exception e) {
+
         }
     }
 
