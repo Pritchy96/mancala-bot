@@ -25,6 +25,7 @@ public class GameRunner {
     private final StatePrinter statePrinter = new StatePrinter();
     private final TreeHelper treeHelper = new TreeHelper(OVERALL_DEPTH);
     private int totalMovesBothPlayers = 0;
+    private int depthOfStaticTree = 4;
 
 
     private void setupSocketServer() {
@@ -95,35 +96,60 @@ public class GameRunner {
             try {
                 thread.join();
                 tree = treeHelper.updateRootNode(board, tree);
-
-                statePrinter.printCurrentState(board, opponentWentLast, ourMoveCount, moveTurn);
-                Kalah testKalah = new Kalah(board);
-
-
-                if (canWeSwap() && shouldWeSwap()) {
-                    performSwap();
-                } else {
-                    // Tries to make the best guess move, if its not legal, defaults to right most pot.
-                    if (tree.getTerminalState() != TerminalState.NON_TERMINAL) {
-                        moveRightMostPot(testKalah);
+                if (totalMovesBothPlayers > depthOfStaticTree) {
+                    try {
+                        thread.join();
+                        tree = treeHelper.updateRootNode(board, tree);
+                        makeAMove(board, moveTurn);
+                        thread = treeHelper.updateGameTree(board, tree);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                    else if (!moveBestGuess(testKalah)) {
-                        System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                        System.err.println("OUR BEST GUESS IS NOT LEGAL! Big Problem! - Playing right most pot");
-                        System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                        moveRightMostPot(testKalah);
-                    }
-                    opponentWentLast = false;
-                 }
+                } else { // static tree
+                    makeAMove(board, moveTurn);
 
-                ourMoveCount++;
-                final UpdateReturnable returnable = treeHelper.updateGameTree(board, tree);
-                thread = returnable.getThread();
-                tree = returnable.getGameTreeNode();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                    if (totalMovesBothPlayers >= depthOfStaticTree) {
+                        if (!thread.isAlive()) {
+                            try {
+                                tree = treeHelper.generateRootNode(ourSide, board);
+                                Runnable createTreeRunner = new TreeGenerator(tree, OVERALL_DEPTH, true);
+                                thread = new Thread(createTreeRunner);
+                                thread.start();
+                            } catch (CloneNotSupportedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private void  makeAMove(Board board, MoveTurn moveTurn) {
+        statePrinter.printCurrentState(board, opponentWentLast, ourMoveCount, moveTurn);
+        Kalah testKalah = new Kalah(board);
+
+
+        if (canWeSwap() && shouldWeSwap()) {
+            performSwap();
+        } else if (totalMovesBothPlayers > depthOfStaticTree){
+            // Tries to make the best guess move, if its not legal, defaults to right most pot.
+            if (tree.getTerminalState() != TerminalState.NON_TERMINAL) {
+                moveRightMostPot(testKalah);
+            }
+            else if (!moveBestGuess(testKalah)) {
+                System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                System.err.println("OUR BEST GUESS IS NOT LEGAL! Big Problem! - Playing right most pot");
+                System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                moveRightMostPot(testKalah);
+            }
+            opponentWentLast = false;
+         } else {
+            moveRightMostPot(testKalah);
+        }
+
+        ourMoveCount++;
+        totalMovesBothPlayers++;
     }
 
     private boolean shouldWeSwap() {
@@ -138,7 +164,6 @@ public class GameRunner {
         wePlayFirst = Protocol.interpretStartMsg(msg);
 
         ourSide = statePrinter.printStartMessage(wePlayFirst);
-        tree = treeHelper.generateRootNode(ourSide, wePlayFirst);
 
         if (wePlayFirst) {
             messageHelper.sendMsg(Protocol.createMoveMsg(7), opponentWentLast);
@@ -184,6 +209,7 @@ public class GameRunner {
 
     private boolean makeMoveIfLegal(Move move, Kalah kalah) {
         if (kalah.isLegalMove(move)) {
+            kalah.makeMove(move);
             System.err.println("We Made this move :: " + move);
             messageHelper.sendMsg(Protocol.createMoveMsg(move.getHole()), opponentWentLast);
             return true;

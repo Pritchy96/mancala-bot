@@ -20,7 +20,6 @@ public class GameTreeNode {
     private Map<Heuristics, Integer> hValues;
     private List<GameTreeNode> children;
     private TerminalState terminalState;
-    private boolean playersTurn;
     private Side currentSide;
     private int depth;
     private int holeNumber;

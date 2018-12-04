@@ -12,14 +12,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TreeHelper {
     private int overallDepth;
 
-    public GameTreeNode generateRootNode(Side ourSide, Boolean wePlayFirst) throws CloneNotSupportedException {
-        Board boardInit = new Board(7, 7);
+    public GameTreeNode generateRootNode(Side ourSide, Board board) throws CloneNotSupportedException {
 
         return GameTreeNode.builder()
-                .board(boardInit.clone())
+                .board(board)
                 .children(new ArrayList<>())
                 .currentSide(ourSide.opposite())
-                .playersTurn(wePlayFirst)
                 .build();
     }
 
@@ -36,10 +34,22 @@ public class TreeHelper {
                 return visitingNode;
             }
 
-            visitingNode.getChildren().stream()
-                    .filter(Objects::nonNull)
-                    .filter(child -> !visitedNodes.contains(child))
-                    .forEach(nodesToVisit::add);
+            try {
+
+                for (int i = 0; i < visitingNode.getChildren().size(); i++) {
+                    if (visitingNode.getChildren().get(i) != null) {
+                        nodesToVisit.add(visitingNode.getChildren().get(i));
+                    }
+                }
+
+
+//                visitingNode.getChildren().stream()
+//                        .filter(Objects::nonNull)
+//                        //.filter(child -> !visitedNodes.contains(child))
+//                        .forEach(nodesToVisit::add);
+            } catch (Exception e) {
+                System.err.println("Err");
+            }
 
             visitedNodes.add(visitingNode);
         }
