@@ -11,11 +11,11 @@ import org.AIandGames.mancalabot.helpers.TreeHelper;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.Arrays;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 9;
+    private static final int OVERALL_DEPTH = 9;  // one based
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -65,7 +65,7 @@ public class GameRunner {
                         break;
 
                     case STATE:
-                        runStateCase(msg, board, thread);
+                        handleGameState(msg, board, thread);
                         break;
 
                     case END:
@@ -78,7 +78,7 @@ public class GameRunner {
         }
     }
 
-    private void runStateCase(String msg, Board board, Thread thread) throws InvalidMessageException {
+    private void handleGameState(String msg, Board board, Thread thread) throws InvalidMessageException {
         MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
 
         if (opponentWentLast && moveTurn.move == -1) {
@@ -95,7 +95,10 @@ public class GameRunner {
         } else {
             try {
                 thread.join();
-                tree = treeHelper.checkTree(tree, board);
+
+                System.err.println("pre cull: " + treeHelper.getMaxDepthOfTree(Arrays.asList(tree)));
+                tree = treeHelper.searchTreeForBoard(tree, board);
+                System.err.println("post cull: " + treeHelper.getMaxDepthOfTree(Arrays.asList(tree)));
 
                 statePrinter.printCurrentState(board, opponentWentLast, ourMoveCount, moveTurn);
                 Kalah testKalah = new Kalah(board);

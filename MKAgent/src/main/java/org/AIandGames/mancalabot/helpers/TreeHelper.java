@@ -24,7 +24,7 @@ public class TreeHelper {
                 .build();
     }
 
-    public GameTreeNode checkTree(GameTreeNode tree, Board board) { // BFS
+    public GameTreeNode searchTreeForBoard(GameTreeNode tree, Board board) { // BFS
         final Queue<GameTreeNode> nodesToVisit = new LinkedBlockingQueue<>();
         final HashSet<GameTreeNode> visitedNodes = new HashSet<>();
 
@@ -61,7 +61,7 @@ public class TreeHelper {
     public Thread updateGameTree(Board board, GameTreeNode tree) {
         try {
             Thread thread;
-            tree = checkTree(tree, board);
+            tree = searchTreeForBoard(tree, board);
             tree.setParent(null);
 
             TreeGenerator tg = new TreeGenerator(tree, this.overallDepth - 1, false);
