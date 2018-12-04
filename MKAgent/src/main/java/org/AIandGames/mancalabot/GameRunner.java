@@ -120,7 +120,7 @@ class GameRunner {
         moveTurn = Protocol.interpretStateMsg(msg, board);
 
 
-        if (opponentWentLast && moveTurn.move == -1) {
+        if (opponentWentLast && moveTurn.move == Protocol.SWAP) {
             ourSide = ourSide.opposite();
             ourMoveCount--;
         }
