@@ -9,11 +9,10 @@ import org.AIandGames.mancalabot.helpers.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 8;
+    private static final int OVERALL_DEPTH = 9;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -25,6 +24,7 @@ public class GameRunner {
     private MessageHelper messageHelper;
     private final StatePrinter statePrinter = new StatePrinter();
     private final TreeHelper treeHelper = new TreeHelper(OVERALL_DEPTH);
+    private int totalMovesBothPlayers = 0;
 
 
     private void setupSocketServer() {
@@ -90,6 +90,7 @@ public class GameRunner {
             System.err.println("Not our turn - continuing to make tree");
             System.err.println("||-------------------------------------||\n");
             opponentWentLast = true;
+            totalMovesBothPlayers++;
         } else {
             try {
                 thread.join();
@@ -143,6 +144,7 @@ public class GameRunner {
             messageHelper.sendMsg(Protocol.createMoveMsg(7), opponentWentLast);
             // TODO Whats our best opening move ?
             ourMoveCount++;
+            totalMovesBothPlayers++;
         }
 
         if (!thread.isAlive()) {
