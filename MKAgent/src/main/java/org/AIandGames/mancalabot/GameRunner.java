@@ -81,7 +81,7 @@ public class GameRunner {
     private void runStateCase(String msg, Board board, Thread thread) throws InvalidMessageException {
         MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
 
-        if (opponentWentLast && moveTurn.move == -1) {
+        if (opponentWentLast && moveTurn.move == Protocol.SWAP) {
             ourSide = ourSide.opposite();
             ourMoveCount--;
         }
@@ -138,6 +138,7 @@ public class GameRunner {
 
         if (wePlayFirst) {
             messageHelper.sendMsg(Protocol.createMoveMsg(7), opponentWentLast);
+            // TODO Whats our best opening move ?
             ourMoveCount++;
         }
 
@@ -166,7 +167,7 @@ public class GameRunner {
     }
 
     private boolean moveBestGuess(Kalah kalah) {
-        Move bestGuess = tree.getBestMove();
+        Move bestGuess = tree.getBestMove(ourSide);
         System.err.println("Our best guess is :: " + bestGuess);
         if (bestGuess != null && makeMoveIfLegal(bestGuess, kalah)) {
             return true;
@@ -183,6 +184,5 @@ public class GameRunner {
             return true;
         }
         return false;
-
     }
 }

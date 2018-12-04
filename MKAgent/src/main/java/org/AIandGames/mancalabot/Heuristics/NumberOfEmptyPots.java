@@ -4,7 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.GameTreeNode;
-import org.AIandGames.mancalabot.Side;
+import org.AIandGames.mancalabot.Enums.Side;
 
 
 @ToString
@@ -23,9 +23,8 @@ public class NumberOfEmptyPots implements Heuristic {
     }
 
     @Override
-    public int getValue() {
+    public int getValue(Side ourSide) {
         int numberOfPots = 0;
-        Side ourSide = node.getOurSide();
         for (int i = 1; i < 8; i++) {
             if (node.getBoard().getSeeds(ourSide, i) == 0) {
                 numberOfPots++;

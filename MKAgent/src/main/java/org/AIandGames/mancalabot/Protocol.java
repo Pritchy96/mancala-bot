@@ -8,6 +8,8 @@ import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
  * Creates messages to be sent and interprets messages received.
  */
 public class Protocol {
+    public static final int SWAP = -1;
+
     /**
      * Creates a "move" message.
      *
@@ -98,7 +100,7 @@ public class Protocol {
 
         // 1st argument: the move (or swap)
         if (msgParts[1].equals("SWAP"))
-            moveTurn.move = -1;
+            moveTurn.move = SWAP;
         else {
             try {
                 moveTurn.move = Integer.parseInt(msgParts[1]);

@@ -34,6 +34,7 @@ public class TreeHelper {
             final GameTreeNode visitingNode = nodesToVisit.remove();
 
             if (visitingNode.getBoard().equals(board)  && !visitingNode.equals(tree)) {
+                System.err.println("set Root Node");
                 visitingNode.setParent(null);
                 return visitingNode;
             }
