@@ -59,11 +59,11 @@ public class GameRunner {
                 switch (Protocol.getMessageType(msg)) {
 
                     case START:
-                        runStartCase(msg, board, thread);
+                        runStartCase(msg, board);
                         break;
 
                     case STATE:
-                        runStateCase(msg, board, thread);
+                        runStateCase(msg, board);
                         break;
 
                     case END:
@@ -76,7 +76,7 @@ public class GameRunner {
         }
     }
 
-    private void runStateCase(String msg, Board board, Thread thread) throws InvalidMessageException {
+    private void runStateCase(String msg, Board board) throws InvalidMessageException {
         MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
 
         if (opponentWentLast && moveTurn.move == Protocol.SWAP) {
@@ -133,7 +133,7 @@ public class GameRunner {
         return !wePlayFirst && ourMoveCount == 0;
     }
 
-    private void runStartCase(String msg, Board board, Thread thread) throws InvalidMessageException, CloneNotSupportedException {
+    private void runStartCase(String msg, Board board) throws InvalidMessageException, CloneNotSupportedException {
         wePlayFirst = Protocol.interpretStartMsg(msg);
 
         ourSide = statePrinter.printStartMessage(wePlayFirst);
