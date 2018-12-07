@@ -1,10 +1,6 @@
 package org.AIandGames.mancalabot;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.AIandGames.mancalabot.Enums.Side;
 
 /**
@@ -34,7 +30,7 @@ public class Move {
      *             the move and distributed. It has to be >= 1.
      * @throws IllegalArgumentException if the hole number is not >= 1.
      */
-    public Move(Side side, int hole) throws IllegalArgumentException {
+    public Move(final Side side, final int hole) throws IllegalArgumentException {
         if (hole < 1)
             throw new IllegalArgumentException("Hole numbers must be >= 1, but " + hole + " was given.");
         this.side = side;
@@ -45,7 +41,7 @@ public class Move {
      * @return The side of the board the player making the move is playing on.
      */
     public Side getSide() {
-        return side;
+        return this.side;
     }
 
     /**
@@ -53,7 +49,7 @@ public class Move {
      * move and distributed. It will be >= 1.
      */
     public int getHole() {
-        return hole;
+        return this.hole;
     }
 
 }

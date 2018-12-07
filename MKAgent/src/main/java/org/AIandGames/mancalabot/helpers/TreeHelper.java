@@ -10,9 +10,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 @AllArgsConstructor
 public class TreeHelper {
-    private int overallDepth;
+    private final int overallDepth;
 
-    public GameTreeNode generateRootNode(Side ourSide, Board board) throws CloneNotSupportedException {
+    public GameTreeNode generateRootNode(final Side ourSide, final Board board) throws CloneNotSupportedException {
 
         return GameTreeNode.builder()
                 .board(board)
@@ -21,7 +21,7 @@ public class TreeHelper {
                 .build();
     }
 
-    public GameTreeNode updateRootNode(Board board, GameTreeNode tree) { // BFS
+    public GameTreeNode updateRootNode(final Board board, final GameTreeNode tree) { // BFS
         final Queue<GameTreeNode> nodesToVisit = new LinkedBlockingQueue<>();
         final HashSet<GameTreeNode> visitedNodes = new HashSet<>();
 
@@ -30,7 +30,7 @@ public class TreeHelper {
         while (!nodesToVisit.isEmpty()) {
             final GameTreeNode visitingNode = nodesToVisit.remove();
 
-            if (visitingNode.getBoard().equals(board)  && !visitingNode.equals(tree)) {
+            if (visitingNode.getBoard().equals(board) && !visitingNode.equals(tree)) {
                 return visitingNode;
             }
 
@@ -47,7 +47,7 @@ public class TreeHelper {
 //                        .filter(Objects::nonNull)
 //                        //.filter(child -> !visitedNodes.contains(child))
 //                        .forEach(nodesToVisit::add);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 System.err.println("Err");
             }
 
@@ -55,27 +55,28 @@ public class TreeHelper {
         }
         return tree;
     }
-    public int getMaxDepthOfTree(List<GameTreeNode> tree) {
 
-        List<GameTreeNode> nodeList = new ArrayList<>();
-        if ( tree.isEmpty() )
+    public int getMaxDepthOfTree(final List<GameTreeNode> tree) {
+
+        final List<GameTreeNode> nodeList = new ArrayList<>();
+        if (tree.isEmpty())
             return 0;
         else {
             tree.stream().filter(Objects::nonNull).forEach(n -> nodeList.addAll(n.getChildren()));
-            return 1 + getMaxDepthOfTree(nodeList);
+            return 1 + this.getMaxDepthOfTree(nodeList);
         }
     }
 
-    public UpdateReturnable updateGameTree(Board board, GameTreeNode tree) {
+    public UpdateReturnable updateGameTree(final Board board, GameTreeNode tree) {
         try {
-            Thread thread;
-            tree = updateRootNode(board, tree);
+            final Thread thread;
+            tree = this.updateRootNode(board, tree);
 
             final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, false);
             thread = new Thread(createTreeRunner);
             thread.start();
             return new UpdateReturnable(tree, thread);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
 

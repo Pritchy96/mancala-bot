@@ -16,7 +16,7 @@ public class Protocol {
      * @param hole The hole to pick the seeds from.
      * @return The message as a string.
      */
-    public static String createMoveMsg(int hole) {
+    public static String createMoveMsg(final int hole) {
         return "MOVE;" + hole + "\n";
     }
 
@@ -38,7 +38,7 @@ public class Protocol {
      * @throws InvalidMessageException if the message type cannot be
      *                                 determined.
      */
-    public static MsgType getMessageType(String msg) throws InvalidMessageException {
+    public static MsgType getMessageType(final String msg) throws InvalidMessageException {
         if (msg.startsWith("START;"))
             return MsgType.START;
         else if (msg.startsWith("CHANGE;"))
@@ -59,11 +59,11 @@ public class Protocol {
      * @throws InvalidMessageException if the message is not well-formed.
      * @see #getMessageType(String)
      */
-    public static boolean interpretStartMsg(String msg) throws InvalidMessageException {
+    public static boolean interpretStartMsg(final String msg) throws InvalidMessageException {
         if (msg.charAt(msg.length() - 1) != '\n')
             throw new InvalidMessageException("Message not terminated with 0x0A character.");
 
-        String position = msg.substring(6, msg.length() - 1);
+        final String position = msg.substring(6, msg.length() - 1);
         if (position.equals("South"))
             return true;  // South starts the game
         else if (position.equals("North"))
@@ -86,13 +86,13 @@ public class Protocol {
      * @throws InvalidMessageException if the message is not well-formed.
      * @see #getMessageType(String)
      */
-    public static MoveTurn interpretStateMsg(String msg, Board board) throws InvalidMessageException {
-        MoveTurn moveTurn = new MoveTurn();
+    public static MoveTurn interpretStateMsg(final String msg, final Board board) throws InvalidMessageException {
+        final MoveTurn moveTurn = new MoveTurn();
 
         if (msg.charAt(msg.length() - 1) != '\n')
             throw new InvalidMessageException("Message not terminated with 0x0A character.");
 
-        String[] msgParts = msg.split(";", 4);
+        final String[] msgParts = msg.split(";", 4);
         if (msgParts.length != 4)
             throw new InvalidMessageException("Missing arguments.");
 
@@ -104,13 +104,13 @@ public class Protocol {
         else {
             try {
                 moveTurn.move = Integer.parseInt(msgParts[1]);
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 throw new InvalidMessageException("Illegal value for move parameter: " + e.getMessage());
             }
         }
 
         // 2nd argument: the board
-        String[] boardParts = msgParts[2].split(",", -1);
+        final String[] boardParts = msgParts[2].split(",", -1);
     	/*if (boardParts.length % 2 != 0)
     		throw new org.AIandGames.mancalabot.exceptions.InvalidMessageException("Malformed board: odd number of entries.");*/
         if (2 * (board.getNoOfHoles() + 1) != boardParts.length)
@@ -128,9 +128,9 @@ public class Protocol {
                 board.setSeeds(Side.SOUTH, i + 1, Integer.parseInt(boardParts[i + board.getNoOfHoles() + 1]));
             // southern store:
             board.setSeedsInStore(Side.SOUTH, Integer.parseInt(boardParts[2 * board.getNoOfHoles() + 1]));
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             throw new InvalidMessageException("Illegal value for seed count: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             throw new InvalidMessageException("Illegal value for seed count: " + e.getMessage());
         }
 

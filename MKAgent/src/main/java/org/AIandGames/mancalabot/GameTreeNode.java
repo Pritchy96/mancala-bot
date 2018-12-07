@@ -24,15 +24,15 @@ public class GameTreeNode {
     private int depth;
     private int holeNumber;
 
-    private double getValue(Side ourSide) {
+    private double getValue(final Side ourSide) {
         if (this.children.isEmpty()) { // Leaf node
             if (this.terminalState == TerminalState.WIN_TERMINAL) {
                 return Integer.MAX_VALUE;
             } else if (this.terminalState == TerminalState.LOSE_TERMINAL) {
                 return Integer.MIN_VALUE;
             } else {
-                runHeuristics(ourSide);
-                return HeuristicWeightings.applyWeightings(hValues, this, ourSide);
+                this.runHeuristics(ourSide);
+                return HeuristicWeightings.applyWeightings(this.hValues, this, ourSide);
             }
         } else {
 
@@ -41,7 +41,7 @@ public class GameTreeNode {
             GameTreeNode child = null;
             boolean encounteredNonNullChild = false;
 
-            for (int i = 0; i < children.size(); i++) {
+            for (int i = 0; i < this.children.size(); i++) {
                 child = this.children.get(i);
                 if (child == null) {
                     continue;
@@ -51,7 +51,7 @@ public class GameTreeNode {
                     encounteredNonNullChild = true;
                     value = child.getValue(ourSide);
                 } else {
-                    double childVal = child.getValue(ourSide);
+                    final double childVal = child.getValue(ourSide);
                     if ((child.getPlayersTurn(ourSide) && childVal > value) || (!child.getPlayersTurn(ourSide) && childVal < value)) {
                         value = childVal;
                     }
@@ -61,20 +61,20 @@ public class GameTreeNode {
         }
     }
 
-    public boolean getPlayersTurn(Side ourSide) {
-        return currentSide.equals(ourSide);
+    public boolean getPlayersTurn(final Side ourSide) {
+        return this.currentSide.equals(ourSide);
     }
 
-    public Move getBestMove(Side ourSide) {
+    public Move getBestMove(final Side ourSide) {
         GameTreeNode bestChild = null;
         double maxValue = Integer.MIN_VALUE;
 
-        for (GameTreeNode child : children) {
+        for (final GameTreeNode child : this.children) {
             if (child == null) {
                 continue;
             }
 
-            double val = child.getValue(ourSide);
+            final double val = child.getValue(ourSide);
             if (val >= maxValue) {
                 bestChild = child;
                 maxValue = val;
@@ -87,25 +87,25 @@ public class GameTreeNode {
     }
 
 
-    public void runHeuristics(Side ourSide) {
-        hValues = new HashMap<>();
+    public void runHeuristics(final Side ourSide) {
+        this.hValues = new HashMap<>();
 
-        ArrayList<Heuristic> hs = new ArrayList<>();
+        final ArrayList<Heuristic> hs = new ArrayList<>();
         hs.add(new MKPointDifference(this));
         hs.add(new RightMostPot(this));
         hs.add(new NumberOfEmptyPots(this));
 
-        hs.forEach(h -> hValues.put(h.getName(), h.getValue(ourSide)));
+        hs.forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
     }
 
-    public void generateChildren(int depth, boolean allowSwap) throws CloneNotSupportedException {
+    public void generateChildren(final int depth, final boolean allowSwap) throws CloneNotSupportedException {
         if (depth == 0) {
             return;
         }
 
         if (this.children.isEmpty()) {
-            generateUpTo7Children();
-            addSwapNodeIfApplicable(allowSwap);
+            this.generateUpTo7Children();
+            this.addSwapNodeIfApplicable(allowSwap);
         }
 
         final int newDepth = depth - 1;
@@ -115,7 +115,7 @@ public class GameTreeNode {
                 .forEach(child -> {
                     try {
                         child.generateChildren(newDepth, allowSwap);
-                    } catch (CloneNotSupportedException e) {
+                    } catch (final CloneNotSupportedException e) {
                         e.printStackTrace();
                     }
                 });
@@ -124,13 +124,13 @@ public class GameTreeNode {
 
     private void generateUpTo7Children() throws CloneNotSupportedException {
         for (int i = 1; i <= 7; i++) {
-            if (this.board.getSeeds(currentSide, i) > 0) {
-                GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
+            if (this.board.getSeeds(this.currentSide, i) > 0) {
+                final GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
 
-                Board newBoard = this.board.clone();
-                final Side newSide = makeMove(newBoard, i, currentSide);
+                final Board newBoard = this.board.clone();
+                final Side newSide = this.makeMove(newBoard, i, this.currentSide);
 
-                GameTreeNode newChildNode = newChildNBuilder
+                final GameTreeNode newChildNode = newChildNBuilder
                         .board(newBoard)
                         .children(new ArrayList<>())
                         .terminalState(TerminalState.NON_TERMINAL)   // not always
@@ -146,9 +146,9 @@ public class GameTreeNode {
         }
     }
 
-    private void addSwapNodeIfApplicable(boolean allowSwap) throws CloneNotSupportedException {
-        if (isSwapPossible() && allowSwap) {
-            GameTreeNode swapNode = this.toBuilder()
+    private void addSwapNodeIfApplicable(final boolean allowSwap) throws CloneNotSupportedException {
+        if (this.isSwapPossible() && allowSwap) {
+            final GameTreeNode swapNode = this.toBuilder()
                     .board(this.board.clone())
                     .children(new ArrayList<>())
                     .terminalState(TerminalState.NON_TERMINAL)
@@ -160,11 +160,11 @@ public class GameTreeNode {
     }
 
     private boolean isSwapPossible() {
-        return getDepth() == 1;
+        return this.getDepth() == 1;
     }
 
 
-    private Side makeMove(Board board, int hole, Side side) {
+    private Side makeMove(final Board board, final int hole, final Side side) {
         /* from the documentation:
 		  "1. The counters are lifted from this hole and sown in anti-clockwise direction, starting
 		      with the next hole. The player's own kalahah is included in the sowing, but the
@@ -185,12 +185,12 @@ public class GameTreeNode {
 
 
         // pick seeds:
-        int seedsToSow = board.getSeeds(side, hole);
+        final int seedsToSow = board.getSeeds(side, hole);
         board.setSeeds(side, hole, 0);
 
-        int holes = board.getNoOfHoles();
-        int receivingPits = 2 * holes + 1;  // sow into: all holes + 1 store
-        int rounds = seedsToSow / receivingPits;  // sowing rounds
+        final int holes = board.getNoOfHoles();
+        final int receivingPits = 2 * holes + 1;  // sow into: all holes + 1 store
+        final int rounds = seedsToSow / receivingPits;  // sowing rounds
         int extra = seedsToSow % receivingPits;  // seeds for the last partial round
     	/* the first "extra" number of holes get "rounds"+1 seeds, the
     	   remaining ones get "rounds" seeds */
@@ -239,16 +239,16 @@ public class GameTreeNode {
 
         // game over?
         Side finishedSide = null;
-        if (holesEmpty(board, side))
+        if (this.holesEmpty(board, side))
             finishedSide = side;
-        else if (holesEmpty(board, side.opposite()))
+        else if (this.holesEmpty(board, side.opposite()))
             finishedSide = side.opposite();
     		/* note: it is possible that both sides are finished, but then
     		   there are no seeds to collect anyway */
         if (finishedSide != null) {
             // collect the remaining seeds:
             int seeds = 0;
-            Side collectingSide = finishedSide.opposite();
+            final Side collectingSide = finishedSide.opposite();
             for (int hole1 = 1; hole1 <= holes; hole1++) {
                 seeds += board.getSeeds(collectingSide, hole1);
                 board.setSeeds(collectingSide, hole1, 0);
@@ -270,7 +270,7 @@ public class GameTreeNode {
      * @param side  The side to check.
      * @return "true" iff all holes on side "side" are empty.
      */
-    private boolean holesEmpty(Board board, Side side) {
+    private boolean holesEmpty(final Board board, final Side side) {
         for (int hole = 1; hole <= board.getNoOfHoles(); hole++)
             if (board.getSeeds(side, hole) != 0)
                 return false;
@@ -279,7 +279,7 @@ public class GameTreeNode {
 
     @Override
     public String toString() {
-        return "Depth: " + getDepth() + " sizeOfChildren: " + getChildren().size();
+        return "Depth: " + this.getDepth() + " sizeOfChildren: " + this.getChildren().size();
     }
 }
 

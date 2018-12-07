@@ -5,6 +5,6 @@ public enum Heuristics {
     RIGHT_MOST_POT("RIGHT_MOST_POT"),
     NUMBER_OF_EMPTY_POTS("NUMBER_OF_EMPTY_POTS");
 
-    Heuristics(String heuristic) {
+    Heuristics(final String heuristic) {
     }
 }

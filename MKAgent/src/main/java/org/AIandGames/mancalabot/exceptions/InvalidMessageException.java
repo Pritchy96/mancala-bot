@@ -9,7 +9,7 @@ public class InvalidMessageException extends Exception {
     /**
      * @param message A description of the exception.
      */
-    public InvalidMessageException(String message) {
+    public InvalidMessageException(final String message) {
         super(message);
     }
 }

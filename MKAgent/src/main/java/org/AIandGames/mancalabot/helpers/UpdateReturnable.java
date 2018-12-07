@@ -7,6 +7,6 @@ import org.AIandGames.mancalabot.GameTreeNode;
 @AllArgsConstructor
 @Getter
 public class UpdateReturnable {
-    private GameTreeNode gameTreeNode;
-    private Thread thread;
+    private final GameTreeNode gameTreeNode;
+    private final Thread thread;
 }

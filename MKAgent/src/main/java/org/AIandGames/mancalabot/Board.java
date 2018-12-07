@@ -41,7 +41,7 @@ public class Board extends Observable implements Cloneable {
      * is stored in board[...][n], the number of seeds in the store (of one
      * side) is stored in board[...][0].
      */
-    private int[][] board;
+    private final int[][] board;
 
     /**
      * Creates a new board.
@@ -52,18 +52,18 @@ public class Board extends Observable implements Cloneable {
      * @throws IllegalArgumentException if any of the arguments is outside of
      *                                  the valid range.
      */
-    public Board(int holes, int seeds) throws IllegalArgumentException {
+    public Board(final int holes, final int seeds) throws IllegalArgumentException {
         if (holes < 1)
             throw new IllegalArgumentException("There has to be at least one hole, but " + holes + " were requested.");
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
         this.holes = holes;
-        board = new int[2][holes + 1]; // WARNING: potential integer overflow here!
+        this.board = new int[2][holes + 1]; // WARNING: potential integer overflow here!
 
         for (int i = 1; i <= holes; i++) {
-            board[NORTH_ROW][i] = seeds;
-            board[SOUTH_ROW][i] = seeds;
+            this.board[NORTH_ROW][i] = seeds;
+            this.board[SOUTH_ROW][i] = seeds;
         }
     }
 
@@ -75,13 +75,13 @@ public class Board extends Observable implements Cloneable {
      * @param original The board to copy.
      * @see #clone()
      */
-    public Board(Board original) {
-        holes = original.holes;
-        board = new int[2][holes + 1];
+    public Board(final Board original) {
+        this.holes = original.holes;
+        this.board = new int[2][this.holes + 1];
 
-        for (int i = 0; i <= holes; i++) {
-            board[NORTH_ROW][i] = original.board[NORTH_ROW][i];
-            board[SOUTH_ROW][i] = original.board[SOUTH_ROW][i];
+        for (int i = 0; i <= this.holes; i++) {
+            this.board[NORTH_ROW][i] = original.board[NORTH_ROW][i];
+            this.board[SOUTH_ROW][i] = original.board[SOUTH_ROW][i];
         }
     }
 
@@ -89,7 +89,7 @@ public class Board extends Observable implements Cloneable {
      * @param side A side of the board.
      * @return The index of side "side" for the first dimension of "board".
      */
-    private static int indexOfSide(Side side) {
+    private static int indexOfSide(final Side side) {
         switch (side) {
             case NORTH:
                 return NORTH_ROW;
@@ -116,7 +116,7 @@ public class Board extends Observable implements Cloneable {
      * @return The number of holes per side (will be >= 1).
      */
     public int getNoOfHoles() {
-        return holes;
+        return this.holes;
     }
 
     /**
@@ -127,11 +127,11 @@ public class Board extends Observable implements Cloneable {
      * @return The number of seeds in hole "hole" on side "side".
      * @throws IllegalArgumentException if the hole number is invalid.
      */
-    public int getSeeds(Side side, int hole) throws IllegalArgumentException {
-        if (hole < 1 || hole > holes)
-            throw new IllegalArgumentException("Hole number must be between 1 and " + (board[NORTH_ROW].length - 1) + " but was " + hole + ".");
+    public int getSeeds(final Side side, final int hole) throws IllegalArgumentException {
+        if (hole < 1 || hole > this.holes)
+            throw new IllegalArgumentException("Hole number must be between 1 and " + (this.board[NORTH_ROW].length - 1) + " but was " + hole + ".");
 
-        return board[indexOfSide(side)][hole];
+        return this.board[indexOfSide(side)][hole];
     }
 
     /**
@@ -143,13 +143,13 @@ public class Board extends Observable implements Cloneable {
      * @throws IllegalArgumentException if any of the arguments is outside of
      *                                  the valid range.
      */
-    public void setSeeds(Side side, int hole, int seeds) throws IllegalArgumentException {
-        if (hole < 1 || hole > holes)
-            throw new IllegalArgumentException("Hole number must be between 1 and " + (board[NORTH_ROW].length - 1) + " but was " + hole + ".");
+    public void setSeeds(final Side side, final int hole, final int seeds) throws IllegalArgumentException {
+        if (hole < 1 || hole > this.holes)
+            throw new IllegalArgumentException("Hole number must be between 1 and " + (this.board[NORTH_ROW].length - 1) + " but was " + hole + ".");
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
-        board[indexOfSide(side)][hole] = seeds;
+        this.board[indexOfSide(side)][hole] = seeds;
         this.setChanged();
     }
 
@@ -162,13 +162,13 @@ public class Board extends Observable implements Cloneable {
      * @throws IllegalArgumentException if any of the arguments is outside of
      *                                  the valid range.
      */
-    public void addSeeds(Side side, int hole, int seeds) throws IllegalArgumentException {
-        if (hole < 1 || hole > holes)
-            throw new IllegalArgumentException("Hole number must be between 1 and " + (board[NORTH_ROW].length - 1) + " but was " + hole + ".");
+    public void addSeeds(final Side side, final int hole, final int seeds) throws IllegalArgumentException {
+        if (hole < 1 || hole > this.holes)
+            throw new IllegalArgumentException("Hole number must be between 1 and " + (this.board[NORTH_ROW].length - 1) + " but was " + hole + ".");
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
-        board[indexOfSide(side)][hole] += seeds;
+        this.board[indexOfSide(side)][hole] += seeds;
         this.setChanged();
     }
 
@@ -181,11 +181,11 @@ public class Board extends Observable implements Cloneable {
      * side "side".
      * @throws IllegalArgumentException if the hole number is invalid.
      */
-    public int getSeedsOp(Side side, int hole) throws IllegalArgumentException {
-        if (hole < 1 || hole > holes)
-            throw new IllegalArgumentException("Hole number must be between 1 and " + holes + " but was " + hole + ".");
+    public int getSeedsOp(final Side side, final int hole) throws IllegalArgumentException {
+        if (hole < 1 || hole > this.holes)
+            throw new IllegalArgumentException("Hole number must be between 1 and " + this.holes + " but was " + hole + ".");
 
-        return board[1 - indexOfSide(side)][holes + 1 - hole];
+        return this.board[1 - indexOfSide(side)][this.holes + 1 - hole];
     }
 
     /**
@@ -198,13 +198,13 @@ public class Board extends Observable implements Cloneable {
      * @throws IllegalArgumentException if any of the arguments is outside of
      *                                  the valid range.
      */
-    public void setSeedsOp(Side side, int hole, int seeds) throws IllegalArgumentException {
-        if (hole < 1 || hole > holes)
-            throw new IllegalArgumentException("Hole number must be between 1 and " + (board[NORTH_ROW].length - 1) + " but was " + hole + ".");
+    public void setSeedsOp(final Side side, final int hole, final int seeds) throws IllegalArgumentException {
+        if (hole < 1 || hole > this.holes)
+            throw new IllegalArgumentException("Hole number must be between 1 and " + (this.board[NORTH_ROW].length - 1) + " but was " + hole + ".");
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
-        board[1 - indexOfSide(side)][holes + 1 - hole] = seeds;
+        this.board[1 - indexOfSide(side)][this.holes + 1 - hole] = seeds;
         this.setChanged();
     }
 
@@ -218,13 +218,13 @@ public class Board extends Observable implements Cloneable {
      * @throws IllegalArgumentException if any of the arguments is outside of
      *                                  the valid range.
      */
-    public void addSeedsOp(Side side, int hole, int seeds) throws IllegalArgumentException {
-        if (hole < 1 || hole > holes)
-            throw new IllegalArgumentException("Hole number must be between 1 and " + (board[NORTH_ROW].length - 1) + " but was " + hole + ".");
+    public void addSeedsOp(final Side side, final int hole, final int seeds) throws IllegalArgumentException {
+        if (hole < 1 || hole > this.holes)
+            throw new IllegalArgumentException("Hole number must be between 1 and " + (this.board[NORTH_ROW].length - 1) + " but was " + hole + ".");
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
-        board[1 - indexOfSide(side)][holes + 1 - hole] += seeds;
+        this.board[1 - indexOfSide(side)][this.holes + 1 - hole] += seeds;
         this.setChanged();
     }
 
@@ -234,8 +234,8 @@ public class Board extends Observable implements Cloneable {
      * @param side The side the store is located on.
      * @return The number of seeds in the store.
      */
-    public int getSeedsInStore(Side side) {
-        return board[indexOfSide(side)][0];
+    public int getSeedsInStore(final Side side) {
+        return this.board[indexOfSide(side)][0];
     }
 
     /**
@@ -245,11 +245,11 @@ public class Board extends Observable implements Cloneable {
      * @param seeds The number of seeds that shall be in the store afterwards (>= 0).
      * @throws IllegalArgumentException if the number of seeds is invalid.
      */
-    public void setSeedsInStore(Side side, int seeds) throws IllegalArgumentException {
+    public void setSeedsInStore(final Side side, final int seeds) throws IllegalArgumentException {
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
-        board[indexOfSide(side)][0] = seeds;
+        this.board[indexOfSide(side)][0] = seeds;
         this.setChanged();
     }
 
@@ -260,38 +260,38 @@ public class Board extends Observable implements Cloneable {
      * @param seeds The number (>= 0) of seeds to put into (add to) the store.
      * @throws IllegalArgumentException if the number of seeds is invalid.
      */
-    public void addSeedsToStore(Side side, int seeds) throws IllegalArgumentException {
+    public void addSeedsToStore(final Side side, final int seeds) throws IllegalArgumentException {
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
-        board[indexOfSide(side)][0] += seeds;
+        this.board[indexOfSide(side)][0] += seeds;
         this.setChanged();
     }
 
     @Override
     public String toString() {
-        StringBuilder boardString = new StringBuilder();
+        final StringBuilder boardString = new StringBuilder();
 
-        boardString.append(getPaddedValue(0, NORTH_ROW)).append(" | [");
-        for (int i = holes; i > 1; i--) {
-            boardString.append(getPaddedValue(i, NORTH_ROW));
+        boardString.append(this.getPaddedValue(0, NORTH_ROW)).append(" | [");
+        for (int i = this.holes; i > 1; i--) {
+            boardString.append(this.getPaddedValue(i, NORTH_ROW));
             boardString.append("] [");
         }
-        boardString.append(getPaddedValue(1, NORTH_ROW));
+        boardString.append(this.getPaddedValue(1, NORTH_ROW));
         boardString.append("] | \n");
         boardString.append("    | [");
-        for (int i = 1; i < holes; i++) {
-            boardString.append(getPaddedValue(i, SOUTH_ROW)).append("] [");
+        for (int i = 1; i < this.holes; i++) {
+            boardString.append(this.getPaddedValue(i, SOUTH_ROW)).append("] [");
         }
-        boardString.append(getPaddedValue(holes, SOUTH_ROW));
+        boardString.append(this.getPaddedValue(this.holes, SOUTH_ROW));
         boardString.append("] | ");
-        boardString.append(getPaddedValue(0, SOUTH_ROW)).append("\n");
+        boardString.append(this.getPaddedValue(0, SOUTH_ROW)).append("\n");
 
         return boardString.toString();
     }
 
-    private String getPaddedValue(int i, int northOrSouth) {
-        return StringUtils.leftPad(((Integer) board[northOrSouth][i]).toString(), 2, "0");
+    private String getPaddedValue(final int i, final int northOrSouth) {
+        return StringUtils.leftPad(((Integer) this.board[northOrSouth][i]).toString(), 2, "0");
     }
 }
 

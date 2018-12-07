@@ -8,38 +8,37 @@ import java.io.PrintWriter;
 import java.io.Reader;
 
 public class MessageHelper {
-    private Reader input;
-    private PrintWriter output;
+    private final Reader input;
+    private final PrintWriter output;
 
 
-    public MessageHelper(Reader input, PrintWriter output) {
+    public MessageHelper(final Reader input, final PrintWriter output) {
         this.input = input;
         this.output = output;
     }
 
-    public void sendMsg(String msg, Boolean opponentWentLast) {
+    public void sendMsg(final String msg) {
         System.out.print(msg);
         System.out.flush();
 
-        output.print(msg);
-        output.flush();
-        opponentWentLast = false;
+        this.output.print(msg);
+        this.output.flush();
     }
 
     public void sendSwapMsg() {
         System.out.print(Protocol.createSwapMsg());
         System.out.flush();
 
-        output.print(Protocol.createSwapMsg());
-        output.flush();
+        this.output.print(Protocol.createSwapMsg());
+        this.output.flush();
     }
 
     public String recvMsg() throws IOException {
-        StringBuilder message = new StringBuilder();
+        final StringBuilder message = new StringBuilder();
         int newCharacter;
 
         do {
-            newCharacter = input.read();
+            newCharacter = this.input.read();
             if (newCharacter == -1)
                 throw new EOFException("Input ended unexpectedly.");
             message.append((char) newCharacter);

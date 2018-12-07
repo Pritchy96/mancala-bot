@@ -7,7 +7,7 @@ import org.AIandGames.mancalabot.Protocol.MoveTurn;
 
 public class StatePrinter {
 
-    public void printCurrentState(Board board, Boolean opponentWentLast, Long ourMoveCount, MoveTurn moveTurn) {
+    public void printCurrentState(final Board board, final Boolean opponentWentLast, final Long ourMoveCount, final MoveTurn moveTurn) {
         System.err.println("||----------------STATE----------------||");
         if (Kalah.gameWon(board))
             System.err.println("We've already reached a terminal node!");
@@ -20,8 +20,8 @@ public class StatePrinter {
         System.err.println("The board ::\n " + board);
     }
 
-    public Side printStartMessage(Boolean wePlayFirst) {
-        Side ourSide;
+    public Side printStartMessage(final Boolean wePlayFirst) {
+        final Side ourSide;
         if (wePlayFirst) {
             ourSide = Side.SOUTH;
         } else {
