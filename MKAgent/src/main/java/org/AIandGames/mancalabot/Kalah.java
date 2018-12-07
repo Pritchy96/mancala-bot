@@ -1,5 +1,7 @@
 package org.AIandGames.mancalabot;
 
+import org.AIandGames.mancalabot.Enums.Side;
+
 import java.util.Observable;
 
 /**
@@ -15,22 +17,22 @@ public class Kalah {
      * @param board The board to play on.
      * @throws NullPointerException if "board" is null.
      */
-    public Kalah(Board board) throws NullPointerException {
+    public Kalah(final Board board) throws NullPointerException {
         if (board == null)
             throw new NullPointerException();
         this.board = board;
     }
 
-    private Kalah(Builder builder) {
-        board = builder.board;
+    private Kalah(final Builder builder) {
+        this.board = builder.board;
     }
 
     public static Builder newBuilder() {
         return new Builder();
     }
 
-    public static Builder newBuilder(Kalah copy) {
-        Builder builder = new Builder();
+    public static Builder newBuilder(final Kalah copy) {
+        final Builder builder = new Builder();
         builder.board = copy.getBoard();
         return builder;
     }
@@ -43,7 +45,7 @@ public class Kalah {
      * @param move  The move to check.
      * @return true if the move is legal, false if not.
      */
-    public static boolean isLegalMove(Board board, Move move) {
+    public static boolean isLegalMove(final Board board, final Move move) {
         // check if the hole is existent and non-empty:
         return (move.getHole() <= board.getNoOfHoles())
                 && (board.getSeeds(move.getSide(), move.getHole()) != 0);
@@ -64,7 +66,7 @@ public class Kalah {
      * @see #gameOver(Board)
      * @see Observable#notifyObservers(Object)
      */
-    public static Side makeMove(Board board, Move move) {
+    public static Side makeMove(final Board board, final Move move) {
 		/* from the documentation:
 		  "1. The counters are lifted from this hole and sown in anti-clockwise direction, starting
 		      with the next hole. The player's own kalahah is included in the sowing, but the
@@ -85,12 +87,12 @@ public class Kalah {
 
 
         // pick seeds:
-        int seedsToSow = board.getSeeds(move.getSide(), move.getHole());
+        final int seedsToSow = board.getSeeds(move.getSide(), move.getHole());
         board.setSeeds(move.getSide(), move.getHole(), 0);
 
-        int holes = board.getNoOfHoles();
-        int receivingPits = 2 * holes + 1;  // sow into: all holes + 1 store
-        int rounds = seedsToSow / receivingPits;  // sowing rounds
+        final int holes = board.getNoOfHoles();
+        final int receivingPits = 2 * holes + 1;  // sow into: all holes + 1 store
+        final int rounds = seedsToSow / receivingPits;  // sowing rounds
         int extra = seedsToSow % receivingPits;  // seeds for the last partial round
     	/* the first "extra" number of holes get "rounds"+1 seeds, the
     	   remaining ones get "rounds" seeds */
@@ -148,7 +150,7 @@ public class Kalah {
         if (finishedSide != null) {
             // collect the remaining seeds:
             int seeds = 0;
-            Side collectingSide = finishedSide.opposite();
+            final Side collectingSide = finishedSide.opposite();
             for (int hole = 1; hole <= holes; hole++) {
                 seeds += board.getSeeds(collectingSide, hole);
                 board.setSeeds(collectingSide, hole, 0);
@@ -172,7 +174,7 @@ public class Kalah {
      * @param side  The side to check.
      * @return "true" iff all holes on side "side" are empty.
      */
-    protected static boolean holesEmpty(Board board, Side side) {
+    protected static boolean holesEmpty(final Board board, final Side side) {
         for (int hole = 1; hole <= board.getNoOfHoles(); hole++)
             if (board.getSeeds(side, hole) != 0)
                 return false;
@@ -185,13 +187,13 @@ public class Kalah {
      * @param board The board to check the game state for.
      * @return "true" if the game is over, "false" otherwise.
      */
-    public static boolean gameOver(Board board) {
+    public static boolean gameOver(final Board board) {
         // The game is over if one of the agents can't make another move.
 
         return holesEmpty(board, Side.NORTH) || holesEmpty(board, Side.SOUTH);
     }
 
-    public static boolean gameWon(Board board) {
+    public static boolean gameWon(final Board board) {
         return board.getSeedsInStore(Side.NORTH) >= 50 || board.getSeedsInStore(Side.SOUTH) >= 50;
     }
 
@@ -199,7 +201,7 @@ public class Kalah {
      * @return The board this object operates on.
      */
     public Board getBoard() {
-        return board;
+        return this.board;
     }
 
     /**
@@ -209,8 +211,8 @@ public class Kalah {
      * @param move The move to check.
      * @return true if the move is legal, false if not.
      */
-    public boolean isLegalMove(Move move) {
-        return isLegalMove(board, move);
+    public boolean isLegalMove(final Move move) {
+        return isLegalMove(this.board, move);
     }
 
     /**
@@ -227,8 +229,8 @@ public class Kalah {
      * @see #gameOver()
      * @see Observable#notifyObservers(Object)
      */
-    public Side makeMove(Move move) {
-        return makeMove(board, move);
+    public Side makeMove(final Move move) {
+        return makeMove(this.board, move);
     }
 
     /**
@@ -237,7 +239,7 @@ public class Kalah {
      * @return "true" if the game is over, "false" otherwise.
      */
     public boolean gameOver() {
-        return gameOver(board);
+        return gameOver(this.board);
     }
 
     public static final class Builder {
@@ -246,8 +248,8 @@ public class Kalah {
         private Builder() {
         }
 
-        public Builder withBoard(Board val) {
-            board = val;
+        public Builder withBoard(final Board val) {
+            this.board = val;
             return this;
         }
 

@@ -6,23 +6,30 @@ import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.GameTreeNode;
 
-@EqualsAndHashCode
+
 @ToString
-public class RightMostPot implements Heuristic {
+@EqualsAndHashCode
+public class NumberOfEmptyPots implements Heuristic {
 
     private final GameTreeNode node;
 
-    public RightMostPot(final GameTreeNode node) {
+    public NumberOfEmptyPots(final GameTreeNode node) {
         this.node = node;
     }
 
     @Override
     public Heuristics getName() {
-        return Heuristics.RIGHT_MOST_POT;
+        return Heuristics.NUMBER_OF_EMPTY_POTS;
     }
 
     @Override
     public int getValue(final Side ourSide) {
-        return this.node.getHoleNumber();
+        int numberOfPots = 0;
+        for (int i = 1; i < 8; i++) {
+            if (this.node.getBoard().getSeeds(ourSide, i) == 0) {
+                numberOfPots++;
+            }
+        }
+        return numberOfPots;
     }
 }

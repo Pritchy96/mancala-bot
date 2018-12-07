@@ -5,6 +5,6 @@ public enum TerminalState {
     LOSE_TERMINAL(-1),
     NON_TERMINAL(0);
 
-    TerminalState(int terminalState) {
+    TerminalState(final int terminalState) {
     }
 }

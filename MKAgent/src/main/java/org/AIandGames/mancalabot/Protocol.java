@@ -1,16 +1,22 @@
 package org.AIandGames.mancalabot;
 
+import org.AIandGames.mancalabot.Enums.MsgType;
+import org.AIandGames.mancalabot.Enums.Side;
+import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
+
 /**
  * Creates messages to be sent and interprets messages received.
  */
 public class Protocol {
+    public static final int SWAP = -1;
+
     /**
      * Creates a "move" message.
      *
      * @param hole The hole to pick the seeds from.
      * @return The message as a string.
      */
-    public static String createMoveMsg(int hole) {
+    public static String createMoveMsg(final int hole) {
         return "MOVE;" + hole + "\n";
     }
 
@@ -32,7 +38,7 @@ public class Protocol {
      * @throws InvalidMessageException if the message type cannot be
      *                                 determined.
      */
-    public static MsgType getMessageType(String msg) throws InvalidMessageException {
+    public static MsgType getMessageType(final String msg) throws InvalidMessageException {
         if (msg.startsWith("START;"))
             return MsgType.START;
         else if (msg.startsWith("CHANGE;"))
@@ -45,7 +51,7 @@ public class Protocol {
 
     /**
      * Interprets a "new_match" message. Should be called if
-     * getMessageType(msg) returns org.AIandGames.mancalabot.MsgType.START
+     * getMessageType(msg) returns org.AIandGames.mancalabot.Enums.MsgType.START
      *
      * @param msg The message.
      * @return "true" if this agent is the starting player (South), "false"
@@ -53,11 +59,11 @@ public class Protocol {
      * @throws InvalidMessageException if the message is not well-formed.
      * @see #getMessageType(String)
      */
-    public static boolean interpretStartMsg(String msg) throws InvalidMessageException {
+    public static boolean interpretStartMsg(final String msg) throws InvalidMessageException {
         if (msg.charAt(msg.length() - 1) != '\n')
             throw new InvalidMessageException("Message not terminated with 0x0A character.");
 
-        String position = msg.substring(6, msg.length() - 1);
+        final String position = msg.substring(6, msg.length() - 1);
         if (position.equals("South"))
             return true;  // South starts the game
         else if (position.equals("North"))
@@ -68,25 +74,25 @@ public class Protocol {
 
     /**
      * Interprets a "state_change" message. Should be called if
-     * getMessageType(msg) returns org.AIandGames.mancalabot.MsgType.STATE
+     * getMessageType(msg) returns org.AIandGames.mancalabot.Enums.MsgType.STATE
      *
      * @param msg   The message.
      * @param board This is an output parameter. It will store the new state
      *              of the org.AIandGames.mancalabot.Kalah board. The board has to have the right dimensions
-     *              (number of holes), otherwise an org.AIandGames.mancalabot.InvalidMessageException is
+     *              (number of holes), otherwise an org.AIandGames.mancalabot.exceptions.InvalidMessageException is
      *              thrown.
      * @return information about the move that led to the state change and
      * who's turn it is next.
      * @throws InvalidMessageException if the message is not well-formed.
      * @see #getMessageType(String)
      */
-    public static MoveTurn interpretStateMsg(String msg, Board board) throws InvalidMessageException {
-        MoveTurn moveTurn = new MoveTurn();
+    public static MoveTurn interpretStateMsg(final String msg, final Board board) throws InvalidMessageException {
+        final MoveTurn moveTurn = new MoveTurn();
 
         if (msg.charAt(msg.length() - 1) != '\n')
             throw new InvalidMessageException("Message not terminated with 0x0A character.");
 
-        String[] msgParts = msg.split(";", 4);
+        final String[] msgParts = msg.split(";", 4);
         if (msgParts.length != 4)
             throw new InvalidMessageException("Missing arguments.");
 
@@ -94,19 +100,19 @@ public class Protocol {
 
         // 1st argument: the move (or swap)
         if (msgParts[1].equals("SWAP"))
-            moveTurn.move = -1;
+            moveTurn.move = SWAP;
         else {
             try {
                 moveTurn.move = Integer.parseInt(msgParts[1]);
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 throw new InvalidMessageException("Illegal value for move parameter: " + e.getMessage());
             }
         }
 
         // 2nd argument: the board
-        String[] boardParts = msgParts[2].split(",", -1);
+        final String[] boardParts = msgParts[2].split(",", -1);
     	/*if (boardParts.length % 2 != 0)
-    		throw new org.AIandGames.mancalabot.InvalidMessageException("Malformed board: odd number of entries.");*/
+    		throw new org.AIandGames.mancalabot.exceptions.InvalidMessageException("Malformed board: odd number of entries.");*/
         if (2 * (board.getNoOfHoles() + 1) != boardParts.length)
             throw new InvalidMessageException("org.AIandGames.mancalabot.Board dimensions in message ("
                     + boardParts.length + " entries) are not as expected ("
@@ -122,9 +128,9 @@ public class Protocol {
                 board.setSeeds(Side.SOUTH, i + 1, Integer.parseInt(boardParts[i + board.getNoOfHoles() + 1]));
             // southern store:
             board.setSeedsInStore(Side.SOUTH, Integer.parseInt(boardParts[2 * board.getNoOfHoles() + 1]));
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             throw new InvalidMessageException("Illegal value for seed count: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             throw new InvalidMessageException("Illegal value for seed count: " + e.getMessage());
         }
 

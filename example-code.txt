@@ -9,7 +9,7 @@
 				s = recvMsg();
 				System.err.print("Received: " + s);
 				try {
-					org.AIandGames.mancalabot.MsgType mt = org.AIandGames.mancalabot.Protocol.getMessageType(s);
+					org.AIandGames.mancalabot.Enums.MsgType mt = org.AIandGames.mancalabot.Protocol.getMessageType(s);
 					switch (mt)
 					{
 						case START: System.err.println("A start.");
@@ -27,7 +27,7 @@
 						case END: System.err.println("An end. Bye bye!"); return;
 					}
 
-				} catch (org.AIandGames.mancalabot.InvalidMessageException e) {
+				} catch (org.AIandGames.mancalabot.exceptions.InvalidMessageException e) {
 					System.err.println(e.getMessage());
 				}
 			}

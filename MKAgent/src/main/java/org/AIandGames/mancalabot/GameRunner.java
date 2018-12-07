@@ -1,65 +1,32 @@
 package org.AIandGames.mancalabot;
 
+import org.AIandGames.mancalabot.Enums.Side;
+import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.Protocol.MoveTurn;
+import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
+import org.AIandGames.mancalabot.helpers.*;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 
-class GameRunner {
-    private Reader input;
+
+public class GameRunner {
+    private static final int OVERALL_DEPTH = 10;
     private PrintWriter output;
+    private Reader input;
     private Boolean wePlayFirst = false;
     private Boolean opponentWentLast = true;
     private GameTreeNode tree = null;
-    private MoveTurn moveTurn = null;
     private long ourMoveCount = 0;
     private Side ourSide;
+    private Thread thread = new Thread();
+    private MessageHelper messageHelper;
+    private final StatePrinter statePrinter = new StatePrinter();
+    private final TreeHelper treeHelper = new TreeHelper(OVERALL_DEPTH);
+    private int totalMovesBothPlayers = 0;
+    private final int depthOfStaticTree = 4;
 
-
-    /**
-     * Sends a message to the game engine.
-     *
-     * @param msg The message.
-     */
-    private void sendMsg(String msg) {
-        System.out.print(msg);
-        System.out.flush();
-
-        output.print(msg);
-        output.flush();
-        opponentWentLast = false;
-    }
-
-    private void sendSwapMsg() {
-        System.out.print(Protocol.createSwapMsg());
-        System.out.flush();
-
-        output.print(Protocol.createSwapMsg());
-        output.flush();
-    }
-
-    /**
-     * Receives a message from the game engine. Messages are terminated by
-     * a '\n' character.
-     *
-     * @return The message.
-     * @throws IOException if there has been an I/O error.
-     */
-    private String recvMsg() throws IOException {
-        StringBuilder message = new StringBuilder();
-        int newCharacter;
-
-        do {
-            newCharacter = input.read();
-            if (newCharacter == -1)
-                throw new EOFException("Input ended unexpectedly.");
-            message.append((char) newCharacter);
-        } while ((char) newCharacter != '\n');
-
-        return message.toString();
-    }
 
     private void setupSocketServer() {
         try {
@@ -70,164 +37,174 @@ class GameRunner {
              */ //The actual server expects the client to be running and waiting, and java sockets
             //...expect the server to be running and waiting... Set up a Server that just listens
             //...so the client and server don't time out as a result.
-            ServerSocket server = new ServerSocket(12345);
-            Socket clientSocket = server.accept();
-            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            output = new PrintWriter(clientSocket.getOutputStream(), true);
-        } catch (IOException e) {
+            final ServerSocket server = new ServerSocket(12345);
+            final Socket clientSocket = server.accept();
+            this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            this.output = new PrintWriter(clientSocket.getOutputStream(), true);
+            this.messageHelper = new MessageHelper(this.input, this.output);
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
 
-
     void run() {
-        Thread thread = new Thread();
-        Board board = new Board(7, 7);
+        final Board board = new Board(7, 7);
 
-        setupSocketServer();
+        this.setupSocketServer();
 
         String msg;
         while (true) {
             try {
-                msg = recvMsg();
+                msg = this.messageHelper.recvMsg();
 
                 switch (Protocol.getMessageType(msg)) {
 
                     case START:
-                        runStartCase(msg, thread);
+                        this.runStartCase(msg, board);
                         break;
 
                     case STATE:
-                        runStateCase(msg, board, thread);
+                        this.runStateCase(msg, board);
                         break;
 
                     case END:
-                        System.err.println("The end.");
+                        this.statePrinter.printEndState();
                         return;
                 }
-            } catch (InvalidMessageException | IOException | CloneNotSupportedException e) {
+            } catch (final InvalidMessageException | IOException | CloneNotSupportedException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void runStateCase(String msg, Board board, Thread thread) throws InvalidMessageException {
-        moveTurn = Protocol.interpretStateMsg(msg, board);
+    private void runStateCase(final String msg, final Board board) throws InvalidMessageException {
+        final MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
 
-
-        if (opponentWentLast && moveTurn.move == -1) {
-            ourSide = ourSide.opposite();
-            ourMoveCount--;
+        if (this.opponentWentLast && moveTurn.move == Protocol.SWAP) {
+            this.ourSide = this.ourSide.opposite();
+            this.ourMoveCount--;
         }
-
 
         // is it not our turn?
         if (!moveTurn.ourTurn) {
-            printCurrentState(board);
-            System.err.println("Not our turn - continuing to make tree");
-            System.err.println("||-------------------------------------||\n");
-            opponentWentLast = true;
+            this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
+            this.opponentWentLast = true;
+            this.totalMovesBothPlayers++;
         } else {
-            try {
-                thread.join();
 
-                printCurrentState(board);
-
-                Kalah testKalah = new Kalah(board);
-                if (canWeSwap() && shouldWeSwap()) {
-                    performSwap();
-                } else {
-                    moveAsNormal(testKalah);
+            if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
+                try {
+                    this.thread.join();
+                    this.tree = this.treeHelper.updateRootNode(board, this.tree);
+                    this.makeAMove(board, moveTurn);
+                    final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree);
+                    this.thread = returnable.getThread();
+                    this.tree = returnable.getGameTreeNode();
+                } catch (final InterruptedException e) {
+                    e.printStackTrace();
                 }
-                ourMoveCount++;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } else { // static tree
+                this.makeAMove(board, moveTurn);
+
+                if (this.totalMovesBothPlayers >= this.depthOfStaticTree) {
+                    if (!this.thread.isAlive()) {
+                        try {
+                            this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
+                            final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, true);
+                            this.thread = new Thread(createTreeRunner);
+                            this.thread.start();
+                        } catch (final CloneNotSupportedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         }
     }
 
+    private void makeAMove(final Board board, final MoveTurn moveTurn) {
+        this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
+        final Kalah testKalah = new Kalah(board);
+
+
+        if (this.canWeSwap() && this.shouldWeSwap()) {
+            this.performSwap();
+        } else if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
+            // Tries to make the best guess move, if its not legal, defaults to right most pot.
+            if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
+                this.moveRightMostPot(testKalah);
+            } else if (!this.moveBestGuess(testKalah)) {
+                this.statePrinter.printBestGuessError();
+                this.moveRightMostPot(testKalah);
+            }
+            this.opponentWentLast = false;
+        } else {
+            this.moveRightMostPot(testKalah);
+        }
+
+        this.ourMoveCount++;
+        this.totalMovesBothPlayers++;
+    }
+
     private boolean shouldWeSwap() {
-        return true; // for now
+        return false; // for now
     }
 
     private boolean canWeSwap() {
-        return !wePlayFirst && ourMoveCount == 0;
+        return !this.wePlayFirst && this.ourMoveCount == 0;
     }
 
-    private void runStartCase(String msg, Thread thread) throws InvalidMessageException, CloneNotSupportedException {
-        wePlayFirst = Protocol.interpretStartMsg(msg);
+    private void runStartCase(final String msg, final Board board) throws InvalidMessageException, CloneNotSupportedException {
+        this.wePlayFirst = Protocol.interpretStartMsg(msg);
 
-        printStartMessage();
-        generateRootNode();
+        this.ourSide = this.statePrinter.printStartMessage(this.wePlayFirst);
 
-        if (wePlayFirst) {
-            sendMsg(Protocol.createMoveMsg(7));
-            ourMoveCount++;
+        if (this.wePlayFirst) {
+            this.messageHelper.sendMsg(Protocol.createMoveMsg(7));
+            // TODO Whats our best opening move ?
+            this.opponentWentLast = false;
+            this.ourMoveCount++;
+            this.totalMovesBothPlayers++;
         }
 
-        if (!thread.isAlive()) {
-            Runnable createTreeRunner = new TreeGenerator(tree, 6);
-            thread = new Thread(createTreeRunner);
-            thread.start();
+        if (!this.thread.isAlive()) {
+            this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
+            final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree);
+            this.thread = returnable.getThread();
+            this.tree = returnable.getGameTreeNode();
         }
     }
 
     private void performSwap() {
-        sendSwapMsg();
-        ourSide = ourSide.opposite();
-        wePlayFirst = true;
-        System.err.println("We swapped to :: " + ourSide);
-        System.err.println("||-------------------------------------||\n");
+        this.messageHelper.sendSwapMsg();
+        this.ourSide = this.ourSide.opposite();
+        this.wePlayFirst = true;
+        this.statePrinter.printPerformedSwap(this.ourSide);
     }
 
-    private void generateRootNode() throws CloneNotSupportedException {
-        Board boardInit = new Board(7, 7);
-
-        tree = GameTreeNode.builder()
-                .board(boardInit.clone())
-                .children(new ArrayList<>())
-                .currentSide(ourSide)
-                .depth(0)
-                .parent(null)
-                .playersTurn(wePlayFirst)
-                .build();
-    }
-
-    private void moveAsNormal(Kalah testKalah) {
+    private void moveRightMostPot(final Kalah testKalah) {
         for (int i = 7; i > 0; i--) {
-            Move testMove = new Move(ourSide, i);
-            if (testKalah.isLegalMove(testMove)) {
-                sendMsg(Protocol.createMoveMsg(i));
-                System.err.println("We play hole :: " + i);
-                System.err.println("||-------------------------------------||\n");
+            final Move testMove = new Move(this.ourSide, i);
+            if (this.makeMoveIfLegal(testMove, testKalah)) {
                 break;
             }
         }
     }
 
-    private void printCurrentState(Board board) {
-        System.err.println("||----------------STATE----------------||");
-        if (Kalah.gameWon(board))
-            System.err.println("We've already reached a terminal node!");
-        if (opponentWentLast)
-            System.err.println("Opponent played last with hole :: " + moveTurn.move
-                    + "\nnumber of moves we have made: " + ourMoveCount);
-        else
-            System.err.println("We played last with hole :: " + moveTurn.move
-                    + "\nnumber of moves we have made: " + ourMoveCount);
-        System.err.println("The board ::\n " + board);
+    private boolean moveBestGuess(final Kalah kalah) {
+        final Move bestGuess = this.tree.getBestMove(this.ourSide);
+        this.statePrinter.printBestMoveGuess(bestGuess);
+        return bestGuess != null && this.makeMoveIfLegal(bestGuess, kalah);
     }
 
-    private void printStartMessage() {
-        if (wePlayFirst) {
-            ourSide = Side.SOUTH;
-        } else {
-            ourSide = Side.NORTH;
+    private boolean makeMoveIfLegal(final Move move, final Kalah kalah) {
+        if (kalah.isLegalMove(move)) {
+            kalah.makeMove(move);
+            this.statePrinter.printLegalMoveMade(move);
+            this.messageHelper.sendMsg(Protocol.createMoveMsg(move.getHole()));
+            this.opponentWentLast = false;
+            return true;
         }
-        System.err.println("||--------------GAME START-------------||");
-        System.err.println("Us to go first :: " + wePlayFirst);
-        System.err.println("We are :: " + ourSide);
-        System.err.println("||-------------------------------------||\n");
+        return false;
     }
-
 }

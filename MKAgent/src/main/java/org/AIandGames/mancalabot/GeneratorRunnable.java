@@ -5,15 +5,16 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class GeneratorRunnable implements Runnable {
-    private GameTreeNode root;
-    private int depth;
+    private final GameTreeNode root;
+    private final int depth;
+    private final boolean allowSwap;
 
 
     @Override
     public void run() {
         try {
-            root.generateChildren(this.depth);
-        } catch (CloneNotSupportedException e) {
+            this.root.generateChildren(this.depth, this.allowSwap);
+        } catch (final CloneNotSupportedException e) {
             e.printStackTrace();
         }
     }
