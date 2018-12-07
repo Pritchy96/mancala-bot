@@ -32,8 +32,6 @@ public class HeuristicWeightings {
         for (final Heuristics key : hValues.keySet()) {
             final float value1 = hValues.get(key);
             final float value2 = weightings.get(key);
-            // TODO: Check what happens when null, should auto to 0
-
 
             if (key == Heuristics.RIGHT_MOST_POT) {
                 overallValue += value1 * value2 * getProgressBasedWeighting(node, ourSide);
