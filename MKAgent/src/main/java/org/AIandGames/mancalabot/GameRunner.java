@@ -1,17 +1,14 @@
 package org.AIandGames.mancalabot;
 
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.Enums.Side;
@@ -23,7 +20,7 @@ import org.AIandGames.mancalabot.helpers.TreeGenerator;
 import org.AIandGames.mancalabot.helpers.TreeHelper;
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 8;
+    private static final int OVERALL_DEPTH = 6;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -73,7 +70,7 @@ public class GameRunner {
                         break;
 
                     case STATE:
-                        // runStateCase(msg, board, thread);
+                        runStateCase(msg, board, thread);
                         break;
 
                     case END:
@@ -112,10 +109,17 @@ public class GameRunner {
                 if (canWeSwap() && shouldWeSwap()) {
                     performSwap();
                 } else {
+                    //If there is only one valid move available, make it without doing any checks.
+                    ArrayList<GameTreeNode> childrenNoNulls = (ArrayList<GameTreeNode>)tree.getChildren();
+                    childrenNoNulls.removeAll(Collections.singleton(null));
+                    if (childrenNoNulls.size() == 1) {
+                        makeMoveIfLegal(new Move(ourSide, childrenNoNulls.get(0).getHoleNumber()), testKalah);
+                    }
                     // Tries to make the best guess move, if its not legal, defaults to right most pot.
-                    if (tree.getTerminalState() != TerminalState.NON_TERMINAL) {
+                    else if (tree.getTerminalState() != TerminalState.NON_TERMINAL) {
                         moveRightMostPot(testKalah);
                     }
+                    //Error making best guess move, make default move.
                     else if (!moveBestGuess(testKalah)) {
                         System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                         System.err.println("OUR BEST GUESS IS NOT LEGAL! Big Problem! - Playing right most pot");
@@ -151,7 +155,7 @@ public class GameRunner {
 
         if (wePlayFirst) {
             messageHelper.sendMsg(Protocol.createMoveMsg(7), opponentWentLast);
-            // TODO Whats our best opening move ?
+            // TODO What's our best opening move?
             ourMoveCount++;
         }
 
@@ -166,12 +170,12 @@ public class GameRunner {
 
         }
 
-        try (Writer writer = new FileWriter("Output.json")) {
-            Gson gson = new GsonBuilder().create();
-            gson.toJson(tree, writer);
-        } catch (Exception e) {
+        // try (Writer writer = new FileWriter("Output.json")) {
+        //     Gson gson = new GsonBuilder().create();
+        //     gson.toJson(tree, writer);
+        // } catch (Exception e) {
 
-        }
+        // }
     }
 
     private void performSwap() {
