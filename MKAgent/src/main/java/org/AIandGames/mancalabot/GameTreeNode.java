@@ -24,7 +24,7 @@ public class GameTreeNode {
     private int depth;
     private int holeNumber;
 
-    private double getValue(final Side ourSide) {
+    private float getValue(final Side ourSide) {
         if (this.children.isEmpty()) { // Leaf node
             if (this.terminalState == TerminalState.WIN_TERMINAL) {
                 return Integer.MAX_VALUE;
@@ -36,7 +36,7 @@ public class GameTreeNode {
             }
         } else {
 
-            double value = 0;
+            float value = 0;
 
             GameTreeNode child = null;
             boolean encounteredNonNullChild = false;
@@ -51,7 +51,7 @@ public class GameTreeNode {
                     encounteredNonNullChild = true;
                     value = child.getValue(ourSide);
                 } else {
-                    final double childVal = child.getValue(ourSide);
+                    final float childVal = child.getValue(ourSide);
                     if (this.isMinOrMaxChild(ourSide, value, child, childVal)) {
                         value = childVal;
                     }
@@ -61,7 +61,7 @@ public class GameTreeNode {
         }
     }
 
-    private boolean isMinOrMaxChild(final Side ourSide, final double value, final GameTreeNode child, final double childVal) {
+    private boolean isMinOrMaxChild(final Side ourSide, final float value, final GameTreeNode child, final float childVal) {
         return (child.getPlayersTurn(ourSide) && childVal > value) || (!child.getPlayersTurn(ourSide) && childVal < value);
     }
 
@@ -71,14 +71,14 @@ public class GameTreeNode {
 
     public Move getBestMove(final Side ourSide) {
         GameTreeNode bestChild = null;
-        double maxValue = Integer.MIN_VALUE;
+        float maxValue = Integer.MIN_VALUE;
 
         for (final GameTreeNode child : this.children) {
             if (child == null) {
                 continue;
             }
 
-            final double val = child.getValue(ourSide);
+            final float val = child.getValue(ourSide);
             if (val >= maxValue) {
                 bestChild = child;
                 maxValue = val;

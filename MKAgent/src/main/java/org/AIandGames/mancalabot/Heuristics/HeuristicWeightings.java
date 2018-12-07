@@ -10,16 +10,16 @@ import java.util.Map;
 
 @Getter
 public class HeuristicWeightings {
-    private static Map<Heuristics, Double> weightings;
+    private static Map<Heuristics, Float> weightings;
 
     private static void setupTempMap() {
         weightings = new HashMap<>();
-        weightings.put(Heuristics.MK_POINT_DIFFERENCE, 1.0);
-        weightings.put(Heuristics.RIGHT_MOST_POT, 0.00001);
-        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 0.2);
+        weightings.put(Heuristics.MK_POINT_DIFFERENCE, 1.0f);
+        weightings.put(Heuristics.RIGHT_MOST_POT, 0.00001f);
+        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 0.2f);
     }
 
-    public static double applyWeightings(final Map<Heuristics, Integer> hValues, final GameTreeNode node, final Side ourSide) {
+    public static float applyWeightings(final Map<Heuristics, Integer> hValues, final GameTreeNode node, final Side ourSide) {
         // for each heuristic
 
         if (weightings == null) {
@@ -28,10 +28,10 @@ public class HeuristicWeightings {
             setupTempMap();
         }
 
-        double overallValue = 0;
+        float overallValue = 0;
         for (final Heuristics key : hValues.keySet()) {
-            final double value1 = hValues.get(key);
-            final double value2 = weightings.get(key);
+            final float value1 = hValues.get(key);
+            final float value2 = weightings.get(key);
             // TODO: Check what happens when null, should auto to 0
 
 
