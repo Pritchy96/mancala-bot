@@ -93,31 +93,30 @@ public class GameRunner {
             opponentWentLast = true;
             totalMovesBothPlayers++;
         } else {
-            try {
-                thread.join();
-                tree = treeHelper.updateRootNode(board, tree);
-                if (totalMovesBothPlayers > depthOfStaticTree) {
-                    try {
-                        thread.join();
-                        tree = treeHelper.updateRootNode(board, tree);
-                        makeAMove(board, moveTurn);
-                        thread = treeHelper.updateGameTree(board, tree);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } else { // static tree
-                    makeAMove(board, moveTurn);
 
-                    if (totalMovesBothPlayers >= depthOfStaticTree) {
-                        if (!thread.isAlive()) {
-                            try {
-                                tree = treeHelper.generateRootNode(ourSide, board);
-                                Runnable createTreeRunner = new TreeGenerator(tree, OVERALL_DEPTH, true);
-                                thread = new Thread(createTreeRunner);
-                                thread.start();
-                            } catch (CloneNotSupportedException e) {
-                                e.printStackTrace();
-                            }
+            if (totalMovesBothPlayers > depthOfStaticTree) {
+                try {
+                    this.thread.join();
+                    tree = treeHelper.updateRootNode(board, tree);
+                    makeAMove(board, moveTurn);
+                    final UpdateReturnable returnable = treeHelper.updateGameTree(board, tree);
+                    this.thread = returnable.getThread();
+                    this.tree = returnable.getGameTreeNode();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else { // static tree
+                makeAMove(board, moveTurn);
+
+                if (totalMovesBothPlayers >= depthOfStaticTree) {
+                    if (!thread.isAlive()) {
+                        try {
+                            this.tree = treeHelper.generateRootNode(ourSide, board);
+                            Runnable createTreeRunner = new TreeGenerator(tree, OVERALL_DEPTH, true);
+                            this.thread = new Thread(createTreeRunner);
+                            this.thread.start();
+                        } catch (CloneNotSupportedException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -125,26 +124,25 @@ public class GameRunner {
         }
     }
 
-    private void  makeAMove(Board board, MoveTurn moveTurn) {
+    private void makeAMove(Board board, MoveTurn moveTurn) {
         statePrinter.printCurrentState(board, opponentWentLast, ourMoveCount, moveTurn);
         Kalah testKalah = new Kalah(board);
 
 
         if (canWeSwap() && shouldWeSwap()) {
             performSwap();
-        } else if (totalMovesBothPlayers > depthOfStaticTree){
+        } else if (totalMovesBothPlayers > depthOfStaticTree) {
             // Tries to make the best guess move, if its not legal, defaults to right most pot.
             if (tree.getTerminalState() != TerminalState.NON_TERMINAL) {
                 moveRightMostPot(testKalah);
-            }
-            else if (!moveBestGuess(testKalah)) {
+            } else if (!moveBestGuess(testKalah)) {
                 System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 System.err.println("OUR BEST GUESS IS NOT LEGAL! Big Problem! - Playing right most pot");
                 System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 moveRightMostPot(testKalah);
             }
             opponentWentLast = false;
-         } else {
+        } else {
             moveRightMostPot(testKalah);
         }
 
@@ -173,9 +171,10 @@ public class GameRunner {
         }
 
         if (!thread.isAlive()) {
+            this.tree = treeHelper.generateRootNode(ourSide, board);
             final UpdateReturnable returnable = treeHelper.updateGameTree(board, tree);
             thread = returnable.getThread();
-            tree = returnable.getGameTreeNode();
+            this.tree = returnable.getGameTreeNode();
         }
     }
 
@@ -201,8 +200,7 @@ public class GameRunner {
         System.err.println("Our best guess is :: " + bestGuess);
         if (bestGuess != null && makeMoveIfLegal(bestGuess, kalah)) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
