@@ -98,6 +98,7 @@ public class GameTreeNode {
         hs.add(new MKPointDifference(this));
         hs.add(new RightMostPot(this));
         hs.add(new NumberOfEmptyPots(this));
+        hs.add(new Steal(this));
         hs.add(new FifteenInPot(this));
 
         hs.forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
