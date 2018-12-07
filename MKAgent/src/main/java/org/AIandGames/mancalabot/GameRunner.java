@@ -194,11 +194,7 @@ public class GameRunner {
     private boolean moveBestGuess(final Kalah kalah) {
         final Move bestGuess = this.tree.getBestMove(this.ourSide);
         this.statePrinter.printBestMoveGuess(bestGuess);
-        if (bestGuess != null && this.makeMoveIfLegal(bestGuess, kalah)) {
-            return true;
-        } else {
-            return false;
-        }
+        return bestGuess != null && this.makeMoveIfLegal(bestGuess, kalah);
     }
 
     private boolean makeMoveIfLegal(final Move move, final Kalah kalah) {
