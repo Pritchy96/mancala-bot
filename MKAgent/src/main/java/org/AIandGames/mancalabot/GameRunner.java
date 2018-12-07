@@ -4,10 +4,7 @@ import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
-import org.AIandGames.mancalabot.helpers.MessageHelper;
-import org.AIandGames.mancalabot.helpers.StatePrinter;
-import org.AIandGames.mancalabot.helpers.TreeGenerator;
-import org.AIandGames.mancalabot.helpers.TreeHelper;
+import org.AIandGames.mancalabot.helpers.*;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -16,7 +13,7 @@ import java.util.*;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 9;
+    private static final int OVERALL_DEPTH = 8;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -62,7 +59,7 @@ public class GameRunner {
                 switch (Protocol.getMessageType(msg)) {
 
                     case START:
-                        runStartCase(msg, thread);
+                        runStartCase(msg, board, thread);
                         break;
 
                     case STATE:
@@ -96,7 +93,7 @@ public class GameRunner {
         } else {
             try {
                 thread.join();
-                tree = treeHelper.checkTree(tree, board);
+                tree = treeHelper.updateRootNode(board, tree);
 
                 statePrinter.printCurrentState(board, opponentWentLast, ourMoveCount, moveTurn);
                 Kalah testKalah = new Kalah(board);
@@ -119,7 +116,9 @@ public class GameRunner {
                  }
 
                 ourMoveCount++;
-                thread = treeHelper.updateGameTree(board, tree);
+                final UpdateReturnable returnable = treeHelper.updateGameTree(board, tree);
+                thread = returnable.getThread();
+                tree = returnable.getGameTreeNode();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -134,7 +133,7 @@ public class GameRunner {
         return !wePlayFirst && ourMoveCount == 0;
     }
 
-    private void runStartCase(String msg, Thread thread) throws InvalidMessageException, CloneNotSupportedException {
+    private void runStartCase(String msg, Board board, Thread thread) throws InvalidMessageException, CloneNotSupportedException {
         wePlayFirst = Protocol.interpretStartMsg(msg);
 
         ourSide = statePrinter.printStartMessage(wePlayFirst);
@@ -147,9 +146,9 @@ public class GameRunner {
         }
 
         if (!thread.isAlive()) {
-            Runnable createTreeRunner = new TreeGenerator(tree, OVERALL_DEPTH, true);
-            thread = new Thread(createTreeRunner);
-            thread.start();
+            final UpdateReturnable returnable = treeHelper.updateGameTree(board, tree);
+            thread = returnable.getThread();
+            tree = returnable.getGameTreeNode();
         }
     }
 

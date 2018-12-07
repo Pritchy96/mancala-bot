@@ -41,8 +41,6 @@ public class TreeGenerator implements Runnable {
 
 
 
-
-
             rootNode.getChildren().stream()
                     .filter(Objects::nonNull)
                     .forEach(childNode -> leafNodesToRunThreaded.addAll(childNode.getChildren()));

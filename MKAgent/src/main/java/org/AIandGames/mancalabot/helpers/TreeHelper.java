@@ -23,7 +23,7 @@ public class TreeHelper {
                 .build();
     }
 
-    public GameTreeNode checkTree(GameTreeNode tree, Board board) { // BFS
+    public GameTreeNode updateRootNode(Board board, GameTreeNode tree) { // BFS
         final Queue<GameTreeNode> nodesToVisit = new LinkedBlockingQueue<>();
         final HashSet<GameTreeNode> visitedNodes = new HashSet<>();
 
@@ -56,21 +56,20 @@ public class TreeHelper {
         }
     }
 
-    public Thread updateGameTree(Board board, GameTreeNode tree) {
+    public UpdateReturnable updateGameTree(Board board, GameTreeNode tree) {
         try {
             Thread thread;
-            tree = checkTree(tree, board);
+            tree = updateRootNode(board, tree);
 
-            TreeGenerator tg = new TreeGenerator(tree, this.overallDepth - 1, false);
-            thread = new Thread(tg);
+            final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, false);
+            thread = new Thread(createTreeRunner);
             thread.start();
-            return thread;
-
+            return new UpdateReturnable(tree, thread);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return null;
+        return new UpdateReturnable(tree, null);
     }
 
 
