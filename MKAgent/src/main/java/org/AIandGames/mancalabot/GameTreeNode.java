@@ -52,13 +52,17 @@ public class GameTreeNode {
                     value = child.getValue(ourSide);
                 } else {
                     final double childVal = child.getValue(ourSide);
-                    if ((child.getPlayersTurn(ourSide) && childVal > value) || (!child.getPlayersTurn(ourSide) && childVal < value)) {
+                    if (this.isMinOrMaxChild(ourSide, value, child, childVal)) {
                         value = childVal;
                     }
                 }
             }
             return value;
         }
+    }
+
+    private boolean isMinOrMaxChild(final Side ourSide, final double value, final GameTreeNode child, final double childVal) {
+        return (child.getPlayersTurn(ourSide) && childVal > value) || (!child.getPlayersTurn(ourSide) && childVal < value);
     }
 
     public boolean getPlayersTurn(final Side ourSide) {
