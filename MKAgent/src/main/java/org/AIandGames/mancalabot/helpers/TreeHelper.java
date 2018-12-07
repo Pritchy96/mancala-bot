@@ -35,18 +35,10 @@ public class TreeHelper {
             }
 
             try {
-
-                for (int i = 0; i < visitingNode.getChildren().size(); i++) {
-                    if (visitingNode.getChildren().get(i) != null) {
-                        nodesToVisit.add(visitingNode.getChildren().get(i));
-                    }
-                }
-
-
-//                visitingNode.getChildren().stream()
-//                        .filter(Objects::nonNull)
-//                        //.filter(child -> !visitedNodes.contains(child))
-//                        .forEach(nodesToVisit::add);
+                visitingNode.getChildren().stream()
+                        .filter(Objects::nonNull)
+                        .filter(child -> !visitedNodes.contains(child))
+                        .forEach(nodesToVisit::add);
             } catch (final Exception e) {
                 System.err.println("Err");
             }
