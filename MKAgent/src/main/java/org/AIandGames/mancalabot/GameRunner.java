@@ -12,13 +12,13 @@ import java.net.Socket;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 10;
+    private static final int OVERALL_DEPTH = 9;
     private PrintWriter output;
     private Reader input;
-    private Boolean wePlayFirst = false;
-    private Boolean opponentWentLast = true;
+    private boolean wePlayFirst = false;
+    private boolean opponentWentLast = true;
     private GameTreeNode tree = null;
-    private long ourMoveCount = 0;
+    private int ourMoveCount = 0;
     private Side ourSide;
     private Thread thread = new Thread();
     private MessageHelper messageHelper;
@@ -31,12 +31,11 @@ public class GameRunner {
     private void setupSocketServer() {
         try {
             /*
-      Input from the game engine.
-     */ /**
              * Input from the game engine.
-             */ //The actual server expects the client to be running and waiting, and java sockets
-            //...expect the server to be running and waiting... Set up a Server that just listens
-            //...so the client and server don't time out as a result.
+             * The actual server expects the client to be running and waiting, and java sockets
+             * ...expect the server to be running and waiting... Set up a Server that just listens
+             * ...so the client and server don't time out as a result.
+             */
             final ServerSocket server = new ServerSocket(12345);
             final Socket clientSocket = server.accept();
             this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -48,7 +47,7 @@ public class GameRunner {
     }
 
     void run() {
-        final Board board = new Board(7, 7);
+        final Board board = new Board((byte) 7, (byte) 7);
 
         this.setupSocketServer();
 

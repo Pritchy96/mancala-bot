@@ -22,16 +22,17 @@ public class Board extends Observable implements Cloneable {
     /**
      * @see #board
      */
-    private static final int NORTH_ROW = 0;
+    private static final byte NORTH_ROW = 0;
+
     /**
      * @see #board
      */
-    private static final int SOUTH_ROW = 1;
+    private static final byte SOUTH_ROW = 1;
 
     /**
      * The number of holes per side (must be >= 1).
      */
-    private final int holes;
+    private final byte holes;
 
     /**
      * The board data. The first dimension of the array is 2, the second one
@@ -41,7 +42,7 @@ public class Board extends Observable implements Cloneable {
      * is stored in board[...][n], the number of seeds in the store (of one
      * side) is stored in board[...][0].
      */
-    private final int[][] board;
+    private final byte[][] board;
 
     /**
      * Creates a new board.
@@ -52,14 +53,14 @@ public class Board extends Observable implements Cloneable {
      * @throws IllegalArgumentException if any of the arguments is outside of
      *                                  the valid range.
      */
-    public Board(final int holes, final int seeds) throws IllegalArgumentException {
+    public Board(final byte holes, final byte seeds) throws IllegalArgumentException {
         if (holes < 1)
             throw new IllegalArgumentException("There has to be at least one hole, but " + holes + " were requested.");
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
         this.holes = holes;
-        this.board = new int[2][holes + 1]; // WARNING: potential integer overflow here!
+        this.board = new byte[2][holes + 1]; // WARNING: potential integer overflow here!
 
         for (int i = 1; i <= holes; i++) {
             this.board[NORTH_ROW][i] = seeds;
@@ -77,7 +78,7 @@ public class Board extends Observable implements Cloneable {
      */
     public Board(final Board original) {
         this.holes = original.holes;
-        this.board = new int[2][this.holes + 1];
+        this.board = new byte[2][this.holes + 1];
 
         for (int i = 0; i <= this.holes; i++) {
             this.board[NORTH_ROW][i] = original.board[NORTH_ROW][i];
@@ -89,7 +90,7 @@ public class Board extends Observable implements Cloneable {
      * @param side A side of the board.
      * @return The index of side "side" for the first dimension of "board".
      */
-    private static int indexOfSide(final Side side) {
+    private static byte indexOfSide(final Side side) {
         switch (side) {
             case NORTH:
                 return NORTH_ROW;
@@ -115,7 +116,7 @@ public class Board extends Observable implements Cloneable {
     /**
      * @return The number of holes per side (will be >= 1).
      */
-    public int getNoOfHoles() {
+    public byte getNoOfHoles() {
         return this.holes;
     }
 
@@ -127,7 +128,7 @@ public class Board extends Observable implements Cloneable {
      * @return The number of seeds in hole "hole" on side "side".
      * @throws IllegalArgumentException if the hole number is invalid.
      */
-    public int getSeeds(final Side side, final int hole) throws IllegalArgumentException {
+    public byte getSeeds(final Side side, final int hole) throws IllegalArgumentException {
         if (hole < 1 || hole > this.holes)
             throw new IllegalArgumentException("Hole number must be between 1 and " + (this.board[NORTH_ROW].length - 1) + " but was " + hole + ".");
 
@@ -149,7 +150,7 @@ public class Board extends Observable implements Cloneable {
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
-        this.board[indexOfSide(side)][hole] = seeds;
+        this.board[indexOfSide(side)][hole] = (byte) seeds;
         this.setChanged();
     }
 
@@ -204,7 +205,7 @@ public class Board extends Observable implements Cloneable {
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
-        this.board[1 - indexOfSide(side)][this.holes + 1 - hole] = seeds;
+        this.board[1 - indexOfSide(side)][this.holes + 1 - hole] = (byte) seeds;
         this.setChanged();
     }
 
@@ -218,7 +219,7 @@ public class Board extends Observable implements Cloneable {
      * @throws IllegalArgumentException if any of the arguments is outside of
      *                                  the valid range.
      */
-    public void addSeedsOp(final Side side, final int hole, final int seeds) throws IllegalArgumentException {
+    public void addSeedsOp(final Side side, final byte hole, final byte seeds) throws IllegalArgumentException {
         if (hole < 1 || hole > this.holes)
             throw new IllegalArgumentException("Hole number must be between 1 and " + (this.board[NORTH_ROW].length - 1) + " but was " + hole + ".");
         if (seeds < 0)
@@ -245,7 +246,7 @@ public class Board extends Observable implements Cloneable {
      * @param seeds The number of seeds that shall be in the store afterwards (>= 0).
      * @throws IllegalArgumentException if the number of seeds is invalid.
      */
-    public void setSeedsInStore(final Side side, final int seeds) throws IllegalArgumentException {
+    public void setSeedsInStore(final Side side, final byte seeds) throws IllegalArgumentException {
         if (seeds < 0)
             throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + seeds + " were requested.");
 
@@ -290,8 +291,8 @@ public class Board extends Observable implements Cloneable {
         return boardString.toString();
     }
 
-    private String getPaddedValue(final int i, final int northOrSouth) {
-        return StringUtils.leftPad(((Integer) this.board[northOrSouth][i]).toString(), 2, "0");
+    private String getPaddedValue(final int i, final byte northOrSouth) {
+        return StringUtils.leftPad(((Byte) this.board[northOrSouth][i]).toString(), 2, "0");
     }
 }
 

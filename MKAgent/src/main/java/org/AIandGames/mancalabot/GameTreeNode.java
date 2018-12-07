@@ -127,7 +127,7 @@ public class GameTreeNode {
     }
 
     private void generateUpTo7Children() throws CloneNotSupportedException {
-        for (int i = 1; i <= 7; i++) {
+        for (byte i = 1; i <= 7; i++) {
             if (this.board.getSeeds(this.currentSide, i) > 0) {
                 final GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
 
@@ -168,7 +168,7 @@ public class GameTreeNode {
     }
 
 
-    private Side makeMove(final Board board, final int hole, final Side side) {
+    private Side makeMove(final Board board, final byte hole, final Side side) {
         /* from the documentation:
 		  "1. The counters are lifted from this hole and sown in anti-clockwise direction, starting
 		      with the next hole. The player's own kalahah is included in the sowing, but the
@@ -189,10 +189,10 @@ public class GameTreeNode {
 
 
         // pick seeds:
-        final int seedsToSow = board.getSeeds(side, hole);
-        board.setSeeds(side, hole, 0);
+        final byte seedsToSow = board.getSeeds(side, hole);
+        board.setSeeds(side, hole, (byte) 0);
 
-        final int holes = board.getNoOfHoles();
+        final byte holes = board.getNoOfHoles();
         final int receivingPits = 2 * holes + 1;  // sow into: all holes + 1 store
         final int rounds = seedsToSow / receivingPits;  // sowing rounds
         int extra = seedsToSow % receivingPits;  // seeds for the last partial round
@@ -201,7 +201,7 @@ public class GameTreeNode {
 
         // sow the seeds of the full rounds (if any):
         if (rounds != 0) {
-            for (int hole1 = 1; hole1 <= holes; hole1++) {
+            for (byte hole1 = 1; hole1 <= holes; hole1++) {
                 board.addSeeds(Side.NORTH, hole1, rounds);
                 board.addSeeds(Side.SOUTH, hole1, rounds);
             }

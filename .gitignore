@@ -100,3 +100,6 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
+
+# Save Actions plugin
+.idea/saveactions_settings.xml

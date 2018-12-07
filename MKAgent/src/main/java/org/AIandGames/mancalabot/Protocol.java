@@ -8,7 +8,7 @@ import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
  * Creates messages to be sent and interprets messages received.
  */
 public class Protocol {
-    public static final int SWAP = -1;
+    public static final byte SWAP = -1;
 
     /**
      * Creates a "move" message.
@@ -122,29 +122,32 @@ public class Protocol {
             for (int i = 0; i < board.getNoOfHoles(); i++)
                 board.setSeeds(Side.NORTH, i + 1, Integer.parseInt(boardParts[i]));
             // northern store:
-            board.setSeedsInStore(Side.NORTH, Integer.parseInt(boardParts[board.getNoOfHoles()]));
+            board.setSeedsInStore(Side.NORTH, Byte.parseByte(boardParts[board.getNoOfHoles()]));
             // holes on the south side:
             for (int i = 0; i < board.getNoOfHoles(); i++)
                 board.setSeeds(Side.SOUTH, i + 1, Integer.parseInt(boardParts[i + board.getNoOfHoles() + 1]));
             // southern store:
-            board.setSeedsInStore(Side.SOUTH, Integer.parseInt(boardParts[2 * board.getNoOfHoles() + 1]));
-        } catch (final NumberFormatException e) {
-            throw new InvalidMessageException("Illegal value for seed count: " + e.getMessage());
+            board.setSeedsInStore(Side.SOUTH, Byte.parseByte(boardParts[2 * board.getNoOfHoles() + 1]));
         } catch (final IllegalArgumentException e) {
             throw new InvalidMessageException("Illegal value for seed count: " + e.getMessage());
         }
 
         // 3rd argument: who's turn?
         moveTurn.end = false;
-        if (msgParts[3].equals("YOU\n"))
-            moveTurn.ourTurn = true;
-        else if (msgParts[3].equals("OPP\n"))
-            moveTurn.ourTurn = false;
-        else if (msgParts[3].equals("END\n")) {
-            moveTurn.end = true;
-            moveTurn.ourTurn = false;
-        } else
-            throw new InvalidMessageException("Illegal value for turn parameter: " + msgParts[3]);
+        switch (msgParts[3]) {
+            case "YOU\n":
+                moveTurn.ourTurn = true;
+                break;
+            case "OPP\n":
+                moveTurn.ourTurn = false;
+                break;
+            case "END\n":
+                moveTurn.end = true;
+                moveTurn.ourTurn = false;
+                break;
+            default:
+                throw new InvalidMessageException("Illegal value for turn parameter: " + msgParts[3]);
+        }
 
         return moveTurn;
     }
