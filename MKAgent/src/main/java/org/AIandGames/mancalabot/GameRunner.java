@@ -68,7 +68,7 @@ public class GameRunner {
                         break;
 
                     case END:
-                        System.err.println("The end.");
+                        this.statePrinter.printEndState();
                         return;
                 }
             } catch (final InvalidMessageException | IOException | CloneNotSupportedException e) {
@@ -88,8 +88,6 @@ public class GameRunner {
         // is it not our turn?
         if (!moveTurn.ourTurn) {
             this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
-            System.err.println("Not our turn - continuing to make tree");
-            System.err.println("||-------------------------------------||\n");
             this.opponentWentLast = true;
             this.totalMovesBothPlayers++;
         } else {
@@ -136,9 +134,7 @@ public class GameRunner {
             if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
                 this.moveRightMostPot(testKalah);
             } else if (!this.moveBestGuess(testKalah)) {
-                System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                System.err.println("OUR BEST GUESS IS NOT LEGAL! Big Problem! - Playing right most pot");
-                System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                this.statePrinter.printBestGuessError();
                 this.moveRightMostPot(testKalah);
             }
             this.opponentWentLast = false;
@@ -183,8 +179,7 @@ public class GameRunner {
         this.messageHelper.sendSwapMsg();
         this.ourSide = this.ourSide.opposite();
         this.wePlayFirst = true;
-        System.err.println("We swapped to :: " + this.ourSide);
-        System.err.println("||-------------------------------------||\n");
+        this.statePrinter.printPerformedSwap(this.ourSide);
     }
 
     private void moveRightMostPot(final Kalah testKalah) {
@@ -198,7 +193,7 @@ public class GameRunner {
 
     private boolean moveBestGuess(final Kalah kalah) {
         final Move bestGuess = this.tree.getBestMove(this.ourSide);
-        System.err.println("Our best guess is :: " + bestGuess);
+        this.statePrinter.printBestMoveGuess(bestGuess);
         if (bestGuess != null && this.makeMoveIfLegal(bestGuess, kalah)) {
             return true;
         } else {
@@ -209,7 +204,7 @@ public class GameRunner {
     private boolean makeMoveIfLegal(final Move move, final Kalah kalah) {
         if (kalah.isLegalMove(move)) {
             kalah.makeMove(move);
-            System.err.println("We Made this move :: " + move);
+            this.statePrinter.printLegalMoveMade(move);
             this.messageHelper.sendMsg(Protocol.createMoveMsg(move.getHole()));
             this.opponentWentLast = false;
             return true;
