@@ -1,8 +1,23 @@
 package org.AIandGames.mancalabot;
 
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.Enums.TerminalState;
-import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
 import org.AIandGames.mancalabot.helpers.*;
 
@@ -13,6 +28,7 @@ import java.net.Socket;
 
 public class GameRunner {
     private static final int OVERALL_DEPTH = 10;
+    private static final Boolean WRITE_TREE = false;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -130,8 +146,14 @@ public class GameRunner {
         if (this.canWeSwap() && this.shouldWeSwap()) {
             this.performSwap();
         } else if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
+            //If there is only one valid move available, make it without doing any checks.
+            ArrayList<GameTreeNode> childrenNoNulls = (ArrayList<GameTreeNode>)tree.getChildren();
+            childrenNoNulls.removeAll(Collections.singleton(null));
+            if (childrenNoNulls.size() == 1) {
+                makeMoveIfLegal(new Move(ourSide, childrenNoNulls.get(0).getHoleNumber()), testKalah);
+            }
             // Tries to make the best guess move, if its not legal, defaults to right most pot.
-            if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
+            else if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
                 this.moveRightMostPot(testKalah);
             } else if (!this.moveBestGuess(testKalah)) {
                 this.statePrinter.printBestGuessError();
@@ -172,6 +194,23 @@ public class GameRunner {
             final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree);
             this.thread = returnable.getThread();
             this.tree = returnable.getGameTreeNode();
+        }
+        try {
+            thread.join();  
+        } catch (Exception e) {
+
+        }
+        
+        if (WRITE_TREE) {
+            System.err.println("Writing Tree to tree.json");
+            try (Writer writer = new FileWriter("tree.json")) {
+                Gson gson = new GsonBuilder().create();
+                gson.toJson(tree, writer);
+                writer.close();
+                System.exit(0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
