@@ -1,14 +1,19 @@
 package org.AIandGames.mancalabot;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.Enums.Side;
@@ -21,6 +26,7 @@ import org.AIandGames.mancalabot.helpers.TreeHelper;
 
 public class GameRunner {
     private static final int OVERALL_DEPTH = 6;
+    private static final Boolean WRITE_TREE = false;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -105,7 +111,6 @@ public class GameRunner {
                 statePrinter.printCurrentState(board, opponentWentLast, ourMoveCount, moveTurn);
                 Kalah testKalah = new Kalah(board);
 
-
                 if (canWeSwap() && shouldWeSwap()) {
                     performSwap();
                 } else {
@@ -169,13 +174,18 @@ public class GameRunner {
         } catch (Exception e) {
 
         }
-
-        // try (Writer writer = new FileWriter("Output.json")) {
-        //     Gson gson = new GsonBuilder().create();
-        //     gson.toJson(tree, writer);
-        // } catch (Exception e) {
-
-        // }
+        
+        if (WRITE_TREE) {
+            System.err.println("Writing Tree to tree.json");
+            try (Writer writer = new FileWriter("tree.json")) {
+                Gson gson = new GsonBuilder().create();
+                gson.toJson(tree, writer);
+                writer.close();
+                System.exit(0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void performSwap() {

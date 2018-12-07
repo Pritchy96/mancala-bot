@@ -1,26 +1,44 @@
 package org.AIandGames.mancalabot.helpers;
 
-import lombok.AllArgsConstructor;
-import org.AIandGames.mancalabot.Board;
-import org.AIandGames.mancalabot.Enums.Side;
-import org.AIandGames.mancalabot.GameTreeNode;
-
-import java.util.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import com.google.gson.GsonBuilder;
+
+import org.AIandGames.mancalabot.Board;
+import org.AIandGames.mancalabot.GameTreeNode;
+import org.AIandGames.mancalabot.Enums.Side;
+
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class TreeHelper {
     private int overallDepth;
 
     public GameTreeNode generateRootNode(Side ourSide, Boolean wePlayFirst) throws CloneNotSupportedException {
+
         Board boardInit = new Board(7, 7);
 
-        return GameTreeNode.builder()
-                .board(boardInit.clone())
-                .children(new ArrayList<>())
-                .currentSide(ourSide.opposite())
-                .playersTurn(wePlayFirst)
-                .build();
+        try {
+            Reader reader = new FileReader("tree.json"); 
+            return new GsonBuilder().create().fromJson(reader, GameTreeNode.class);
+        } catch (FileNotFoundException fileException) {
+            System.err.println("No Input tree.json found, generating a tree instead");
+            
+            return GameTreeNode.builder()
+            .board(boardInit.clone())
+            .children(new ArrayList<>())
+            .currentSide(ourSide.opposite())
+            .playersTurn(wePlayFirst)
+            .build();
+        }
     }
 
     public GameTreeNode checkTree(GameTreeNode tree, Board board) { // BFS
@@ -72,6 +90,4 @@ public class TreeHelper {
 
         return null;
     }
-
-
 }
