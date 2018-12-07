@@ -14,7 +14,7 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@EqualsAndHashCode(exclude = {"children", "parent"})
+@EqualsAndHashCode(exclude = {"children"})
 public class GameTreeNode {
     private Board board;
     private Map<Heuristics, Integer> hValues;
