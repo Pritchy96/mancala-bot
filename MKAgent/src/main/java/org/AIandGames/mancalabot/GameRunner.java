@@ -21,11 +21,6 @@ import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
 import org.AIandGames.mancalabot.helpers.*;
 
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-
-
 public class GameRunner {
     private static final int OVERALL_DEPTH = 10;
     private static final Boolean WRITE_TREE = false;
@@ -195,12 +190,7 @@ public class GameRunner {
             this.thread = returnable.getThread();
             this.tree = returnable.getGameTreeNode();
         }
-        try {
-            thread.join();  
-        } catch (Exception e) {
 
-        }
-        
         if (WRITE_TREE) {
             System.err.println("Writing Tree to tree.json");
             try (Writer writer = new FileWriter("tree.json")) {
