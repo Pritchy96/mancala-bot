@@ -51,14 +51,11 @@ public class TreeHelper {
                 return visitingNode;
             }
 
-            try {
-                visitingNode.getChildren().stream()
-                        .filter(Objects::nonNull)
-                        .filter(child -> !visitedNodes.contains(child))
-                        .forEach(nodesToVisit::add);
-            } catch (final Exception e) {
-                System.err.println("Err");
-            }
+            visitingNode.getChildren().stream()
+                    .filter(Objects::nonNull)
+                    .filter(child -> !visitedNodes.contains(child))
+                    .forEach(nodesToVisit::add);
+
 
             visitedNodes.add(visitingNode);
         }
@@ -92,29 +89,24 @@ public class TreeHelper {
     }
 
     public int getMaxDepthOfTree(final List<GameTreeNode> tree) {
-
         final List<GameTreeNode> nodeList = new ArrayList<>();
         if (tree.isEmpty())
             return 0;
         else {
-            tree.stream().filter(Objects::nonNull).forEach(n -> nodeList.addAll(n.getChildren()));
+            tree.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(n -> nodeList.addAll(n.getChildren()));
             return 1 + this.getMaxDepthOfTree(nodeList);
         }
     }
 
     public UpdateReturnable updateGameTree(final Board board, GameTreeNode tree, final Side ourSide) {
-        try {
-            final Thread thread;
-            tree = this.updateRootNode(board, tree, ourSide);
+        final Thread thread;
+        tree = this.updateRootNode(board, tree, ourSide);
 
-            final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, false, ourSide);
-            thread = new Thread(createTreeRunner);
-            thread.start();
-            return new UpdateReturnable(tree, thread);
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
-
-        return new UpdateReturnable(tree, null);
+        final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, false, ourSide);
+        thread = new Thread(createTreeRunner);
+        thread.start();
+        return new UpdateReturnable(tree, thread);
     }
 }

@@ -34,20 +34,16 @@ public class GameRunner {
     private final int depthOfStaticTree = 2;
 
 
-    private void setupServerIO() {
+    private void setupServerIO() throws IOException {
         if (USE_SOCKETS) {
-            try {
-                /* Input from the game engine. */
-                //The actual server expects the client to be running and waiting, and java sockets
-                //...expect the server to be running and waiting... Set up a Server that just listens
-                //...so the client and server don't time out as a result.
-                final ServerSocket server = new ServerSocket(12345);
-                final Socket clientSocket = server.accept();
-                this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                this.output = new PrintWriter(clientSocket.getOutputStream(), true);
-            } catch (final IOException e) {
-                e.printStackTrace();
-            } 
+            /* Input from the game engine. */
+            //The actual server expects the client to be running and waiting, and java sockets
+            //...expect the server to be running and waiting... Set up a Server that just listens
+            //...so the client and server don't time out as a result.
+            final ServerSocket server = new ServerSocket(12345);
+            final Socket clientSocket = server.accept();
+            this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            this.output = new PrintWriter(clientSocket.getOutputStream(), true);
         } else {
             this.input = new BufferedReader(new InputStreamReader(System.in));
             this.output = new PrintWriter(new OutputStreamWriter(System.out));
@@ -55,40 +51,36 @@ public class GameRunner {
          this.messageHelper = new MessageHelper(this.input, this.output, USE_SOCKETS);
     }
 
-    void run() {
+    void run() throws IOException, InvalidMessageException, CloneNotSupportedException, InterruptedException {
         final Board board = new Board(7, 7);
 
         this.setupServerIO();
 
         String msg;
         while (true) {
-            try {
-                msg = this.messageHelper.recvMsg();
+            msg = this.messageHelper.recvMsg();
 
-                switch (Protocol.getMessageType(msg)) {
+            switch (Protocol.getMessageType(msg)) {
 
-                    case START:
-                        this.runStartCase(msg, board);
-                        break;
+                case START:
+                    this.runStartCase(msg, board);
+                    break;
 
-                    case STATE:
-                        this.runStateCase(msg, board);
-                        break;
+                case STATE:
+                    this.runStateCase(msg, board);
+                    break;
 
-                    case END:
-                        this.statePrinter.printEndState();
-                        return;
-                }
-            } catch (final InvalidMessageException | IOException | CloneNotSupportedException e) {
-                e.printStackTrace();
+                case END:
+                    this.statePrinter.printEndState();
+                    return;
             }
         }
     }
 
-    private void runStateCase(final String msg, final Board board) throws InvalidMessageException {
+    private void runStateCase(final String msg, final Board board) throws InvalidMessageException, InterruptedException, CloneNotSupportedException {
         final MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
 
-        if (this.opponentWentLast && moveTurn.move == Protocol.SWAP) {
+        if (this.opponentSwapped(moveTurn)) {
             this.ourSide = this.ourSide.opposite();
             this.ourMoveCount--;
         }
@@ -99,35 +91,37 @@ public class GameRunner {
             this.opponentWentLast = true;
             this.totalMovesBothPlayers++;
         } else {
-
-            if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
-                try {
-                    this.thread.join();
-                    this.tree = this.treeHelper.updateRootNode(board, this.tree, this.ourSide);
-                    this.makeAMove(board, moveTurn);
-                    final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
-                    this.thread = returnable.getThread();
-                    this.tree = returnable.getGameTreeNode();
-                } catch (final InterruptedException | CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            } else { // static tree
+            if (this.useDynamicTree()) {
+                this.thread.join();
+                this.tree = this.treeHelper.updateRootNode(board, this.tree);
                 this.makeAMove(board, moveTurn);
-
-                if (this.totalMovesBothPlayers >= this.depthOfStaticTree) {
+                final UpdateReturnable updateReturnable = this.treeHelper.updateGameTree(board, this.tree);
+                this.thread = updateReturnable.getThread();
+                this.tree = updateReturnable.getGameTreeNode();
+            } else { // use static tree
+                this.makeAMove(board, moveTurn);
+                if (this.endOfStaticTree()) {
                     if (!this.thread.isAlive()) {
-                        try {
-                            this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
-                            final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, true, this.ourSide);
-                            this.thread = new Thread(createTreeRunner);
-                            this.thread.start();
-                        } catch (final CloneNotSupportedException e) {
-                            e.printStackTrace();
-                        }
+                        this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
+                        final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, true, this.ourSide);
+                        this.thread = new Thread(createTreeRunner);
+                        this.thread.start();
                     }
                 }
             }
         }
+    }
+
+    private boolean endOfStaticTree() {
+        return this.totalMovesBothPlayers >= this.depthOfStaticTree;
+    }
+
+    private boolean useDynamicTree() {
+        return this.totalMovesBothPlayers > this.depthOfStaticTree;
+    }
+
+    private boolean opponentSwapped(final MoveTurn moveTurn) {
+        return this.opponentWentLast && moveTurn.move == Protocol.SWAP;
     }
 
     private void makeAMove(final Board board, final MoveTurn moveTurn) {
@@ -137,7 +131,7 @@ public class GameRunner {
 
         if (this.canWeSwap() && this.shouldWeSwap(moveTurn)) {
             this.performSwap();
-        } else if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
+        } else if (this.useDynamicTree()) {
             //If there is only one valid move available, make it without doing any checks.
             final List<GameTreeNode> childrenNoNulls = this.tree.getChildren();
             childrenNoNulls.removeAll(Collections.singleton(null));

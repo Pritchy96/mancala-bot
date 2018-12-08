@@ -101,7 +101,9 @@ public class GameTreeNode {
         hs.add(new RepeatMoveAvailable(this));
         hs.add(new MaxSteal(this));
 
-        hs.forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
+        hs.stream()
+                .parallel()
+                .forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
     }
 
     public void generateChildren(final int depth, final boolean allowSwap, final Side ourSide) throws CloneNotSupportedException {

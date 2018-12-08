@@ -128,8 +128,6 @@ public class Protocol {
                 board.setSeeds(Side.SOUTH, i + 1, Integer.parseInt(boardParts[i + board.getNoOfHoles() + 1]));
             // southern store:
             board.setSeedsInStore(Side.SOUTH, Integer.parseInt(boardParts[2 * board.getNoOfHoles() + 1]));
-        } catch (final NumberFormatException e) {
-            throw new InvalidMessageException("Illegal value for seed count: " + e.getMessage());
         } catch (final IllegalArgumentException e) {
             throw new InvalidMessageException("Illegal value for seed count: " + e.getMessage());
         }

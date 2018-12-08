@@ -1,22 +1,30 @@
 package org.AIandGames.mancalabot;
 
 
+import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
+
+import java.io.IOException;
 import org.AIandGames.mancalabot.Heuristics.HeuristicWeightings;
 
 public class Main {
 
     public static void main(final String[] args) {
-        final HeuristicWeightings heuristicWeightings = HeuristicWeightings.getInstance();
+       try {
+           final HeuristicWeightings heuristicWeightings = HeuristicWeightings.getInstance();
 
-        if (args.length == 5) {
-            heuristicWeightings.init(Double.parseDouble(args[0]),
-                    Double.parseDouble(args[1]),
-                    Double.parseDouble(args[2]),
-                    Double.parseDouble(args[3]),
-                    Double.parseDouble(args[4]));
+           if (args.length == 5) {
+               heuristicWeightings.init(Double.parseDouble(args[0]),
+                       Double.parseDouble(args[1]),
+                       Double.parseDouble(args[2]),
+                       Double.parseDouble(args[3]),
+                       Double.parseDouble(args[4]));
+           }
+
+           final GameRunner gameRunner = new GameRunner();
+           gameRunner.run();
+        } catch (final IOException | InvalidMessageException | InterruptedException | CloneNotSupportedException e) {
+            e.printStackTrace();
         }
-        final GameRunner gr = new GameRunner();
-        gr.run();
     }
 
 }
