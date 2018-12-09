@@ -50,7 +50,11 @@ public class GameRunner {
     void run() {
         final Board board = new Board(7, 7);
 
-        this.setupSocketServer();
+        //this.setupSocketServer();
+
+        this.input = new BufferedReader(new InputStreamReader(System.in));
+        this.output = new PrintWriter(new OutputStreamWriter(System.out));
+        this.messageHelper = new MessageHelper(this.input, this.output);
 
         String msg;
         while (true) {
