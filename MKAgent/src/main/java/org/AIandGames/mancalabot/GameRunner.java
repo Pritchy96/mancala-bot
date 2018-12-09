@@ -109,12 +109,12 @@ public class GameRunner {
             if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
                 try {
                     this.thread.join();
-                    this.tree = this.treeHelper.updateRootNode(board, this.tree);
+                    this.tree = this.treeHelper.updateRootNode(board, this.tree, this.ourSide);
                     this.makeAMove(board, moveTurn);
                     final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
                     this.thread = returnable.getThread();
                     this.tree = returnable.getGameTreeNode();
-                } catch (final InterruptedException e) {
+                } catch (final InterruptedException | CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
             } else { // static tree
