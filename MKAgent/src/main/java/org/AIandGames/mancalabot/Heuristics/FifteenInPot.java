@@ -23,7 +23,7 @@ public class FifteenInPot implements Heuristic {
 
     @Override
     public int getValue(final Side ourSide) {
-
-        return this.node.getBoard().getSeeds(this.node.getCurrentSide(), this.node.getHoleNumber()) == 15 ? 1 : 0;
+        return this.node.getBoard().getSeeds(this.node.getCurrentSide(), this.node.getHoleNumber()) == 15 ?
+                (ourSide.equals(this.node.getCurrentSide()) ? 1 : -1) : 0;
     }
 }
