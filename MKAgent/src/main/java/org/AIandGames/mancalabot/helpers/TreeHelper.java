@@ -59,12 +59,12 @@ public class TreeHelper {
         }
     }
 
-    public UpdateReturnable updateGameTree(final Board board, GameTreeNode tree) {
+    public UpdateReturnable updateGameTree(final Board board, GameTreeNode tree, final Side ourSide) {
         try {
             final Thread thread;
             tree = this.updateRootNode(board, tree);
 
-            final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, false);
+            final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, false, ourSide);
             thread = new Thread(createTreeRunner);
             thread.start();
             return new UpdateReturnable(tree, thread);

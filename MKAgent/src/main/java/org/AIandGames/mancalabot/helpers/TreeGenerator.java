@@ -1,5 +1,6 @@
 package org.AIandGames.mancalabot.helpers;
 
+import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.GameTreeNode;
 import org.AIandGames.mancalabot.GeneratorRunnable;
 
@@ -15,11 +16,13 @@ public class TreeGenerator implements Runnable {
     private GameTreeNode rootNode;
     private int overallDepth;
     private boolean allowSwap;
+    private Side ourSide;
 
-    public TreeGenerator(final GameTreeNode rootNode, final int overallDepth, final boolean allowSwap) {
+    public TreeGenerator(final GameTreeNode rootNode, final int overallDepth, final boolean allowSwap, final Side ourSide) {
         this.rootNode = rootNode;
         this.overallDepth = overallDepth;
         this.allowSwap = allowSwap;
+        this.ourSide = ourSide;
 
         this.threadedQueue = new LinkedBlockingDeque<>();
         final int logicalCores = Runtime.getRuntime().availableProcessors();
@@ -37,7 +40,7 @@ public class TreeGenerator implements Runnable {
             final ArrayList<Runnable> runnables = new ArrayList<>();
             final List<GameTreeNode> leafNodesToRunThreaded = new ArrayList<>();
 
-            this.rootNode.generateChildren(2, this.allowSwap);
+            this.rootNode.generateChildren(2, this.allowSwap, this.ourSide);
 
             this.rootNode.getChildren().stream()
                     .filter(Objects::nonNull)
@@ -45,7 +48,7 @@ public class TreeGenerator implements Runnable {
 
             leafNodesToRunThreaded.stream()
                     .filter(Objects::nonNull)
-                    .forEach(node -> runnables.add(new GeneratorRunnable(node, depthPerThread, this.allowSwap)));
+                    .forEach(node -> runnables.add(new GeneratorRunnable(node, depthPerThread, this.allowSwap, this.ourSide)));
 
             runnables.forEach(this.threadPool::submit);
 
