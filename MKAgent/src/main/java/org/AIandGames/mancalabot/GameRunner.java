@@ -3,7 +3,6 @@ package org.AIandGames.mancalabot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.AIandGames.mancalabot.Enums.Side;
-import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
 import org.AIandGames.mancalabot.helpers.*;
@@ -97,13 +96,10 @@ public class GameRunner {
                 this.makeAMove(board, moveTurn);
                 final UpdateReturnable updateReturnable = this.treeHelper.updateGameTree(board, this.tree);
                 this.thread = updateReturnable.getThread();
-                this.tree = updateReturnable.getGameTreeNode();
-            } else { // use static tree
-                this.makeAMove(board, moveTurn);
                 if (this.endOfStaticTree()) {
                     if (!this.thread.isAlive()) {
                         this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
-                        final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, true, this.ourSide);
+                        final Runnable createTreeRunner = new TreeGenerator(this.tree, this.OVERALL_DEPTH, true, this.ourSide);
                         this.thread = new Thread(createTreeRunner);
                         this.thread.start();
                     }
@@ -139,8 +135,9 @@ public class GameRunner {
                 this.makeMoveIfLegal(new Move(this.ourSide, childrenNoNulls.get(0).getHoleNumber()), testKalah);
             }
             // Tries to make the best guess move, if its not legal, defaults to right most pot.
-            else if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
+            else if (Kalah.gameWon(board)) {
                 this.moveRightMostPot(testKalah);
+                this.treeHelper.setOverallDepth(1);
             } else if (!this.moveBestGuess(testKalah)) {
                 this.statePrinter.printBestGuessError();
                 this.moveRightMostPot(testKalah);
@@ -165,7 +162,8 @@ public class GameRunner {
     private void runStartCase(final String msg, final Board board) throws InvalidMessageException, CloneNotSupportedException {
         this.wePlayFirst = Protocol.interpretStartMsg(msg);
 
-        this.ourSide = this.statePrinter.printStartMessage(this.wePlayFirst);
+        this.ourSide = this.wePlayFirst ? Side.SOUTH : Side.NORTH;
+        this.statePrinter.printStartMessage(this.wePlayFirst, this.ourSide);
 
         if (this.wePlayFirst) {
             this.messageHelper.sendMsg(Protocol.createMoveMsg(4));

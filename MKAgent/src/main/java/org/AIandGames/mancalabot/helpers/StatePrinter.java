@@ -24,13 +24,7 @@ public class StatePrinter {
         System.err.println("||-------------------------------------||\n");
     }
 
-    public Side printStartMessage(final Boolean wePlayFirst) {
-        final Side ourSide;
-        if (wePlayFirst) {
-            ourSide = Side.SOUTH;
-        } else {
-            ourSide = Side.NORTH;
-        }
+    public Side printStartMessage(final Boolean wePlayFirst, final Side ourSide) {
         System.err.println("||--------------GAME START-------------||");
         System.err.println("Us to go first :: " + wePlayFirst);
         System.err.println("We are :: " + ourSide);

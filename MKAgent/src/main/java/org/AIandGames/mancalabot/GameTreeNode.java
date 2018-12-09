@@ -107,7 +107,7 @@ public class GameTreeNode {
     }
 
     public void generateChildren(final int depth, final boolean allowSwap, final Side ourSide) throws CloneNotSupportedException {
-        if (depth == 0) {
+        if (depth <= 0) {
             return;
         }
 

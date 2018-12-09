@@ -1,5 +1,7 @@
 package org.AIandGames.mancalabot.helpers;
 
+import lombok.AllArgsConstructor;
+import lombok.Setter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -19,8 +21,9 @@ import org.AIandGames.mancalabot.Enums.Side;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
+@Setter
 public class TreeHelper {
-    private final int overallDepth;
+    private int overallDepth;
 
     public GameTreeNode generateRootNode(final Side ourSide, final Board board) throws CloneNotSupportedException {
 
