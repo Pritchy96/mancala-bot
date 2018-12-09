@@ -1,14 +1,16 @@
 package org.AIandGames.mancalabot.Heuristics;
 
 import lombok.Getter;
+import lombok.extern.java.Log;
 import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.GameTreeNode;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 @Getter
+@Log
 public class HeuristicWeightings {
     private static Map<Heuristics, Double> weightings;
     private static HeuristicWeightings heuristicWeightings = new HeuristicWeightings();
@@ -32,12 +34,12 @@ public class HeuristicWeightings {
     }
 
     private static void setupTempMap() {
-        weightings = new HashMap<>();
-        weightings.put(Heuristics.MK_POINT_DIFFERENCE, 0.5);
-        weightings.put(Heuristics.MAX_STEAL, 0.5);
-        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 0.5);
-        weightings.put(Heuristics.CUMULATIVE_STEAL, 0.5);
-        weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 0.5);
+        weightings = new EnumMap<>(Heuristics.class);
+        weightings.put(Heuristics.MK_POINT_DIFFERENCE, 1.0);
+        weightings.put(Heuristics.MAX_STEAL, 0.4);
+        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 0.2);
+        weightings.put(Heuristics.CUMULATIVE_STEAL, 0.6);
+        weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 0.1);
     }
 
     public double applyWeightings(final Map<Heuristics, Integer> hValues, final GameTreeNode node, final Side ourSide) {
@@ -45,15 +47,14 @@ public class HeuristicWeightings {
 
         if (weightings == null) {
             // TODO read from file ?
-            System.err.println("No weightings map found - using default");
+            log.info("No weightings map found - using default");
             setupTempMap();
         }
 
         double overallValue = 0;
         for (final Heuristics key : hValues.keySet()) {
-            final double value1 = hValues.get(key);
-            final double value2 = weightings.get(key);
-            // TODO: Check what happens when null, should auto to 0
+            final double value1 = hValues.getOrDefault(key, 0);
+            final double value2 = weightings.getOrDefault(key, 0.0);
 
             overallValue += value1 * value2;
 

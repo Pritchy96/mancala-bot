@@ -1,5 +1,6 @@
 package org.AIandGames.mancalabot.helpers;
 
+import lombok.extern.java.Log;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.GameTreeNode;
 import org.AIandGames.mancalabot.GeneratorRunnable;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
 
+@Log
 public class TreeGenerator implements Runnable {
     private static final int SINGLE_THREAD_DEPTH = 3;
     private BlockingDeque<Runnable> threadedQueue;
@@ -53,13 +55,14 @@ public class TreeGenerator implements Runnable {
             runnables.forEach(this.threadPool::submit);
 
 
-            while (this.threadedQueue.size() > 0) {
-            } // nasty but works
+            while (!this.threadedQueue.isEmpty()) {
+                // wait for the tasks to be complete.
+            }
 
             this.threadPool.shutdown();
 
         } catch (final CloneNotSupportedException e) {
-            e.printStackTrace();
+            log.severe(e.getMessage());
         }
     }
 

@@ -1,6 +1,7 @@
 package org.AIandGames.mancalabot;
 
 import lombok.*;
+import lombok.extern.java.Log;
 import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.Enums.TerminalState;
@@ -15,6 +16,7 @@ import java.util.*;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode(exclude = {"children"})
+@Log
 public class GameTreeNode {
     private Board board;
     private Map<Heuristics, Integer> hValues;
@@ -92,7 +94,7 @@ public class GameTreeNode {
 
 
     public void runHeuristics(final Side ourSide) {
-        this.hValues = new HashMap<>();
+        this.hValues = new EnumMap<>(Heuristics.class);
 
         final ArrayList<Heuristic> hs = new ArrayList<>();
         hs.add(new MKPointDifference(this));
@@ -124,7 +126,7 @@ public class GameTreeNode {
                     try {
                         child.generateChildren(newDepth, allowSwap, ourSide);
                     } catch (final CloneNotSupportedException e) {
-                        e.printStackTrace();
+                        log.severe(e.getMessage());
                     }
                 });
 

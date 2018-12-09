@@ -8,6 +8,8 @@ import org.AIandGames.mancalabot.Protocol.MoveTurn;
 
 public class StatePrinter {
 
+    private static final String END_OF_STATE = "||-------------------------------------||\n";
+
     public void printCurrentState(final Board board, final Boolean opponentWentLast, final Long ourMoveCount, final MoveTurn moveTurn) {
         System.err.println("||----------------STATE----------------||");
         if (Kalah.gameWon(board))
@@ -21,14 +23,14 @@ public class StatePrinter {
         System.err.println("The board ::\n " + board);
 
         System.err.println("Not our turn - continuing to make tree");
-        System.err.println("||-------------------------------------||\n");
+        System.err.println(END_OF_STATE);
     }
 
     public Side printStartMessage(final Boolean wePlayFirst, final Side ourSide) {
         System.err.println("||--------------GAME START-------------||");
         System.err.println("Us to go first :: " + wePlayFirst);
         System.err.println("We are :: " + ourSide);
-        System.err.println("||-------------------------------------||\n");
+        System.err.println(END_OF_STATE);
 
         return ourSide;
     }
@@ -41,7 +43,7 @@ public class StatePrinter {
 
     public void printPerformedSwap(final Side ourSide) {
         System.err.println("We swapped to :: " + ourSide);
-        System.err.println("||-------------------------------------||\n");
+        System.err.println(END_OF_STATE);
     }
 
     public void printBestMoveGuess(final Move bestGuess) {
