@@ -17,6 +17,7 @@ public class HeuristicWeightings {
         weightings.put(Heuristics.MK_POINT_DIFFERENCE, 1.0);
         weightings.put(Heuristics.RIGHT_MOST_POT, 0.00001);
         weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 0.2);
+        weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 0.1);
     }
 
     public static double applyWeightings(final Map<Heuristics, Integer> hValues, final GameTreeNode node, final Side ourSide) {
