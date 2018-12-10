@@ -37,7 +37,7 @@ wAll = []
 
 
 
-for x in range(0, 50):
+for x in range(0, 2):
     h1 = str(random.triangular(0, 1, 0.5))
     h2 = str(random.triangular(0, 1, 0.5))
     h3 = str(random.triangular(0, 1, 0.5))
@@ -46,7 +46,7 @@ for x in range(0, 50):
     winDict[weight] = 0
 
 
-for x in range(1, 2):
+for x in range(1, 10):
     for w in wAll:
         for wPrime in wAll:
             if w is not wPrime:
@@ -66,4 +66,9 @@ for x in range(1, 2):
 
     for w in wAll:
         w = deviate(w)
+
+# now just get the 'best' of the resulting
+winDictSorted = OrderedDict(sorted(winDict.items()))
+res = next(winDictSorted.reverse)
+print(res)
 
