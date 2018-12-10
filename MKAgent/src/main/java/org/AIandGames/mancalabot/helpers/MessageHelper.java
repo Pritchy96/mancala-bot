@@ -12,7 +12,7 @@ import java.io.Reader;
 public class MessageHelper {
     private final Reader input;
     private final PrintWriter output;
-    private final Boolean useSockets;
+    private final boolean useSockets;
 
     public void sendMsg(final String msg) {
         if (useSockets) {
