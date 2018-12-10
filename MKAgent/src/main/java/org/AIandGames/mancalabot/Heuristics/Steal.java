@@ -39,6 +39,8 @@ public class Steal implements Heuristic {
                         break;
                     }
                 }
+            }
+            if (this.thisHoleHasALoopedSteal(currentSide, currentBoard, i)) {
                 for (int j = i; j <= 7; j++) {
                     if (currentBoard.getSeeds(currentSide, j) == 15 + i - j) { // LOOPED STEAL
                         valueOfSteals += currentBoard.getSeedsOp(currentSide, i) + 2;
@@ -48,6 +50,10 @@ public class Steal implements Heuristic {
         }
 
         return valueOfSteals;
+    }
+
+    private boolean thisHoleHasALoopedSteal(final Side currentSide, final Board currentBoard, final int i) {
+        return currentBoard.getSeeds(currentSide, i) == 0;
     }
 
     private boolean thisHoleHasASteal(final Side currentSide, final Board currentBoard, final int i) {
