@@ -47,7 +47,7 @@ public class TreeHelper {
         while (!nodesToVisit.isEmpty()) {
             final GameTreeNode visitingNode = nodesToVisit.remove();
 
-            if (visitingNode.getBoard().equals(board) && !visitingNode.equals(tree)) {
+            if (visitingNode.getBoard().equals(board) && (visitingNode.equals(tree) && visitingNode.getCurrentSide().equals(ourSide))) {
                 return visitingNode;
             }
 
