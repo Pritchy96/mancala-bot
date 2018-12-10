@@ -4,40 +4,45 @@ import math
 import random
 
 winDict = {}
+ourRunArg = 'java -jar ../target/mancalaBot-1.0-SNAPSHOT-jar-with-dependencies.jar'
 
 def deviate(w):
     dev1 = random.triangular(0, 0.1, 0.05)
     dev2 = random.triangular(0, 0.1, 0.05)
     dev3 = random.triangular(0, 0.1, 0.05)
     temp = w.split(" ")
+    print(temp)
     wNew = " " + str(float(temp[1]) + dev1) + " " + str(float(temp[2]) + dev2) + " " + str(float(temp[3]) + dev3)
     return wNew
 
 
 def play(w, wPrime):
     print("playing")
+    args = ['java', '-jar', '../../ManKalah.jar',
+            ourRunArg + w,
+            ourRunArg + wPrime]
     p = subprocess.run(args, capture_output=True)
     out = str(p.stderr).split("WINNER: ")
+    if len(out) is 1:
+        out = str(p.stderr).split("DRAW: ")
+        winDict[w] = winDict[w] + 1
+        winDict[wPrime] = winDict[wPrime] + 1
+        return
     wl = out[1].split("\\n")
     winner = wl[0]
     if w in winner:
-        winDict[w] = winDict[w] + 1
+        winDict[w] = winDict[w] + 3
     else:
-        winDict[wPrime] = winDict[wPrime] + 1
+        winDict[wPrime] = winDict[wPrime] + 0
 
 
 us = "Player 1"
-ourRunArg = 'java -jar ../target/mancalaBot-1.0-SNAPSHOT-jar-with-dependencies.jar'
-
-args = ['java', '-jar', '../../ManKalah.jar',
-        ourRunArg + " -p1",
-        'java -jar ../resources/example-jars/JimmyPlayer.jar']
 
 wAll = []
 
 
 
-for x in range(0, 2):
+for x in range(0, 3):
     h1 = str(random.triangular(0, 1, 0.5))
     h2 = str(random.triangular(0, 1, 0.5))
     h3 = str(random.triangular(0, 1, 0.5))
@@ -46,7 +51,7 @@ for x in range(0, 2):
     winDict[weight] = 0
 
 
-for x in range(1, 10):
+for x in range(1, 5):
     for w in wAll:
         for wPrime in wAll:
             if w is not wPrime:
@@ -55,20 +60,15 @@ for x in range(1, 10):
     print(winDict)
     winDictSorted = OrderedDict(sorted(winDict.items()))
     twentyPercent = int(math.ceil(len(winDictSorted) * 0.2))
-    print(twentyPercent)
-    count = 0
-    for key, value in winDictSorted.items():
-        if count < twentyPercent:
-            wAll.remove(key)
-        else:
-            break
-        count = count + 1
+    maximum = max(winDict, key=winDict.get)
+    print("current best: " + maximum)
+    for i in range(0, twentyPercent):
+        wAll.remove(min(winDictSorted, key=winDictSorted.get))
 
-    for w in wAll:
-        w = deviate(w)
+    max = len(wAll)
+    for t in range(0, max):
+        wAll.append(deviate(wAll[t]))
 
 # now just get the 'best' of the resulting
-winDictSorted = OrderedDict(sorted(winDict.items()))
-res = next(winDictSorted.reverse)
-print(res)
-
+maximum = max(winDict, key=winDict.get)
+print("Absolute Best: " + maximum)

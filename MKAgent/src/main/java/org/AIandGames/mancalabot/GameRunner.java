@@ -12,7 +12,7 @@ import java.net.Socket;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 8;
+    private static final int OVERALL_DEPTH = 6;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;

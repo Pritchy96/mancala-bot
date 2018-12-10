@@ -32,7 +32,7 @@ public class GameTreeNode {
                 return Integer.MIN_VALUE;
             } else {
                 this.runHeuristics(ourSide);
-                return HeuristicWeightings.applyWeightings(this.hValues, this, ourSide);
+                return HeuristicWeightings.getInstance().applyWeightings(this.hValues, this, ourSide);
             }
         } else {
 
