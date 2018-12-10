@@ -24,7 +24,7 @@ public class HeuristicWeightings {
 
         if (weightings == null) {
             // TODO read from file ?
-            System.err.println("No weightings map found - using default");
+            //System.err.println("No weightings map found - using default");
             setupTempMap();
         }
 

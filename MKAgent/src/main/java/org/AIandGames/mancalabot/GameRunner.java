@@ -12,7 +12,7 @@ import java.net.Socket;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 10;
+    private static final int OVERALL_DEPTH = 8;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -56,6 +56,7 @@ public class GameRunner {
         this.output = new PrintWriter(new OutputStreamWriter(System.out));
         this.messageHelper = new MessageHelper(this.input, this.output);
 
+
         String msg;
         while (true) {
             try {
@@ -72,7 +73,7 @@ public class GameRunner {
                         break;
 
                     case END:
-                        this.statePrinter.printEndState();
+                        //this.statePrinter.printEndState();
                         return;
                 }
             } catch (final InvalidMessageException | IOException | CloneNotSupportedException e) {
@@ -91,7 +92,7 @@ public class GameRunner {
 
         // is it not our turn?
         if (!moveTurn.ourTurn) {
-            this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
+            //this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
             this.opponentWentLast = true;
             this.totalMovesBothPlayers++;
         } else {
@@ -127,7 +128,7 @@ public class GameRunner {
     }
 
     private void makeAMove(final Board board, final MoveTurn moveTurn) {
-        this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
+        //this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
         final Kalah testKalah = new Kalah(board);
 
 
@@ -138,7 +139,7 @@ public class GameRunner {
             if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
                 this.moveRightMostPot(testKalah);
             } else if (!this.moveBestGuess(testKalah)) {
-                this.statePrinter.printBestGuessError();
+                //this.statePrinter.printBestGuessError();
                 this.moveRightMostPot(testKalah);
             }
             this.opponentWentLast = false;
@@ -161,7 +162,9 @@ public class GameRunner {
     private void runStartCase(final String msg, final Board board) throws InvalidMessageException, CloneNotSupportedException {
         this.wePlayFirst = Protocol.interpretStartMsg(msg);
 
-        this.ourSide = this.statePrinter.printStartMessage(this.wePlayFirst);
+        this.ourSide = this.wePlayFirst ? Side.SOUTH : Side.NORTH;
+
+        //this.statePrinter.printStartMessage(this.wePlayFirst, this.ourSide);
 
         if (this.wePlayFirst) {
             this.messageHelper.sendMsg(Protocol.createMoveMsg(7));
@@ -183,7 +186,7 @@ public class GameRunner {
         this.messageHelper.sendSwapMsg();
         this.ourSide = this.ourSide.opposite();
         this.wePlayFirst = true;
-        this.statePrinter.printPerformedSwap(this.ourSide);
+        //this.statePrinter.printPerformedSwap(this.ourSide);
     }
 
     private void moveRightMostPot(final Kalah testKalah) {
@@ -197,14 +200,14 @@ public class GameRunner {
 
     private boolean moveBestGuess(final Kalah kalah) {
         final Move bestGuess = this.tree.getBestMove(this.ourSide);
-        this.statePrinter.printBestMoveGuess(bestGuess);
+        //this.statePrinter.printBestMoveGuess(bestGuess);
         return bestGuess != null && this.makeMoveIfLegal(bestGuess, kalah);
     }
 
     private boolean makeMoveIfLegal(final Move move, final Kalah kalah) {
         if (kalah.isLegalMove(move)) {
             kalah.makeMove(move);
-            this.statePrinter.printLegalMoveMade(move);
+            //this.statePrinter.printLegalMoveMade(move);
             this.messageHelper.sendMsg(Protocol.createMoveMsg(move.getHole()));
             this.opponentWentLast = false;
             return true;
