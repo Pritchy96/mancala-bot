@@ -29,6 +29,9 @@ public class NumberOfEmptyPots implements Heuristic {
             if (this.node.getBoard().getSeeds(ourSide, i) == 0) {
                 numberOfPots++;
             }
+            if (this.node.getBoard().getSeeds(ourSide.opposite(), i) == 0) {
+                numberOfPots--;
+            }
         }
         return numberOfPots;
     }
