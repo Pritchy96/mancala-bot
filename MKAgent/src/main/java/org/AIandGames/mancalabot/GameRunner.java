@@ -13,7 +13,7 @@ import java.net.Socket;
 
 public class GameRunner {
     private static final int OVERALL_DEPTH = 6;
-    private static final Boolean useSockets = true;
+    private static final Boolean USE_SOCKETS = true;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -30,7 +30,7 @@ public class GameRunner {
 
 
     private void setupServerIO() {
-        if (useSockets) {
+        if (USE_SOCKETS) {
             try {
                 /* Input from the game engine. */
                 //The actual server expects the client to be running and waiting, and java sockets
@@ -48,7 +48,7 @@ public class GameRunner {
             this.output = new PrintWriter(new OutputStreamWriter(System.out));
         }
 
-        this.messageHelper = new MessageHelper(this.input, this.output);
+        this.messageHelper = new MessageHelper(this.input, this.output, USE_SOCKETS);
     }
 
     void run() {

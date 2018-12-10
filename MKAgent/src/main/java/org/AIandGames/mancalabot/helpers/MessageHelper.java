@@ -12,19 +12,22 @@ import java.io.Reader;
 public class MessageHelper {
     private final Reader input;
     private final PrintWriter output;
-
+    private final Boolean useSockets;
 
     public void sendMsg(final String msg) {
-        System.out.print(msg);
-        System.out.flush();
-
+        if (useSockets) {
+            System.out.print(msg);
+            System.out.flush();
+        }
 //        this.output.print(msg);
 //        this.output.flush();
     }
 
     public void sendSwapMsg() {
-        System.out.print(Protocol.createSwapMsg());
-        System.out.flush();
+        if (useSockets) {
+            System.out.print(Protocol.createSwapMsg());
+            System.out.flush();
+        }
 
 //        this.output.print(Protocol.createSwapMsg());
 //        this.output.flush();
