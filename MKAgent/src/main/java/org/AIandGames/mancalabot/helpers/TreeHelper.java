@@ -1,12 +1,22 @@
 package org.AIandGames.mancalabot.helpers;
 
-import lombok.AllArgsConstructor;
-import org.AIandGames.mancalabot.Board;
-import org.AIandGames.mancalabot.Enums.Side;
-import org.AIandGames.mancalabot.GameTreeNode;
-
-import java.util.*;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import com.google.gson.GsonBuilder;
+
+import org.AIandGames.mancalabot.Board;
+import org.AIandGames.mancalabot.GameTreeNode;
+import org.AIandGames.mancalabot.Enums.Side;
+
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class TreeHelper {
@@ -14,11 +24,18 @@ public class TreeHelper {
 
     public GameTreeNode generateRootNode(final Side ourSide, final Board board) throws CloneNotSupportedException {
 
-        return GameTreeNode.builder()
-                .board(board)
-                .children(new ArrayList<>())
-                .currentSide(ourSide.opposite())
-                .build();
+        try {
+            final Reader reader = new FileReader("tree.json"); 
+            final GameTreeNode root = new GsonBuilder().create().fromJson(reader, GameTreeNode.class);
+            reader.close();
+            return root;
+        } catch (IOException fileException) {
+            return GameTreeNode.builder()
+                    .board(board)
+                    .children(new ArrayList<>())
+                    .currentSide(ourSide.opposite())
+                    .build();
+        }
     }
 
     public GameTreeNode updateRootNode(final Board board, final GameTreeNode tree) { // BFS
@@ -74,6 +91,4 @@ public class TreeHelper {
 
         return new UpdateReturnable(tree, null);
     }
-
-
 }
