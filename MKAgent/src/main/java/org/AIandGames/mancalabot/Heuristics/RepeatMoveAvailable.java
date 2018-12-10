@@ -28,11 +28,7 @@ public class RepeatMoveAvailable implements Heuristic {
 
         return MovesStaticList.MOVES_LIST.stream()
                 .filter(kalah::isLegalMove)
-                .mapToInt(move -> {
-                    int points = kalah.makeMove(move).equals(Side.NORTH) ? northSideReturn : 0;
-                    points += kalah.makeMove(move).equals(Side.SOUTH) ? southSideReturn : 0;
-                    return points;
-                })
+                .mapToInt(move -> kalah.makeMove(move).equals(Side.NORTH) ? northSideReturn : southSideReturn)
                 .reduce(0, (acc, point) -> acc + point);
     }
 }
