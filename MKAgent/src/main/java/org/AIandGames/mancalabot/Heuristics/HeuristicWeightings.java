@@ -20,7 +20,6 @@ public class HeuristicWeightings {
         weightings.put(Heuristics.STEAL, 0.6);
         weightings.put(Heuristics.FIFTEEN_IN_POT, 2.0);
         weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 0.1);
-        weightings.put(Heuristics.STEAL, 0.6);
     }
 
     public static double applyWeightings(final Map<Heuristics, Integer> hValues, final GameTreeNode node, final Side ourSide) {

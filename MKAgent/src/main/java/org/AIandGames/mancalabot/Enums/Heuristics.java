@@ -8,7 +8,6 @@ public enum Heuristics {
     FIFTEEN_IN_POT("FIFTEEN_IN_POT"),
     REPEAT_MOVE_AVAILABLE("REPEAT_MOVE_AVAILABLE");
 
-
     Heuristics(final String heuristic) {
     }
 }
