@@ -22,8 +22,10 @@ public class Steal implements Heuristic {
 
     @Override
     public int getValue(final Side ourSide) {
+        final int isItOurTurnMultiplier = ourSide.equals(this.node.getCurrentSide()) ? 1 : -1;
+
         final Board board = this.node.getBoard();
-        return this.totalStealValueForSide(ourSide, board) - this.totalStealValueForSide(ourSide.opposite(), board);
+        return this.totalStealValueForSide(this.node.getCurrentSide(), board) * isItOurTurnMultiplier;
     }
 
     private int totalStealValueForSide(final Side currentSide, final Board currentBoard) {
@@ -33,7 +35,7 @@ public class Steal implements Heuristic {
             if (this.thisHoleHasASteal(currentSide, currentBoard, i)) {
                 for (int j = 1; j <= i; j++) {
                     if (currentBoard.getSeeds(currentSide, j) == i - j) {
-                        valueOfSteals += currentBoard.getSeedsOp(currentSide, i);
+                        valueOfSteals += currentBoard.getSeedsOp(currentSide, i) + 1;
                         break;
                     }
                 }
