@@ -99,6 +99,7 @@ public class GameTreeNode {
         hs.add(new RightMostPot(this));
         hs.add(new NumberOfEmptyPots(this));
         hs.add(new FifteenInPot(this));
+        hs.add(new RepeatMoveAvailable(this));
 
         hs.forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
     }
