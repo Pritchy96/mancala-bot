@@ -1,7 +1,7 @@
 package org.AIandGames.mancalabot.helpers;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,9 +25,11 @@ public class TreeHelper {
     public GameTreeNode generateRootNode(final Side ourSide, final Board board) throws CloneNotSupportedException {
 
         try {
-            Reader reader = new FileReader("tree.json"); 
-            return new GsonBuilder().create().fromJson(reader, GameTreeNode.class);
-        } catch (FileNotFoundException fileException) {
+            final Reader reader = new FileReader("tree.json"); 
+            final GameTreeNode root = new GsonBuilder().create().fromJson(reader, GameTreeNode.class);
+            reader.close();
+            return root;
+        } catch (IOException fileException) {
             return GameTreeNode.builder()
                     .board(board)
                     .children(new ArrayList<>())
