@@ -36,12 +36,6 @@ public class HeuristicWeightings {
             final double value2 = weightings.get(key);
             // TODO: Check what happens when null, should auto to 0
 
-
-            // Left as an example:
-//            if (key == Heuristics.RIGHT_MOST_POT) {
-//                overallValue += value1 * value2 * getProgressBasedWeighting(node, ourSide);
-//            }
-
             overallValue += value1 * value2;
 
         }
