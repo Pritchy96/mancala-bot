@@ -131,19 +131,19 @@ public class GameTreeNode {
             if (this.board.getSeeds(this.currentSide, i) > 0) {
                 final GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
 
-                final Board newBoard = this.board.clone();
-                final Side newSide = this.makeMove(newBoard, i, this.currentSide);
+                final Board boardClone = this.board.clone();
+                final Side newSide = this.makeMove(boardClone, i, this.currentSide);
 
 
                 final TerminalState state;
-                if (Kalah.gameWon(newBoard)) {
-                    state = newBoard.getSeedsInStore(ourSide) >= 50  ? TerminalState.WIN_TERMINAL : TerminalState.LOSE_TERMINAL;
+                if (Kalah.gameWon(boardClone)) {
+                    state = boardClone.getSeedsInStore(ourSide) >= 50  ? TerminalState.WIN_TERMINAL : TerminalState.LOSE_TERMINAL;
                 } else {
                     state = TerminalState.NON_TERMINAL;
                 }
 
                 final GameTreeNode newChildNode = newChildNBuilder
-                        .board(newBoard)
+                        .board(boardClone)
                         .children(new ArrayList<>())
                         .terminalState(state)
                         .currentSide(newSide)
