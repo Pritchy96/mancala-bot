@@ -15,7 +15,6 @@ public class HeuristicWeightings {
     private static void setupTempMap() {
         weightings = new HashMap<>();
         weightings.put(Heuristics.MK_POINT_DIFFERENCE, 1.0);
-        weightings.put(Heuristics.RIGHT_MOST_POT, 0.00001);
         weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 0.2);
         weightings.put(Heuristics.CUMULATIVE_STEAL, 0.6);
         weightings.put(Heuristics.FIFTEEN_IN_POT, 2.0);
@@ -37,12 +36,8 @@ public class HeuristicWeightings {
             final double value2 = weightings.get(key);
             // TODO: Check what happens when null, should auto to 0
 
+            overallValue += value1 * value2;
 
-            if (key == Heuristics.RIGHT_MOST_POT) {
-                overallValue += value1 * value2 * getProgressBasedWeighting(node, ourSide);
-            } else {
-                overallValue += value1 * value2;
-            }
         }
         return overallValue;
     }
