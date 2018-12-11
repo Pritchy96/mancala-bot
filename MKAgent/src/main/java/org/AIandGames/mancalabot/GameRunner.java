@@ -111,7 +111,7 @@ public class GameRunner {
                     this.thread.join();
                     this.tree = this.treeHelper.updateRootNode(board, this.tree);
                     this.makeAMove(board, moveTurn);
-                    final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree);
+                    final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
                     this.thread = returnable.getThread();
                     this.tree = returnable.getGameTreeNode();
                 } catch (final InterruptedException e) {
@@ -124,7 +124,7 @@ public class GameRunner {
                     if (!this.thread.isAlive()) {
                         try {
                             this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
-                            final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, true);
+                            final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, true, this.ourSide);
                             this.thread = new Thread(createTreeRunner);
                             this.thread.start();
                         } catch (final CloneNotSupportedException e) {
@@ -189,7 +189,7 @@ public class GameRunner {
 
         if (!this.thread.isAlive()) {
             this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
-            final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree);
+            final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
             this.thread = returnable.getThread();
             this.tree = returnable.getGameTreeNode();
         }

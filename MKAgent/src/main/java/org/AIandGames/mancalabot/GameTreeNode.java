@@ -105,13 +105,13 @@ public class GameTreeNode {
         hs.forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
     }
 
-    public void generateChildren(final int depth, final boolean allowSwap) throws CloneNotSupportedException {
+    public void generateChildren(final int depth, final boolean allowSwap, final Side ourSide) throws CloneNotSupportedException {
         if (depth == 0) {
             return;
         }
 
         if (this.children.isEmpty()) {
-            this.generateUpTo7Children();
+            this.generateUpTo7Children(ourSide);
             this.addSwapNodeIfApplicable(allowSwap);
         }
 
@@ -121,7 +121,7 @@ public class GameTreeNode {
                 .filter(Objects::nonNull)
                 .forEach(child -> {
                     try {
-                        child.generateChildren(newDepth, allowSwap);
+                        child.generateChildren(newDepth, allowSwap, ourSide);
                     } catch (final CloneNotSupportedException e) {
                         e.printStackTrace();
                     }
@@ -129,18 +129,26 @@ public class GameTreeNode {
 
     }
 
-    private void generateUpTo7Children() throws CloneNotSupportedException {
+    private void generateUpTo7Children(final Side ourSide) throws CloneNotSupportedException {
         for (int i = 1; i <= 7; i++) {
             if (this.board.getSeeds(this.currentSide, i) > 0) {
                 final GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
 
-                final Board newBoard = this.board.clone();
-                final Side newSide = this.makeMove(newBoard, i, this.currentSide);
+                final Board boardClone = this.board.clone();
+                final Side newSide = this.makeMove(boardClone, i, this.currentSide);
+
+
+                final TerminalState state;
+                if (Kalah.gameWon(boardClone)) {
+                    state = boardClone.getSeedsInStore(ourSide) >= 50  ? TerminalState.WIN_TERMINAL : TerminalState.LOSE_TERMINAL;
+                } else {
+                    state = TerminalState.NON_TERMINAL;
+                }
 
                 final GameTreeNode newChildNode = newChildNBuilder
-                        .board(newBoard)
+                        .board(boardClone)
                         .children(new ArrayList<>())
-                        .terminalState(TerminalState.NON_TERMINAL)   // not always
+                        .terminalState(state)
                         .currentSide(newSide)
                         .holeNumber(i)
                         .depth(this.depth + 1)
