@@ -37,11 +37,13 @@ public class HeuristicWeightings {
             // TODO: Check what happens when null, should auto to 0
 
 
-            if (key == Heuristics.RIGHT_MOST_POT) {
-                overallValue += value1 * value2 * getProgressBasedWeighting(node, ourSide);
-            } else {
-                overallValue += value1 * value2;
-            }
+            // Left as an example:
+//            if (key == Heuristics.RIGHT_MOST_POT) {
+//                overallValue += value1 * value2 * getProgressBasedWeighting(node, ourSide);
+//            }
+
+            overallValue += value1 * value2;
+
         }
         return overallValue;
     }
