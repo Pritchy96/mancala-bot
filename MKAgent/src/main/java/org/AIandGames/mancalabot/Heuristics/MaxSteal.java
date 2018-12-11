@@ -23,19 +23,17 @@ public class MaxSteal implements Heuristic {
     @Override
     public int getValue(final Side ourSide) {
         final int isItOurTurnMultiplier = ourSide.equals(this.node.getCurrentSide()) ? 1 : -1;
-
-        final Board board = this.node.getBoard();
-        return this.maxStealValueForSide(this.node.getCurrentSide(), board) * isItOurTurnMultiplier;
+        return this.maxStealValueForSide(this.node.getCurrentSide()) * isItOurTurnMultiplier;
     }
 
     private int maxStealValueForSide(final Side currentSide) {
         int maxStealValue = 0;
-        final board currentBoard = this.node.getBoard();
+        final Board currentBoard = this.node.getBoard();
         for (int i = 1; i <= 7; i++) {
-            if (this.thisHoleHasASteal(currentSide, currentBoard, i)) {
+            if (this.thisHoleHasASteal(currentSide, i)) {
                 for (int j = 1; j < i; j++) {
                     if (currentBoard.getSeeds(currentSide, j) == i - j) {
-                        int valueOfSteals = currentBoard.getSeedsOp(currentSide, i) + 1;
+                        final int valueOfSteals = currentBoard.getSeedsOp(currentSide, i) + 1;
                         if (maxStealValue < valueOfSteals) {
                             maxStealValue = valueOfSteals;
                         }
@@ -46,7 +44,7 @@ public class MaxSteal implements Heuristic {
             if (this.thisHoleHasALoopedSteal(currentSide, i)) {
                 for (int j = i; j <= 7; j++) {
                     if (currentBoard.getSeeds(currentSide, j) == i - j) {
-                        int valueOfSteals = currentBoard.getSeedsOp(currentSide, i) + 1;
+                        final int valueOfSteals = currentBoard.getSeedsOp(currentSide, i) + 1;
                         if (maxStealValue < valueOfSteals) {
                             maxStealValue = valueOfSteals;
                         }
@@ -64,6 +62,6 @@ public class MaxSteal implements Heuristic {
     }
 
     private boolean thisHoleHasASteal(final Side currentSide, final int i) {
-        return this.node.getBoard().getSeeds(currentSide, i) == 0 && currentBoard.getSeedsOp(currentSide, i) > 0;
+        return this.node.getBoard().getSeeds(currentSide, i) == 0 && this.node.getBoard().getSeedsOp(currentSide, i) > 0;
     }
 }
