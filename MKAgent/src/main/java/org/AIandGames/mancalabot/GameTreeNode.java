@@ -134,9 +134,10 @@ public class GameTreeNode {
                 final Board newBoard = this.board.clone();
                 final Side newSide = this.makeMove(newBoard, i, this.currentSide);
 
+
                 final TerminalState state;
                 if (Kalah.gameWon(newBoard)) {
-                    state = newSide.equals(ourSide) ? TerminalState.WIN_TERMINAL : TerminalState.LOSE_TERMINAL;
+                    state = newBoard.getSeedsInStore(ourSide) >= 50  ? TerminalState.WIN_TERMINAL : TerminalState.LOSE_TERMINAL;
                 } else {
                     state = TerminalState.NON_TERMINAL;
                 }
