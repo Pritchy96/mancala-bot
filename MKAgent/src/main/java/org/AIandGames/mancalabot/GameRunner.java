@@ -18,11 +18,12 @@ import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
-import org.AIandGames.mancalabot.helpers.MessageHelper;
-import org.AIandGames.mancalabot.helpers.StatePrinter;
-import org.AIandGames.mancalabot.helpers.TreeGenerator;
-import org.AIandGames.mancalabot.helpers.TreeHelper;
-import org.AIandGames.mancalabot.helpers.UpdateReturnable;
+import org.AIandGames.mancalabot.helpers.*;
+
+
+import java.net.ServerSocket;
+import java.net.Socket;
+
 
 public class GameRunner {
     private static final int OVERALL_DEPTH = 10;
@@ -109,12 +110,12 @@ public class GameRunner {
             if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
                 try {
                     this.thread.join();
-                    this.tree = this.treeHelper.updateRootNode(board, this.tree);
+                    this.tree = this.treeHelper.updateRootNode(board, this.tree, this.ourSide);
                     this.makeAMove(board, moveTurn);
                     final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
                     this.thread = returnable.getThread();
                     this.tree = returnable.getGameTreeNode();
-                } catch (final InterruptedException e) {
+                } catch (final InterruptedException | CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
             } else { // static tree
@@ -185,13 +186,6 @@ public class GameRunner {
             this.opponentWentLast = false;
             this.ourMoveCount++;
             this.totalMovesBothPlayers++;
-        }
-
-        if (!this.thread.isAlive()) {
-            this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
-            final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
-            this.thread = returnable.getThread();
-            this.tree = returnable.getGameTreeNode();
         }
 
         if (WRITE_TREE) {

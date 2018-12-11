@@ -25,7 +25,7 @@ public class TreeHelper {
     public GameTreeNode generateRootNode(final Side ourSide, final Board board) throws CloneNotSupportedException {
 
         try {
-            final Reader reader = new FileReader("tree.json"); 
+            final Reader reader = new FileReader("tree.json");
             final GameTreeNode root = new GsonBuilder().create().fromJson(reader, GameTreeNode.class);
             reader.close();
             return root;
@@ -38,7 +38,7 @@ public class TreeHelper {
         }
     }
 
-    public GameTreeNode updateRootNode(final Board board, final GameTreeNode tree) { // BFS
+    public GameTreeNode updateRootNode(final Board board, final GameTreeNode tree, final Side ourSide) throws CloneNotSupportedException { // BFS
         final Queue<GameTreeNode> nodesToVisit = new LinkedBlockingQueue<>();
         final HashSet<GameTreeNode> visitedNodes = new HashSet<>();
 
@@ -47,7 +47,7 @@ public class TreeHelper {
         while (!nodesToVisit.isEmpty()) {
             final GameTreeNode visitingNode = nodesToVisit.remove();
 
-            if (visitingNode.getBoard().equals(board) && !visitingNode.equals(tree)) {
+            if (this.isFoundAndNotRootOrFoundAndRootAndOurSide(board, tree, ourSide, visitingNode)) {
                 return visitingNode;
             }
 
@@ -62,7 +62,33 @@ public class TreeHelper {
 
             visitedNodes.add(visitingNode);
         }
+
+        // the node was not found at a depth > 0. Return the current root if the move was in the past else null.
+        if (this.moveWasInThePast(board, tree)) {
+            return this.generateRootNode(ourSide, board);
+        }
         return tree;
+    }
+
+    private boolean isFoundAndNotRootOrFoundAndRootAndOurSide(final Board board, final GameTreeNode tree, final Side ourSide, final GameTreeNode visitingNode) {
+        if (visitingNode.getBoard().equals(board)) {
+            if (visitingNode.equals(tree)) {
+                return visitingNode.getCurrentSide().equals(ourSide);
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+
+
+        //        return (visitingNode.getBoard().equals(board) && !visitingNode.equals(tree)) ||
+//                (visitingNode.getBoard().equals(board) && (visitingNode.equals(tree) && visitingNode.getCurrentSide().equals(ourSide)));
+    }
+
+    private boolean moveWasInThePast(final Board board, final GameTreeNode tree) {
+        return tree.getBoard().getSeedsInStore(Side.SOUTH) < board.getSeedsInStore(Side.SOUTH)
+                || tree.getBoard().getSeedsInStore(Side.NORTH) < board.getSeedsInStore(Side.NORTH);
     }
 
     public int getMaxDepthOfTree(final List<GameTreeNode> tree) {
@@ -79,7 +105,7 @@ public class TreeHelper {
     public UpdateReturnable updateGameTree(final Board board, GameTreeNode tree, final Side ourSide) {
         try {
             final Thread thread;
-            tree = this.updateRootNode(board, tree);
+            tree = this.updateRootNode(board, tree, ourSide);
 
             final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, false, ourSide);
             thread = new Thread(createTreeRunner);
