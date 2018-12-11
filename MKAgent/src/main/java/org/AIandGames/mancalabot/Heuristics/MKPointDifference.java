@@ -23,6 +23,15 @@ public class MKPointDifference implements Heuristic {
 
     @Override
     public int getValue(final Side ourSide) {
-        return this.node.getBoard().getSeedsInStore(ourSide) - this.node.getBoard().getSeedsInStore(ourSide.opposite());
+        final int isItOurTurnMultiplier = ourSide.equals(this.node.getCurrentSide()) ? 1 : -1;
+
+        int returnVal = getPotDifferenceForCurrentSide();
+
+        return returnVal * isItOurTurnMultiplier;
+    }
+
+    private int getPotDifferenceForCurrentSide() {
+        return this.node.getBoard().getSeedsInStore(this.node.getCurrentSide())
+                - this.node.getBoard().getSeedsInStore(this.node.getCurrentSide().opposite());
     }
 }

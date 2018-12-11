@@ -1,32 +1,22 @@
 package org.AIandGames.mancalabot;
 
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.*;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.Enums.TerminalState;
+import org.AIandGames.mancalabot.Protocol.MoveTurn;
 import org.AIandGames.mancalabot.exceptions.InvalidMessageException;
 import org.AIandGames.mancalabot.helpers.*;
 
-
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collections;
+import java.util.List;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 10;
+    private static final int OVERALL_DEPTH = 2;
     private static final Boolean WRITE_TREE = false;
     private PrintWriter output;
     private Reader input;
@@ -146,10 +136,10 @@ public class GameRunner {
             this.performSwap();
         } else if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
             //If there is only one valid move available, make it without doing any checks.
-            List<GameTreeNode> childrenNoNulls = tree.getChildren();
+            final List<GameTreeNode> childrenNoNulls = this.tree.getChildren();
             childrenNoNulls.removeAll(Collections.singleton(null));
             if (childrenNoNulls.size() == 1) {
-                makeMoveIfLegal(new Move(ourSide, childrenNoNulls.get(0).getHoleNumber()), testKalah);
+                this.makeMoveIfLegal(new Move(this.ourSide, childrenNoNulls.get(0).getHoleNumber()), testKalah);
             }
             // Tries to make the best guess move, if its not legal, defaults to right most pot.
             else if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
@@ -192,10 +182,10 @@ public class GameRunner {
             System.err.println("Writing Tree to tree.json");
             try (final Writer writer = new FileWriter("tree.json")) {
                 final Gson gson = new GsonBuilder().create();
-                gson.toJson(tree, writer);
+                gson.toJson(this.tree, writer);
                 writer.close();
                 System.exit(0);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
             }
         }
