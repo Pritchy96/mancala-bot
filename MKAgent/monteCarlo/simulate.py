@@ -43,9 +43,9 @@ wAll = []
 
 
 for x in range(0, 3):
-    h1 = str(random.triangular(0, 1, 0.5))
-    h2 = str(random.triangular(0, 1, 0.5))
-    h3 = str(random.triangular(0, 1, 0.5))
+    h1 = str(random.random())
+    h2 = str(random.random())
+    h3 = str(random.random())
     weight = " " + h1 + " " + h2 + " " + h3
     wAll.append(weight)
     winDict[weight] = 0
@@ -60,14 +60,17 @@ for x in range(1, 5):
     print(winDict)
     winDictSorted = OrderedDict(sorted(winDict.items()))
     twentyPercent = int(math.ceil(len(winDictSorted) * 0.2))
-    maximum = max(winDict, key=winDict.get)
-    print("current best: " + maximum)
     for i in range(0, twentyPercent):
-        wAll.remove(min(winDictSorted, key=winDictSorted.get))
+        currentMin = min(winDictSorted, key=winDictSorted.get)
+        wAll.remove(currentMin)
+        del winDict[currentMin]
+
 
     max = len(wAll)
     for t in range(0, max):
-        wAll.append(deviate(wAll[t]))
+        newWeight = deviate(wAll[t])
+        wAll.append(newWeight)
+        winDict[newWeight] = 0
 
 # now just get the 'best' of the resulting
 maximum = max(winDict, key=winDict.get)
