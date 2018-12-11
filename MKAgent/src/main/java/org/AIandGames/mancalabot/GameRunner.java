@@ -16,7 +16,7 @@ import java.util.List;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 2;
+    private static final int OVERALL_DEPTH = 9;
     private static final Boolean WRITE_TREE = false;
     private PrintWriter output;
     private Reader input;
