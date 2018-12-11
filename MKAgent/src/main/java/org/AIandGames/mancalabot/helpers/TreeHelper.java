@@ -47,7 +47,7 @@ public class TreeHelper {
         while (!nodesToVisit.isEmpty()) {
             final GameTreeNode visitingNode = nodesToVisit.remove();
 
-            if (visitingNode.getBoard().equals(board) && (visitingNode.equals(tree) && visitingNode.getCurrentSide().equals(ourSide))) {
+            if (this.isFoundAndNotRootOrFoundAndRootAndOurSide(board, tree, ourSide, visitingNode)) {
                 return visitingNode;
             }
 
@@ -64,15 +64,31 @@ public class TreeHelper {
         }
 
         // the node was not found at a depth > 0. Return the current root if the move was in the past else null.
-        if (!this.moveWasInThePast(board, tree)) {
+        if (this.moveWasInThePast(board, tree)) {
             return this.generateRootNode(ourSide, board);
         }
         return tree;
     }
 
+    private boolean isFoundAndNotRootOrFoundAndRootAndOurSide(final Board board, final GameTreeNode tree, final Side ourSide, final GameTreeNode visitingNode) {
+        if (visitingNode.getBoard().equals(board)) {
+            if (visitingNode.equals(tree)) {
+                return visitingNode.getCurrentSide().equals(ourSide);
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+
+
+        //        return (visitingNode.getBoard().equals(board) && !visitingNode.equals(tree)) ||
+//                (visitingNode.getBoard().equals(board) && (visitingNode.equals(tree) && visitingNode.getCurrentSide().equals(ourSide)));
+    }
+
     private boolean moveWasInThePast(final Board board, final GameTreeNode tree) {
-        return tree.getBoard().getSeedsInStore(Side.SOUTH) < board.getSeedsInStore(Side.SOUTH)
-                && tree.getBoard().getSeedsInStore(Side.NORTH) < board.getSeedsInStore(Side.NORTH);
+        return tree.getBoard().getSeedsInStore(Side.SOUTH) <= board.getSeedsInStore(Side.SOUTH)
+                && tree.getBoard().getSeedsInStore(Side.NORTH) <= board.getSeedsInStore(Side.NORTH);
     }
 
     public int getMaxDepthOfTree(final List<GameTreeNode> tree) {
