@@ -25,7 +25,7 @@ public class TreeHelper {
     public GameTreeNode generateRootNode(final Side ourSide, final Board board) throws CloneNotSupportedException {
 
         try {
-            final Reader reader = new FileReader("tree.json"); 
+            final Reader reader = new FileReader("tree.json");
             final GameTreeNode root = new GsonBuilder().create().fromJson(reader, GameTreeNode.class);
             reader.close();
             return root;
@@ -87,8 +87,8 @@ public class TreeHelper {
     }
 
     private boolean moveWasInThePast(final Board board, final GameTreeNode tree) {
-        return tree.getBoard().getSeedsInStore(Side.SOUTH) <= board.getSeedsInStore(Side.SOUTH)
-                && tree.getBoard().getSeedsInStore(Side.NORTH) <= board.getSeedsInStore(Side.NORTH);
+        return tree.getBoard().getSeedsInStore(Side.SOUTH) < board.getSeedsInStore(Side.SOUTH)
+                || tree.getBoard().getSeedsInStore(Side.NORTH) < board.getSeedsInStore(Side.NORTH);
     }
 
     public int getMaxDepthOfTree(final List<GameTreeNode> tree) {
