@@ -42,7 +42,7 @@ public class GameRunner {
           //...so the client and server don't time out as a result.
 
         final Socket clientSocket;
-        try (finalServerSocket server = new ServerSocket(12345)) {
+        try (final ServerSocket server = new ServerSocket(12345)) {
          clientSocket = server.accept();}
         this. input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         this. output = new PrintWriter(clientSocket.getOutputStream(), true);} else {
@@ -52,7 +52,7 @@ public class GameRunner {
         this.messageHelper = new MessageHelper(this.input, this.output, USE_SOCKETS);
     }
 
-    void run() throws IOException, InvalidMessageException {
+    void run() throws IOException, InvalidMessageException, CloneNotSupportedException {
         final Board board = new Board(7, 7);
 
         this.setupServerIO();
@@ -72,13 +72,13 @@ public class GameRunner {
                     break;
 
                 case END:
-                    this.statePrinter.printEndState();
+                    //this.statePrinter.printEndState();
                     return;
             }
         }
     }
 
-    private void runStateCase(final String msg, final Board board) throws InvalidMessageException {
+    private void runStateCase(final String msg, final Board board) throws InvalidMessageException, CloneNotSupportedException {
         final MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
 
         if (this.opponentSwapped(moveTurn)) {
@@ -88,7 +88,7 @@ public class GameRunner {
 
         // is it not our turn?
         if (!moveTurn.ourTurn) {
-            this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
+            //this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
             this.opponentWentLast = true;
             this.totalMovesBothPlayers++;
         } else {
@@ -99,9 +99,9 @@ public class GameRunner {
                     this.thread.interrupt();
                     log.severe(e.getMessage());
                 }
-                this.tree = this.treeHelper.updateRootNode(board, this.tree);
+                this.tree = this.treeHelper.updateRootNode(board, this.tree, this.ourSide);
                 this.makeAMove(board, moveTurn);
-                final UpdateReturnable updateReturnable = this.treeHelper.updateGameTree(board, this.tree);
+                final UpdateReturnable updateReturnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
                 this.thread = updateReturnable.getThread();
                 this.tree = updateReturnable.getGameTreeNode();
             } else { // use static tree
@@ -129,7 +129,7 @@ public class GameRunner {
     }
 
     private void makeAMove(final Board board, final MoveTurn moveTurn) {
-        this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
+        //this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
         final Kalah testKalah = new Kalah(board);
 
 
@@ -147,7 +147,7 @@ public class GameRunner {
                 this.moveRightMostPot(testKalah);
                 this.treeHelper.setOverallDepth(1);
             } else if (!this.moveBestGuess(testKalah)) {
-                this.statePrinter.printBestGuessError();
+                //this.statePrinter.printBestGuessError();
                 this.moveRightMostPot(testKalah);
             }
             this.opponentWentLast = false;
@@ -171,7 +171,7 @@ public class GameRunner {
         this.wePlayFirst = Protocol.interpretStartMsg(msg);
 
         this.ourSide = this.wePlayFirst ? Side.SOUTH : Side.NORTH;
-        this.statePrinter.printStartMessage(this.wePlayFirst, this.ourSide);
+        //this.statePrinter.printStartMessage(this.wePlayFirst, this.ourSide);
 
         if (this.wePlayFirst) {
             this.messageHelper.sendMsg(Protocol.createMoveMsg(4));
@@ -197,7 +197,7 @@ public class GameRunner {
         this.messageHelper.sendSwapMsg();
         this.ourSide = this.ourSide.opposite();
         this.wePlayFirst = true;
-        this.statePrinter.printPerformedSwap(this.ourSide);
+        //this.statePrinter.printPerformedSwap(this.ourSide);
     }
 
     private void moveRightMostPot(final Kalah testKalah) {
@@ -211,14 +211,14 @@ public class GameRunner {
 
     private boolean moveBestGuess(final Kalah kalah) {
         final Move bestGuess = this.tree.getBestMove(this.ourSide);
-        this.statePrinter.printBestMoveGuess(bestGuess);
+        //this.statePrinter.printBestMoveGuess(bestGuess);
         return bestGuess != null && this.makeMoveIfLegal(bestGuess, kalah);
     }
 
     private boolean makeMoveIfLegal(final Move move, final Kalah kalah) {
         if (kalah.isLegalMove(move)) {
             kalah.makeMove(move);
-            this.statePrinter.printLegalMoveMade(move);
+            //this.statePrinter.printLegalMoveMade(move);
             this.messageHelper.sendMsg(Protocol.createMoveMsg(move.getHole()));
             this.opponentWentLast = false;
             return true;

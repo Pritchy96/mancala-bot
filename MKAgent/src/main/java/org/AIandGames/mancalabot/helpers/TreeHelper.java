@@ -103,7 +103,7 @@ public class TreeHelper {
         }
     }
 
-    public UpdateReturnable updateGameTree(final Board board, GameTreeNode tree, final Side ourSide) {
+    public UpdateReturnable updateGameTree(final Board board, GameTreeNode tree, final Side ourSide) throws CloneNotSupportedException {
         final Thread thread;
         tree = this.updateRootNode(board, tree, ourSide);
 

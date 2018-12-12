@@ -20,7 +20,7 @@ public class HeuristicWeightings {
                      final Double nEmptyPotsWeight,
                      final Double cumulativeSteal,
                      final Double repeatSteal){
-        weightings = new HashMap<>();
+        weightings = new EnumMap<>(Heuristics.class);
         weightings.put(Heuristics.MK_POINT_DIFFERENCE, pointDifferenceWeight);
         weightings.put(Heuristics.MAX_STEAL, maxSteal);
         weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, nEmptyPotsWeight);

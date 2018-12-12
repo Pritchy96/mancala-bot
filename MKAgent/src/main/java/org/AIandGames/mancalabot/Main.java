@@ -25,7 +25,7 @@ public class Main {
 
         try {
            gameRunner.run();
-        } catch (final IOException | InvalidMessageException | InterruptedException | CloneNotSupportedException e) {
+        } catch (final IOException | InvalidMessageException | CloneNotSupportedException e) {
            log.severe(e.getMessage());
         }
     }
