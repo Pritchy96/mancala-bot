@@ -2,35 +2,37 @@ package org.AIandGames.mancalabot.helpers;
 
 import org.AIandGames.mancalabot.Protocol;
 
+import lombok.AllArgsConstructor;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 
+@AllArgsConstructor
 public class MessageHelper {
     private final Reader input;
     private final PrintWriter output;
-
-
-    public MessageHelper(final Reader input, final PrintWriter output) {
-        this.input = input;
-        this.output = output;
-    }
+    private final boolean useSockets;
 
     public void sendMsg(final String msg) {
-        System.out.print(msg);
-        System.out.flush();
+        if (useSockets) {
+            System.out.print(msg);
+            System.out.flush();
+        }
 
-        this.output.print(msg);
-        this.output.flush();
+        // this.output.print(msg);
+        // this.output.flush();
     }
 
     public void sendSwapMsg() {
-        System.out.print(Protocol.createSwapMsg());
-        System.out.flush();
+        if (useSockets) {
+            System.out.print(Protocol.createSwapMsg());
+            System.out.flush();
+        }
 
-        this.output.print(Protocol.createSwapMsg());
-        this.output.flush();
+        // this.output.print(Protocol.createSwapMsg());
+        // this.output.flush();
     }
 
     public String recvMsg() throws IOException {

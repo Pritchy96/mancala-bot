@@ -18,6 +18,7 @@ import java.util.List;
 public class GameRunner {
     private static final int OVERALL_DEPTH = 9;
     private static final Boolean WRITE_TREE = false;
+    private static final boolean USE_SOCKETS = true;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -33,29 +34,31 @@ public class GameRunner {
     private final int depthOfStaticTree = 4;
 
 
-    private void setupSocketServer() {
-        try {
-            /*
-      Input from the game engine.
-     */ /**
-             * Input from the game engine.
-             */ //The actual server expects the client to be running and waiting, and java sockets
-            //...expect the server to be running and waiting... Set up a Server that just listens
-            //...so the client and server don't time out as a result.
-            final ServerSocket server = new ServerSocket(12345);
-            final Socket clientSocket = server.accept();
-            this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            this.output = new PrintWriter(clientSocket.getOutputStream(), true);
-            this.messageHelper = new MessageHelper(this.input, this.output);
-        } catch (final IOException e) {
-            e.printStackTrace();
+    private void setupServerIO() {
+        if (USE_SOCKETS) {
+            try {
+                /* Input from the game engine. */
+                //The actual server expects the client to be running and waiting, and java sockets
+                //...expect the server to be running and waiting... Set up a Server that just listens
+                //...so the client and server don't time out as a result.
+                final ServerSocket server = new ServerSocket(12345);
+                final Socket clientSocket = server.accept();
+                this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                this.output = new PrintWriter(clientSocket.getOutputStream(), true);
+            } catch (final IOException e) {
+                e.printStackTrace();
+            } 
+        } else {
+            this.input = new BufferedReader(new InputStreamReader(System.in));
+            this.output = new PrintWriter(new OutputStreamWriter(System.out));
         }
+         this.messageHelper = new MessageHelper(this.input, this.output, USE_SOCKETS);
     }
 
     void run() {
         final Board board = new Board(7, 7);
 
-        this.setupSocketServer();
+        this.setupServerIO();
 
         String msg;
         while (true) {
