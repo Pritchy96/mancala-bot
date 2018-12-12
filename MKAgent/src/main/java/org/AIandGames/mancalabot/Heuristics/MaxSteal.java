@@ -28,38 +28,37 @@ public class MaxSteal implements Heuristic {
 
     private int maxStealValueForSide(final Side currentSide) {
         int maxStealValue = 0;
-        final Board currentBoard = this.node.getBoard();
+        final Board board = this.node.getBoard();
+
         for (int i = 1; i <= 7; i++) {
-            if (this.thisHoleIsEmpty(currentSide, i)) {
-                if (this.thisHoleHasAPotentialSteal(currentSide, i)) {
+            if (board.getSeeds(currentSide, i) == 0) {  //If hole empty
+                if (board.getSeedsOp(currentSide, i) > 0) { //If opposing hole has seeds
                     for (int j = 1; j < i; j++) {
-                        if (currentBoard.getSeeds(currentSide, j) == i - j) {
-                            final int valueOfSteals = currentBoard.getSeedsOp(currentSide, i) + 1;
-                            if (maxStealValue < valueOfSteals) {
-                                maxStealValue = valueOfSteals;
+                        if (this.node.getBoard().getSeeds(currentSide, j) == i - j) {
+                            final int valueOfSteal = board.getSeedsOp(currentSide, i) + 1;
+                            
+                            if (maxStealValue < valueOfSteal) {
+                                maxStealValue = valueOfSteal;
                             }
                         }
                     }
                 }
+                
                 for (int j = i+1; j <= 7; j++) {
-                    if (currentBoard.getSeeds(currentSide, j) == 15+i-j) {
-                        final int valueOfSteals = currentBoard.getSeedsOp(currentSide, i) + 2;
-                        if (maxStealValue < valueOfSteals) {
-                            maxStealValue = valueOfSteals;
+                    if (this.node.getBoard().getSeeds(currentSide, j) == 15 + i - j) { // Looped steal
+                        final int valueOfSteal = board.getSeedsOp(currentSide, i) + 3;
+                        if (maxStealValue < valueOfSteal) {
+                            maxStealValue = valueOfSteal;
                         }
                     }
                 }
+            } else if (board.getSeeds(currentSide, i) == 15) {  //We can loop to steal same pot
+                final int valueOfSteal = board.getSeedsOp(currentSide, i) + 3;
+                if (maxStealValue < valueOfSteal) {
+                    maxStealValue = valueOfSteal;
+                }       
             }
         }
-
         return maxStealValue;
-    }
-
-    private boolean thisHoleIsEmpty(final Side currentSide, final int i) {
-        return this.node.getBoard().getSeeds(currentSide, i) == 0;
-    }
-
-    private boolean thisHoleHasAPotentialSteal(final Side currentSide, final int i) {
-        return this.node.getBoard().getSeedsOp(currentSide, i) > 0;
     }
 }
