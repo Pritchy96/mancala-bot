@@ -11,6 +11,25 @@ import java.util.Map;
 @Getter
 public class HeuristicWeightings {
     private static Map<Heuristics, Double> weightings;
+    private static HeuristicWeightings heuristicWeightings = new HeuristicWeightings();
+
+    public void init(final Double pointDifferenceWeight,
+                     final Double maxSteal,
+                     final Double nEmptyPotsWeight,
+                     final Double cumulativeSteal,
+                     final Double repeatSteal){
+        weightings = new HashMap<>();
+        weightings.put(Heuristics.MK_POINT_DIFFERENCE, pointDifferenceWeight);
+        weightings.put(Heuristics.MAX_STEAL, maxSteal);
+        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, nEmptyPotsWeight);
+        weightings.put(Heuristics.CUMULATIVE_STEAL, cumulativeSteal);
+        weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, repeatSteal);
+
+    }
+
+    public static HeuristicWeightings getInstance(){
+        return heuristicWeightings;
+    }
 
     private static void setupTempMap() {
         weightings = new HashMap<>();
@@ -21,7 +40,7 @@ public class HeuristicWeightings {
         weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 0.1);
     }
 
-    public static double applyWeightings(final Map<Heuristics, Integer> hValues, final GameTreeNode node, final Side ourSide) {
+    public double applyWeightings(final Map<Heuristics, Integer> hValues, final GameTreeNode node, final Side ourSide) {
         // for each heuristic
 
         if (weightings == null) {
