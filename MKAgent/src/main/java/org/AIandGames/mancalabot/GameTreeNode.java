@@ -62,7 +62,7 @@ public class GameTreeNode {
     }
 
     private boolean isMinOrMaxChild(final Side ourSide, final double value, final GameTreeNode child, final double childVal) {
-        return (child.getPlayersTurn(ourSide) && childVal > value) || (!child.getPlayersTurn(ourSide) && childVal < value);
+        return (this.getPlayersTurn(ourSide) && childVal > value) || (!this.getPlayersTurn(ourSide) && childVal < value);
     }
 
     public boolean getPlayersTurn(final Side ourSide) {
@@ -139,7 +139,7 @@ public class GameTreeNode {
 
                 final TerminalState state;
                 if (Kalah.gameWon(boardClone)) {
-                    state = boardClone.getSeedsInStore(ourSide) >= 50  ? TerminalState.WIN_TERMINAL : TerminalState.LOSE_TERMINAL;
+                    state = boardClone.getSeedsInStore(ourSide) >= 50 ? TerminalState.WIN_TERMINAL : TerminalState.LOSE_TERMINAL;
                 } else {
                     state = TerminalState.NON_TERMINAL;
                 }
