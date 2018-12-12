@@ -13,26 +13,15 @@ import java.io.Reader;
 public class MessageHelper {
     private final Reader input;
     private final PrintWriter output;
-    private final boolean useSockets;
 
     public void sendMsg(final String msg) {
-        if (useSockets) {
-            System.out.print(msg);
-            System.out.flush();
-        }
-
-        // this.output.print(msg);
-        // this.output.flush();
+        this.output.print(msg);
+        this.output.flush();
     }
 
     public void sendSwapMsg() {
-        if (useSockets) {
-            System.out.print(Protocol.createSwapMsg());
-            System.out.flush();
-        }
-
-        // this.output.print(Protocol.createSwapMsg());
-        // this.output.flush();
+        this.output.print(Protocol.createSwapMsg());
+        this.output.flush();
     }
 
     public String recvMsg() throws IOException {

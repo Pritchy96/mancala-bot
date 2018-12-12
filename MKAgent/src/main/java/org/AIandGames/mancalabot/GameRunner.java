@@ -52,7 +52,7 @@ public class GameRunner {
             this.input = new BufferedReader(new InputStreamReader(System.in));
             this.output = new PrintWriter(new OutputStreamWriter(System.out));
         }
-         this.messageHelper = new MessageHelper(this.input, this.output, USE_SOCKETS);
+         this.messageHelper = new MessageHelper(this.input, this.output);
     }
 
     void run() {
