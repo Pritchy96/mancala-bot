@@ -24,15 +24,17 @@ public class NumberOfEmptyPots implements Heuristic {
 
     @Override
     public int getValue(final Side ourSide) {
+        final int isItOurTurnMultiplier = ourSide.equals(this.node.getCurrentSide()) ? 1 : -1;
+
         int numberOfPots = 0;
         for (int i = 1; i < 8; i++) {
-            if (this.node.getBoard().getSeeds(ourSide, i) == 0) {
+            if (this.node.getBoard().getSeeds(this.node.getCurrentSide(), i) == 0) {
                 numberOfPots++;
             }
-            if (this.node.getBoard().getSeeds(ourSide.opposite(), i) == 0) {
+            if (this.node.getBoard().getSeeds(this.node.getCurrentSide().opposite(), i) == 0) {
                 numberOfPots--;
             }
         }
-        return numberOfPots;
+        return numberOfPots * isItOurTurnMultiplier;
     }
 }
