@@ -1,23 +1,21 @@
 package org.AIandGames.mancalabot.helpers;
 
+import com.google.gson.GsonBuilder;
+import lombok.AllArgsConstructor;
+import lombok.extern.java.Log;
+import org.AIandGames.mancalabot.Board;
+import org.AIandGames.mancalabot.Enums.Side;
+import org.AIandGames.mancalabot.Enums.TerminalState;
+import org.AIandGames.mancalabot.GameTreeNode;
+import org.AIandGames.mancalabot.Kalah;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.google.gson.GsonBuilder;
-
-import org.AIandGames.mancalabot.Board;
-import org.AIandGames.mancalabot.GameTreeNode;
-import org.AIandGames.mancalabot.Enums.Side;
-
-import lombok.AllArgsConstructor;
-
+@Log
 @AllArgsConstructor
 public class TreeHelper {
     private final int overallDepth;
@@ -29,13 +27,22 @@ public class TreeHelper {
             final GameTreeNode root = new GsonBuilder().create().fromJson(reader, GameTreeNode.class);
             reader.close();
             return root;
-        } catch (IOException fileException) {
-            return GameTreeNode.builder()
-                    .board(board)
-                    .children(new ArrayList<>())
-                    .currentSide(ourSide.opposite())
-                    .build();
+        } catch (final IOException fileException) {
+            log.severe(fileException.getMessage());
         }
+        final Board boardClone = board.clone();
+        final TerminalState state;
+        if (Kalah.gameWon(boardClone)) {
+            state = boardClone.getSeedsInStore(ourSide) >= 50 ? TerminalState.WIN_TERMINAL : TerminalState.LOSE_TERMINAL;
+        } else {
+            state = TerminalState.NON_TERMINAL;
+        }
+        return GameTreeNode.builder()
+                .board(board)
+                .children(new ArrayList<>())
+                .currentSide(ourSide.opposite())
+                .terminalState(state)
+                .build();
     }
 
     public GameTreeNode updateRootNode(final Board board, final GameTreeNode tree, final Side ourSide) throws CloneNotSupportedException { // BFS

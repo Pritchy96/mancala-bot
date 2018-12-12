@@ -16,7 +16,7 @@ import java.util.List;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 9;
+    private static final int OVERALL_DEPTH = 5;
     private static final Boolean WRITE_TREE = false;
     private PrintWriter output;
     private Reader input;
@@ -100,12 +100,17 @@ public class GameRunner {
             if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
                 try {
                     this.thread.join();
-                    this.tree = this.treeHelper.updateRootNode(board, this.tree, this.ourSide);
+                    final UpdateReturnable initalUpdateReturnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide.opposite());
+                    this.thread = initalUpdateReturnable.getThread();
+                    this.tree = initalUpdateReturnable.getGameTreeNode();
+                    this.thread.join();
+
                     this.makeAMove(board, moveTurn);
+
                     final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
                     this.thread = returnable.getThread();
                     this.tree = returnable.getGameTreeNode();
-                } catch (final InterruptedException | CloneNotSupportedException e) {
+                } catch (final InterruptedException e) {
                     e.printStackTrace();
                 }
             } else { // static tree

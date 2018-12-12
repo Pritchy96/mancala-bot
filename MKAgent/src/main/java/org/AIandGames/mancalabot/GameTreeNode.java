@@ -111,7 +111,7 @@ public class GameTreeNode {
 
         if (this.children.isEmpty()) {
             this.generateUpTo7Children(ourSide);
-            this.addSwapNodeIfApplicable(allowSwap);
+            //this.addSwapNodeIfApplicable(allowSwap);
         }
 
         final int newDepth = depth - 1;
