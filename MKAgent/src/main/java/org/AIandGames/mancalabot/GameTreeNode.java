@@ -52,7 +52,7 @@ public class GameTreeNode {
                     value = child.getValue(ourSide);
                 } else {
                     final double childVal = child.getValue(ourSide);
-                    if (this.isMinOrMaxChild(ourSide, value, child, childVal)) {
+                    if (this.isMinOrMaxChild(ourSide, value, childVal)) {
                         value = childVal;
                     }
                 }
@@ -61,7 +61,7 @@ public class GameTreeNode {
         }
     }
 
-    private boolean isMinOrMaxChild(final Side ourSide, final double value, final GameTreeNode child, final double childVal) {
+    private boolean isMinOrMaxChild(final Side ourSide, final double value, final double childVal) {
         return (this.getPlayersTurn(ourSide) && childVal > value) || (!this.getPlayersTurn(ourSide) && childVal < value);
     }
 
