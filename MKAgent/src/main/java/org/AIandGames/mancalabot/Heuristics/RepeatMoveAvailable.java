@@ -6,8 +6,6 @@ import lombok.ToString;
 import org.AIandGames.mancalabot.Enums.Heuristics;
 import org.AIandGames.mancalabot.Enums.Side;
 import org.AIandGames.mancalabot.GameTreeNode;
-import org.AIandGames.mancalabot.Kalah;
-import org.AIandGames.mancalabot.Move;
 
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -34,15 +32,14 @@ public class RepeatMoveAvailable implements Heuristic {
 
         */
 
-        final int isItOurTurnMultiplier = ourSide.equals(this.node.getCurrentSide()) ? 1 : -1;
+        final Side currentSide = this.node.getCurrentSide();
+
+        final int isItOurTurnMultiplier = ourSide.equals(currentSide) ? 1 : -1;
 
         int numberOfRepeatMovesAvailable = 0;
 
-        final Kalah kalah = new Kalah(this.node.getBoard());
-
         for (int i = 1; i <= 7; i++) {
-            final Move move = new Move(this.node.getCurrentSide(), i);
-            if (this.moveGivesAnotherMove(kalah, move)) {
+            if (this.moveGivesAnotherMove(currentSide, i)) {
                 numberOfRepeatMovesAvailable += 1;
             }
         }
@@ -50,10 +47,12 @@ public class RepeatMoveAvailable implements Heuristic {
         return numberOfRepeatMovesAvailable * isItOurTurnMultiplier;
     }
 
-    private boolean moveGivesAnotherMove(final Kalah kalah, final Move move) {
-        if (kalah.isLegalMove(move) && (kalah.makeMove(move) == this.node.getCurrentSide())) {
-            return true;
-        }
-        return false;
+    //checks for repeat moves possible through up to 2 loops of the board
+    private boolean moveGivesAnotherMove(final Side currentSide, final int holeNumber) {
+
+        final int numberOfSeedsInPot = this.node.getBoard().getSeeds(currentSide, holeNumber);
+
+        return (numberOfSeedsInPot + holeNumber == 8) || (numberOfSeedsInPot + holeNumber == 23);
     }
+
 }
