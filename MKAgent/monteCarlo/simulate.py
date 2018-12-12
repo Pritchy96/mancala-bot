@@ -1,17 +1,18 @@
 import subprocess
-from collections import OrderedDict
 import math
 import random
+
+nGenerations = 5
+nInInitialGeneration = 3
 
 winDict = {}
 ourRunArg = 'java -jar ../target/mancalaBot-1.0-SNAPSHOT-jar-with-dependencies.jar'
 
 def deviate(w):
-    dev1 = random.triangular(0, 0.1, 0.05)
-    dev2 = random.triangular(0, 0.1, 0.05)
-    dev3 = random.triangular(0, 0.1, 0.05)
+    dev1 = random.triangular(-0.1, 0.1, 0.0)
+    dev2 = random.triangular(-0.1, 0.1, 0.0)
+    dev3 = random.triangular(-0.1, 0.1, 0.0)
     temp = w.split(" ")
-    print(temp)
     wNew = " " + str(float(temp[1]) + dev1) + " " + str(float(temp[2]) + dev2) + " " + str(float(temp[3]) + dev3)
     return wNew
 
@@ -36,42 +37,45 @@ def play(w, wPrime):
         winDict[wPrime] = winDict[wPrime] + 0
 
 
-us = "Player 1"
-
-wAll = []
-
-
-
-for x in range(0, 3):
+for x in range(0, nInInitialGeneration):
     h1 = str(random.random())
     h2 = str(random.random())
     h3 = str(random.random())
     weight = " " + h1 + " " + h2 + " " + h3
-    wAll.append(weight)
     winDict[weight] = 0
 
 
-for x in range(1, 5):
-    for w in wAll:
-        for wPrime in wAll:
-            if w is not wPrime:
-                play(w, wPrime)
+for x in range(1, nGenerations):
+    for key, value in winDict.items():
+        for keyPrime, valuePrime in winDict.items():
+            if key is not keyPrime:
+                play(key, keyPrime)
 
-    print(winDict)
-    winDictSorted = OrderedDict(sorted(winDict.items()))
-    twentyPercent = int(math.ceil(len(winDictSorted) * 0.2))
-    for i in range(0, twentyPercent):
-        currentMin = min(winDictSorted, key=winDictSorted.get)
-        wAll.remove(currentMin)
-        del winDict[currentMin]
+    winDict = dict([(k, winDict[k]) for k in sorted(winDict, key=winDict.get, reverse=True)])
+    twentyPercent = int(math.ceil(len(winDict) * 0.2))
 
+    remove = []
+    count = 0
+    for k,v in reversed(sorted(winDict.items())):
+        if count < twentyPercent:
+            remove.append(k)
+            count = count + 1
 
-    max = len(wAll)
-    for t in range(0, max):
-        newWeight = deviate(wAll[t])
-        wAll.append(newWeight)
-        winDict[newWeight] = 0
+    for rmk in remove:
+        del winDict[rmk]
+
+    if x is not nGenerations - 1:
+        newWinDict = {}
+        for k, v in winDict.items():
+            newWinDict[k] = 0
+            newWinDict[deviate(k)] = 0
+
+        winDict = newWinDict
 
 # now just get the 'best' of the resulting
-maximum = max(winDict, key=winDict.get)
-print("Absolute Best: " + maximum)
+winDict = dict([(k, winDict[k]) for k in sorted(winDict, key=winDict.get, reverse=True)])
+for k, v in winDict.items():
+    print("Absolute Best: " + str(k) + " with " + str(v) + " wins")
+    break
+
+
