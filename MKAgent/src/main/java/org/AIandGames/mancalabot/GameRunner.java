@@ -171,8 +171,7 @@ public class GameRunner {
         this.ourSide = this.statePrinter.printStartMessage(this.wePlayFirst);
 
         if (this.wePlayFirst) {
-            this.messageHelper.sendMsg(Protocol.createMoveMsg(7));
-            // TODO Whats our best opening move ?
+            this.messageHelper.sendMsg(Protocol.createMoveMsg(4));
             this.opponentWentLast = false;
             this.ourMoveCount++;
             this.totalMovesBothPlayers++;
