@@ -18,7 +18,6 @@ public class HeuristicWeightings {
         weightings.put(Heuristics.MAX_STEAL, 0.4);
         weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 0.2);
         weightings.put(Heuristics.CUMULATIVE_STEAL, 0.6);
-        weightings.put(Heuristics.FIFTEEN_IN_POT, 2.0);
         weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 0.1);
     }
 
