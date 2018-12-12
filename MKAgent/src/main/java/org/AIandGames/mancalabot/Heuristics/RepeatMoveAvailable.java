@@ -20,17 +20,6 @@ public class RepeatMoveAvailable implements Heuristic {
 
     @Override
     public int getValue(final Side ourSide) {
-        /*final int northSideReturn = Side.NORTH.equals(ourSide) ? 1 : -1;
-        final int southSideReturn = Side.SOUTH.equals(ourSide) ? 1 : -1;
-
-        final Kalah kalah = new Kalah(this.node.getBoard());
-
-        return MovesStaticList.MOVES_LIST.stream()
-                .filter(kalah::isLegalMove)
-                .mapToInt(move -> kalah.makeMove(move).equals(Side.NORTH) ? northSideReturn : southSideReturn)
-                .reduce(0, (acc, point) -> acc + point);
-
-        */
 
         final Side currentSide = this.node.getCurrentSide();
 
