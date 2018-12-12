@@ -100,6 +100,7 @@ public class GameTreeNode {
         hs.add(new CumulativeSteal(this));
         hs.add(new FifteenInPot(this));
         hs.add(new RepeatMoveAvailable(this));
+        hs.add(new MaxSteal(this));
 
         hs.forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
     }
