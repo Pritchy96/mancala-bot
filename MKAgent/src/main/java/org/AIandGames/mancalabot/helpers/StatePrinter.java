@@ -28,7 +28,7 @@ public class StatePrinter {
         }
     }
 
-    public void printStartMessage(final Boolean wePlayFirst, Side ourSide) {
+    public void printStartMessage(final Boolean wePlayFirst, final Side ourSide) {
         System.err.println("||--------------GAME START-------------||");
         System.err.println("Us to go first :: " + wePlayFirst);
         System.err.println("We are :: " + ourSide);

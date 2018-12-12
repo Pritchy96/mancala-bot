@@ -184,7 +184,6 @@ public class GameRunner {
     private void opponentHasSwapped() {
         this.ourSide = this.ourSide.opposite();
         this.ourMoveCount--;
-        // TODO: Check move count variables are correct.
     }
 
     private void makeStartCaseFirstMoveOfGame() {
