@@ -47,7 +47,7 @@ public class GameRunner {
                 this.output = new PrintWriter(clientSocket.getOutputStream(), true);
             } catch (final IOException e) {
                 e.printStackTrace();
-            } 
+            }
         } else {
             this.input = new BufferedReader(new InputStreamReader(System.in));
             this.output = new PrintWriter(new OutputStreamWriter(System.out));
@@ -171,7 +171,8 @@ public class GameRunner {
     private void runStartCase(final String msg, final Board board) throws InvalidMessageException, CloneNotSupportedException {
         this.wePlayFirst = Protocol.interpretStartMsg(msg);
 
-        this.ourSide = this.statePrinter.printStartMessage(this.wePlayFirst);
+        this.ourSide = wePlayFirst ? Side.SOUTH : Side.NORTH;
+        this.statePrinter.printStartMessage(this.wePlayFirst, this.ourSide);
 
         if (this.wePlayFirst) {
             this.messageHelper.sendMsg(Protocol.createMoveMsg(4));
