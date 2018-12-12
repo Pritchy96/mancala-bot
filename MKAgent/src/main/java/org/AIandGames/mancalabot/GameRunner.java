@@ -16,7 +16,7 @@ import java.util.List;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 9;
+    private static final int OVERALL_DEPTH = 10;
     private static final Boolean WRITE_TREE = false;
     private PrintWriter output;
     private Reader input;
@@ -132,7 +132,7 @@ public class GameRunner {
         final Kalah testKalah = new Kalah(board);
 
 
-        if (this.canWeSwap() && this.shouldWeSwap()) {
+        if (this.canWeSwap() && this.shouldWeSwap(moveTurn)) {
             this.performSwap();
         } else if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
             //If there is only one valid move available, make it without doing any checks.
@@ -157,8 +157,8 @@ public class GameRunner {
         this.totalMovesBothPlayers++;
     }
 
-    private boolean shouldWeSwap() {
-        return false; // for now
+    private boolean shouldWeSwap(MoveTurn moveTurn) {
+        return (moveTurn.move >= 4);
     }
 
     private boolean canWeSwap() {
