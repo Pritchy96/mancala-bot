@@ -34,33 +34,28 @@ public class TreeGenerator implements Runnable {
 
     @Override
     public void run() {
-        try {
-            final int depthPerThread = this.relativeOverallDepth - SINGLE_THREAD_DEPTH;
+        final int depthPerThread = this.relativeOverallDepth - SINGLE_THREAD_DEPTH;
 
-            final ArrayList<Runnable> runnables = new ArrayList<>();
-            final List<GameTreeNode> leafNodesToRunThreaded = new ArrayList<>();
+        final ArrayList<Runnable> runnables = new ArrayList<>();
+        final List<GameTreeNode> leafNodesToRunThreaded = new ArrayList<>();
 
-            this.rootNode.generateChildren(2, this.ourSide);
+        this.rootNode.generateChildren(2, this.ourSide);
 
-            this.rootNode.getChildren().stream()
-                    .filter(Objects::nonNull)
-                    .forEach(childNode -> leafNodesToRunThreaded.addAll(childNode.getChildren()));
+        this.rootNode.getChildren().stream()
+                .filter(Objects::nonNull)
+                .forEach(childNode -> leafNodesToRunThreaded.addAll(childNode.getChildren()));
 
-            leafNodesToRunThreaded.stream()
-                    .filter(Objects::nonNull)
-                    .forEach(node -> runnables.add(new GeneratorRunnable(node, depthPerThread, this.ourSide)));
+        leafNodesToRunThreaded.stream()
+                .filter(Objects::nonNull)
+                .forEach(node -> runnables.add(new GeneratorRunnable(node, depthPerThread, this.ourSide)));
 
-            runnables.forEach(this.threadPool::submit);
+        runnables.forEach(this.threadPool::submit);
 
 
-            while (this.threadedQueue.size() > 0) {
-            } // nasty but works
+        while (this.threadedQueue.size() > 0) {
+        } // nasty but works
 
-            this.threadPool.shutdown();
-
-        } catch (final CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+        this.threadPool.shutdown();
     }
 
     public GameTreeNode getRootNode() {

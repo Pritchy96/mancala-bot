@@ -104,7 +104,7 @@ public class GameTreeNode {
         hs.forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
     }
 
-    public void generateChildren(final int depth, final Side ourSide) throws CloneNotSupportedException {
+    public void generateChildren(final int depth, final Side ourSide) {
         if (depth == 0) {
             return;
         }
@@ -117,17 +117,11 @@ public class GameTreeNode {
 
         this.getChildren().stream()
                 .filter(Objects::nonNull)
-                .forEach(child -> {
-                    try {
-                        child.generateChildren(newDepth, ourSide);
-                    } catch (final CloneNotSupportedException e) {
-                        e.printStackTrace();
-                    }
-                });
+                .forEach(child -> child.generateChildren(newDepth, ourSide));
 
     }
 
-    private void generateUpTo7Children(final Side ourSide) throws CloneNotSupportedException {
+    private void generateUpTo7Children(final Side ourSide) {
         for (int i = 1; i <= 7; i++) {
             if (this.board.getSeeds(this.currentSide, i) > 0) {
                 final GameTreeNodeBuilder newChildNBuilder = this.toBuilder();

@@ -13,10 +13,6 @@ public class GeneratorRunnable implements Runnable {
 
     @Override
     public void run() {
-        try {
-            this.root.generateChildren(this.depth, this.ourSide);
-        } catch (final CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+        this.root.generateChildren(this.depth, this.ourSide);
     }
 }

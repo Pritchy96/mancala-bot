@@ -108,7 +108,7 @@ public class Board extends Observable implements Cloneable {
      * @see #Board(Board)
      */
     @Override
-    public Board clone() throws CloneNotSupportedException {
+    public Board clone() {
         return new Board(this);
     }
 

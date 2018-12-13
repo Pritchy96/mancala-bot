@@ -78,7 +78,7 @@ public class GameRunner {
                         this.statePrinter.printEndState();
                         return;
                 }
-            } catch (final InvalidMessageException | IOException | CloneNotSupportedException e) {
+            } catch (final InvalidMessageException | IOException  e) {
                 e.printStackTrace();
             }
         }
@@ -102,7 +102,7 @@ public class GameRunner {
         }
         else {
             try {
-                // Flow: 
+                // Flow:
                 // Wait for thread join
                 // find root node
                 // prune to that node
@@ -182,7 +182,7 @@ public class GameRunner {
         this.totalMovesBothPlayers++;
     }
 
-    private void runStartCase(final String msg, final Board board) throws InvalidMessageException, CloneNotSupportedException {
+    private void runStartCase(final String msg, final Board board) throws InvalidMessageException {
         this.wePlayFirst = Protocol.interpretStartMsg(msg);
 
         if (wePlayFirst) {
