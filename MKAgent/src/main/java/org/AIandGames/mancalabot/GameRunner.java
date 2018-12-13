@@ -87,19 +87,47 @@ public class GameRunner {
     private void runStateCase(final String msg, final Board board) throws InvalidMessageException {
         final MoveTurn moveTurn = Protocol.interpretStateMsg(msg, board);
 
-        if (this.opponentWentLast && moveTurn.move == Protocol.SWAP) {
-            this.ourSide = this.ourSide.opposite();
-            this.ourMoveCount--;
-            this.totalMovesBothPlayers--;
+        if (hasOpponentSwapped(moveTurn)) {
+            opponentHasSwapped();
         }
 
-        // is it not our turn?
+        // is it opponents turn?
         if (!moveTurn.ourTurn) {
+            // TODO: Check if we can update the tree at this point, including pruning
             this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
             this.opponentWentLast = true;
             this.totalMovesBothPlayers++;
-        } else {
+        } else if (this.canWeSwap() && this.shouldWeSwap(moveTurn)) {
+            this.performSwap();
+        }
+        else {
+            try {
+                // Flow: 
+                // Wait for thread join
+                // find root node
+                // prune to that node
+                // NEW : update generate to depth OVERALL_DEPTH
+                // NEW : Wait for thread join
+                // perform minimax
+                // Make move
+                this.thread.join();
 
+                // Will update root node to correct place (BFS)
+                // then generates the last level of depth, waiting for thread to join before continuing.
+                ensureCorrectTreeDepth(board);
+
+                // TODO : Fix make a move method
+                this.makeAMove(board, moveTurn);
+
+            } catch (final InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+
+
+            // NO LONGER USED:::
+            /*
             if (this.totalMovesBothPlayers > this.DEPTH_OF_STATIC_MOVES) {
                 try {
                     this.thread.join();
@@ -109,7 +137,7 @@ public class GameRunner {
                     final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
                     this.thread = returnable.getThread();
                     this.tree = returnable.getGameTreeNode();
-                } catch (final InterruptedException | CloneNotSupportedException e) {
+                } catch (final InterruptedException  e) {
                     e.printStackTrace();
                 }
             } else { // static move
@@ -118,13 +146,11 @@ public class GameRunner {
                 if (this.totalMovesBothPlayers >= this.DEPTH_OF_STATIC_MOVES) {
                     // if thread isn't running - generate root node and start thread.
                     if (!this.thread.isAlive()) {
-                        this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
-                        final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, this.ourSide);
-                        this.thread = new Thread(createTreeRunner);
-                        this.thread.start();
+                        generateInitialTree(board);
                     }
                 }
             }
+            */
         }
     }
 
@@ -132,11 +158,7 @@ public class GameRunner {
         this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
         final Kalah testKalah = new Kalah(board);
 
-
-        if (this.canWeSwap() && this.shouldWeSwap(moveTurn)) {
-            this.performSwap();
-
-        } else if (this.totalMovesBothPlayers > this.DEPTH_OF_STATIC_MOVES) {
+        if (this.totalMovesBothPlayers > this.DEPTH_OF_STATIC_MOVES) {
             //If there is only one valid move available, make it without doing any checks.
             final List<GameTreeNode> childrenNoNulls = this.tree.getChildren();
             childrenNoNulls.removeAll(Collections.singleton(null));
@@ -172,29 +194,52 @@ public class GameRunner {
         this.statePrinter.printStartMessage(this.wePlayFirst, this.ourSide);
 
         if (this.wePlayFirst) {
-            this.messageHelper.sendMsg(Protocol.createMoveMsg(4));
-            this.opponentWentLast = false;
-            this.ourMoveCount++;
+            this.makeStartCaseFirstMoveOfGame();
         }
 
         // In the start case, regardless of who goes first, a move is made.
         this.totalMovesBothPlayers++;
 
         if (WRITE_TREE) {
-            System.err.println("Writing Tree to tree.json");
-            try (final Writer writer = new FileWriter("tree.json")) {
-                final Gson gson = new GsonBuilder().create();
-                gson.toJson(this.tree, writer);
-                writer.close();
-                System.exit(0);
-            } catch (final Exception e) {
-                e.printStackTrace();
-            }
+            writeTreeToFile();
         }
+
+        // GENERATE TREE
+        generateInitialTree(board);
+    }
+
+    private void generateInitialTree(Board board) {
+        this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
+        final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, this.ourSide);
+        this.thread = new Thread(createTreeRunner);
+        this.thread.start();
+    }
+
+    private void ensureCorrectTreeDepth(Board board) throws InterruptedException {
+        final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
+        this.thread = returnable.getThread();
+        this.tree = returnable.getGameTreeNode();
+        this.thread.join();
+    }
+
+    private boolean hasOpponentSwapped(MoveTurn moveTurn) {
+        return this.opponentWentLast && moveTurn.move == Protocol.SWAP;
+    }
+
+    private void opponentHasSwapped() {
+        this.ourSide = this.ourSide.opposite();
+        this.ourMoveCount--;
+        // TODO: Check move count variables are correct.
+    }
+
+    private void makeStartCaseFirstMoveOfGame() {
+        this.messageHelper.sendMsg(Protocol.createMoveMsg(4));
+        this.opponentWentLast = false;
+        this.ourMoveCount++;
     }
 
     private boolean shouldWeSwap(MoveTurn moveTurn) {
-        return (moveTurn.move >= 4);
+        return (moveTurn.move >= 4); // TODO Should we consider 3?
     }
 
     private boolean canWeSwap() {
@@ -232,5 +277,17 @@ public class GameRunner {
             return true;
         }
         return false;
+    }
+
+    private void writeTreeToFile() {
+        System.err.println("Writing Tree to tree.json");
+        try (final Writer writer = new FileWriter("tree.json")) {
+            final Gson gson = new GsonBuilder().create();
+            gson.toJson(this.tree, writer);
+            writer.close();
+            System.exit(0);
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
     }
 }

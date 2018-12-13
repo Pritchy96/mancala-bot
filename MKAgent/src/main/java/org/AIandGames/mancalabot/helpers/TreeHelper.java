@@ -20,7 +20,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class TreeHelper {
-    private final int overallDepth;
+    private final int relativeOverallDepth;
 
     public GameTreeNode generateRootNode(final Side ourSide, final Board board) {
 
@@ -38,7 +38,7 @@ public class TreeHelper {
         }
     }
 
-    public GameTreeNode updateRootNode(final Board board, final GameTreeNode tree, final Side ourSide) throws CloneNotSupportedException { // BFS
+    public GameTreeNode updateRootNode(final Board board, final GameTreeNode tree, final Side ourSide) { // BFS
         final Queue<GameTreeNode> nodesToVisit = new LinkedBlockingQueue<>();
         final HashSet<GameTreeNode> visitedNodes = new HashSet<>();
 
@@ -107,7 +107,7 @@ public class TreeHelper {
             final Thread thread;
             tree = this.updateRootNode(board, tree, ourSide);
 
-            final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, ourSide);
+            final Runnable createTreeRunner = new TreeGenerator(tree, this.relativeOverallDepth - 1, ourSide);
             thread = new Thread(createTreeRunner);
             thread.start();
             return new UpdateReturnable(tree, thread);

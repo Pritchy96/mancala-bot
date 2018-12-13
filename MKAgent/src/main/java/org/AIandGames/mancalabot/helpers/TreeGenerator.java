@@ -14,12 +14,12 @@ public class TreeGenerator implements Runnable {
     private BlockingDeque<Runnable> threadedQueue;
     private ExecutorService threadPool;
     private GameTreeNode rootNode;
-    private int overallDepth;
+    private int relativeOverallDepth;
     private Side ourSide;
 
     public TreeGenerator(final GameTreeNode rootNode, final int overallDepth, final Side ourSide) {
         this.rootNode = rootNode;
-        this.overallDepth = overallDepth;
+        this.relativeOverallDepth = overallDepth;
         this.ourSide = ourSide;
 
         this.threadedQueue = new LinkedBlockingDeque<>();
@@ -35,7 +35,7 @@ public class TreeGenerator implements Runnable {
     @Override
     public void run() {
         try {
-            final int depthPerThread = this.overallDepth - SINGLE_THREAD_DEPTH;
+            final int depthPerThread = this.relativeOverallDepth - SINGLE_THREAD_DEPTH;
 
             final ArrayList<Runnable> runnables = new ArrayList<>();
             final List<GameTreeNode> leafNodesToRunThreaded = new ArrayList<>();
