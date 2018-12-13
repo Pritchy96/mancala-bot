@@ -2,8 +2,8 @@ import subprocess
 import math
 import random
 
-nGenerations = 200
-nInInitialGeneration = 50
+nGenerations = 10
+nInInitialGeneration = 2
 
 winDict = {}
 ourRunArg = 'java -jar ../../target/mancalaBot-1.0-SNAPSHOT-jar-with-dependencies.jar'
@@ -30,7 +30,7 @@ def play(w, wPrime):
             ourRunArg + w,
             ourRunArg + wPrime]
     p = subprocess.run(args, capture_output=True)
-    out = str(p.stderr).split("WINNER: ")
+    out = str(p.stdout).split("WINNER: ")
     if len(out) is 1:
         out = str(p.stderr).split("DRAW: ")
         winDict[w] = winDict[w] + 1
@@ -41,21 +41,21 @@ def play(w, wPrime):
     if w in winner:
         winDict[w] = winDict[w] + 3
     else:
-        winDict[wPrime] = winDict[wPrime] + 0
+        winDict[wPrime] = winDict[wPrime] + 3
 
 
 for x in range(0, nInInitialGeneration):
-    h1 = str(random.random())
-    h2 = str(random.random())
-    h3 = str(random.random())
-    h4 = str(random.random())
-    h5 = str(random.random())
+    h1 = str(random.triangular(0.4, 0.55, 0.5))
+    h2 = str(random.triangular(0.4, 0.55, 0.5))
+    h3 = str(random.triangular(0.4, 0.55, 0.5))
+    h4 = str(random.triangular(0.4, 0.55, 0.5))
+    h5 = str(random.triangular(0.4, 0.55, 0.5))
     weight = " " + h1 + " " + h2 + " " + h3 + " " + h4 + " " + h5
     winDict[weight] = 0
 
 
 for x in range(1, nGenerations):
-    print("new generation")
+    print("new generation", x)
     for key, value in winDict.items():
         for keyPrime, valuePrime in winDict.items():
             if key is not keyPrime:
@@ -63,8 +63,8 @@ for x in range(1, nGenerations):
 
     winDict = dict([(k, winDict[k]) for k in sorted(winDict, key=winDict.get, reverse=True)])
     print(winDict)
-    print("end of generation: " + x)
-    twentyPercent = int(math.ceil(len(winDict) * 0.2))
+    print("end of generation: ", x)
+    twentyPercent = int(math.ceil(len(winDict) * 0.5))
 
     remove = []
     count = 0
