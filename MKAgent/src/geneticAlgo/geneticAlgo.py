@@ -2,8 +2,8 @@ import subprocess
 import math
 import random
 
-nGenerations = 5
-nInInitialGeneration = 3
+nGenerations = 200
+nInInitialGeneration = 50
 
 winDict = {}
 ourRunArg = 'java -jar ../../target/mancalaBot-1.0-SNAPSHOT-jar-with-dependencies.jar'
@@ -45,11 +45,11 @@ def play(w, wPrime):
 
 
 for x in range(0, nInInitialGeneration):
-    h1 = str(random.triangular(0, 1, 0.5))
-    h2 = str(random.triangular(0, 1, 0.5))
-    h3 = str(random.triangular(0, 1, 0.5))
-    h4 = str(random.triangular(0, 1, 0.5))
-    h5 = str(random.triangular(0, 1, 0.5))
+    h1 = str(random.random())
+    h2 = str(random.random())
+    h3 = str(random.random())
+    h4 = str(random.random())
+    h5 = str(random.random())
     weight = " " + h1 + " " + h2 + " " + h3 + " " + h4 + " " + h5
     winDict[weight] = 0
 
