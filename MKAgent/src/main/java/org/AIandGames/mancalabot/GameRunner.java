@@ -160,14 +160,6 @@ public class GameRunner {
         this.totalMovesBothPlayers++;
     }
 
-    private boolean shouldWeSwap(MoveTurn moveTurn) {
-        return (moveTurn.move >= 4);
-    }
-
-    private boolean canWeSwap() {
-        return !this.wePlayFirst && this.ourMoveCount == 0;
-    }
-
     private void runStartCase(final String msg, final Board board) throws InvalidMessageException, CloneNotSupportedException {
         this.wePlayFirst = Protocol.interpretStartMsg(msg);
 
@@ -201,6 +193,14 @@ public class GameRunner {
         }
     }
 
+    private boolean shouldWeSwap(MoveTurn moveTurn) {
+        return (moveTurn.move >= 4);
+    }
+
+    private boolean canWeSwap() {
+        return !this.wePlayFirst && this.ourMoveCount == 0;
+    }
+
     private void performSwap() {
         this.messageHelper.sendSwapMsg();
         this.ourSide = this.ourSide.opposite();
@@ -215,10 +215,6 @@ public class GameRunner {
                 break;
             }
         }
-    }
-
-    private void moveInitialPotBasedOnTheirFirstMove(final Kalah kalah) {
-
     }
 
     private boolean moveBestGuess(final Kalah kalah) {
