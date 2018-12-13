@@ -107,7 +107,7 @@ public class TreeHelper {
             final Thread thread;
             tree = this.updateRootNode(board, tree, ourSide);
 
-            final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, false, ourSide);
+            final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, ourSide);
             thread = new Thread(createTreeRunner);
             thread.start();
             return new UpdateReturnable(tree, thread);

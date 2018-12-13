@@ -66,7 +66,6 @@ public class GameRunner {
                 msg = this.messageHelper.recvMsg();
 
                 switch (Protocol.getMessageType(msg)) {
-
                     case START:
                         this.runStartCase(msg, board);
                         break;
@@ -104,6 +103,7 @@ public class GameRunner {
                 try {
                     this.thread.join();
                     this.tree = this.treeHelper.updateRootNode(board, this.tree, this.ourSide);
+
                     this.makeAMove(board, moveTurn);
                     final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
                     this.thread = returnable.getThread();
@@ -115,10 +115,11 @@ public class GameRunner {
                 this.makeAMove(board, moveTurn);
 
                 if (this.totalMovesBothPlayers >= this.depthOfStaticTree) {
+                    // if thread isn't running - generate root node and start thread.
                     if (!this.thread.isAlive()) {
                         try {
                             this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
-                            final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, true, this.ourSide);
+                            final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, this.ourSide);
                             this.thread = new Thread(createTreeRunner);
                             this.thread.start();
                         } catch (final CloneNotSupportedException e) {

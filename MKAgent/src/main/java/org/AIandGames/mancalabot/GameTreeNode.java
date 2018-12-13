@@ -104,14 +104,13 @@ public class GameTreeNode {
         hs.forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
     }
 
-    public void generateChildren(final int depth, final boolean allowSwap, final Side ourSide) throws CloneNotSupportedException {
+    public void generateChildren(final int depth, final Side ourSide) throws CloneNotSupportedException {
         if (depth == 0) {
             return;
         }
 
         if (this.children.isEmpty()) {
             this.generateUpTo7Children(ourSide);
-            this.addSwapNodeIfApplicable(allowSwap);
         }
 
         final int newDepth = depth - 1;
@@ -120,7 +119,7 @@ public class GameTreeNode {
                 .filter(Objects::nonNull)
                 .forEach(child -> {
                     try {
-                        child.generateChildren(newDepth, allowSwap, ourSide);
+                        child.generateChildren(newDepth, ourSide);
                     } catch (final CloneNotSupportedException e) {
                         e.printStackTrace();
                     }
@@ -159,24 +158,6 @@ public class GameTreeNode {
             }
         }
     }
-
-    private void addSwapNodeIfApplicable(final boolean allowSwap) throws CloneNotSupportedException {
-        if (this.isSwapPossible() && allowSwap) {
-            final GameTreeNode swapNode = this.toBuilder()
-                    .board(this.board.clone())
-                    .children(new ArrayList<>())
-                    .terminalState(TerminalState.NON_TERMINAL)
-                    .currentSide(this.currentSide)
-                    .depth(this.depth + 1)
-                    .build();
-            this.children.add(swapNode);
-        }
-    }
-
-    private boolean isSwapPossible() {
-        return this.getDepth() == 1;
-    }
-
 
     private Side makeMove(final Board board, final int hole, final Side side) {
         /* from the documentation:
