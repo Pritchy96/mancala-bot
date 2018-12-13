@@ -55,12 +55,15 @@ for x in range(0, nInInitialGeneration):
 
 
 for x in range(1, nGenerations):
+    print("new generation")
     for key, value in winDict.items():
         for keyPrime, valuePrime in winDict.items():
             if key is not keyPrime:
                 play(key, keyPrime)
 
     winDict = dict([(k, winDict[k]) for k in sorted(winDict, key=winDict.get, reverse=True)])
+    print(winDict)
+    print("end of generation: " + x)
     twentyPercent = int(math.ceil(len(winDict) * 0.2))
 
     remove = []
