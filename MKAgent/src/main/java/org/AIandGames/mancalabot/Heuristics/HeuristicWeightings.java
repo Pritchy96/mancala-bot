@@ -17,13 +17,15 @@ public class HeuristicWeightings {
                      final Double maxSteal,
                      final Double nEmptyPotsWeight,
                      final Double cumulativeSteal,
-                     final Double repeatSteal){
+                     final Double repeatSteal,
+                     final Double seedsAdvantage){
         weightings = new HashMap<>();
         weightings.put(Heuristics.MK_POINT_DIFFERENCE, pointDifferenceWeight);
         weightings.put(Heuristics.MAX_STEAL, maxSteal);
         weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, nEmptyPotsWeight);
         weightings.put(Heuristics.CUMULATIVE_STEAL, cumulativeSteal);
         weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, repeatSteal);
+        weightings.put(Heuristics.SEEDS_ON_SIDE, seedsAdvantage);
 
     }
 
@@ -33,11 +35,12 @@ public class HeuristicWeightings {
 
     private static void setupTempMap() {
         weightings = new HashMap<>();
-        weightings.put(Heuristics.MK_POINT_DIFFERENCE, 0.5);
-        weightings.put(Heuristics.MAX_STEAL, 0.5);
-        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 0.5);
-        weightings.put(Heuristics.CUMULATIVE_STEAL, 0.5);
-        weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 0.5);
+        weightings.put(Heuristics.MK_POINT_DIFFERENCE, 3.9);
+        weightings.put(Heuristics.MAX_STEAL, 1.6);
+        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 1.1);
+        weightings.put(Heuristics.CUMULATIVE_STEAL, 1.2);
+        weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 1.5);
+        weightings.put(Heuristics.SEEDS_ON_SIDE, 0.9);
     }
 
     public double applyWeightings(final Map<Heuristics, Integer> hValues, final GameTreeNode node, final Side ourSide) {
