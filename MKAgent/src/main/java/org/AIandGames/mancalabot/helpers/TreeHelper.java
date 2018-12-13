@@ -22,7 +22,7 @@ import lombok.AllArgsConstructor;
 public class TreeHelper {
     private final int overallDepth;
 
-    public GameTreeNode generateRootNode(final Side ourSide, final Board board) throws CloneNotSupportedException {
+    public GameTreeNode generateRootNode(final Side ourSide, final Board board) {
 
         try {
             final Reader reader = new FileReader("tree.json");

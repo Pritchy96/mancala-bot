@@ -31,7 +31,7 @@ public class GameRunner {
     private final StatePrinter statePrinter = new StatePrinter();
     private final TreeHelper treeHelper = new TreeHelper(OVERALL_DEPTH);
     private int totalMovesBothPlayers = 0;
-    private final int depthOfStaticTree = 2;
+    private final int DEPTH_OF_STATIC_MOVES = 2;
 
 
     private void setupServerIO() {
@@ -90,6 +90,7 @@ public class GameRunner {
         if (this.opponentWentLast && moveTurn.move == Protocol.SWAP) {
             this.ourSide = this.ourSide.opposite();
             this.ourMoveCount--;
+            this.totalMovesBothPlayers--;
         }
 
         // is it not our turn?
@@ -99,7 +100,7 @@ public class GameRunner {
             this.totalMovesBothPlayers++;
         } else {
 
-            if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
+            if (this.totalMovesBothPlayers > this.DEPTH_OF_STATIC_MOVES) {
                 try {
                     this.thread.join();
                     this.tree = this.treeHelper.updateRootNode(board, this.tree, this.ourSide);
@@ -111,20 +112,16 @@ public class GameRunner {
                 } catch (final InterruptedException | CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
-            } else { // static tree
+            } else { // static move
                 this.makeAMove(board, moveTurn);
 
-                if (this.totalMovesBothPlayers >= this.depthOfStaticTree) {
+                if (this.totalMovesBothPlayers >= this.DEPTH_OF_STATIC_MOVES) {
                     // if thread isn't running - generate root node and start thread.
                     if (!this.thread.isAlive()) {
-                        try {
-                            this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
-                            final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, this.ourSide);
-                            this.thread = new Thread(createTreeRunner);
-                            this.thread.start();
-                        } catch (final CloneNotSupportedException e) {
-                            e.printStackTrace();
-                        }
+                        this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
+                        final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, this.ourSide);
+                        this.thread = new Thread(createTreeRunner);
+                        this.thread.start();
                     }
                 }
             }
@@ -138,7 +135,8 @@ public class GameRunner {
 
         if (this.canWeSwap() && this.shouldWeSwap(moveTurn)) {
             this.performSwap();
-        } else if (this.totalMovesBothPlayers > this.depthOfStaticTree) {
+
+        } else if (this.totalMovesBothPlayers > this.DEPTH_OF_STATIC_MOVES) {
             //If there is only one valid move available, make it without doing any checks.
             final List<GameTreeNode> childrenNoNulls = this.tree.getChildren();
             childrenNoNulls.removeAll(Collections.singleton(null));
@@ -154,6 +152,7 @@ public class GameRunner {
             }
             this.opponentWentLast = false;
         } else {
+            // TODO : Make initial move in response to their opening move
             this.moveRightMostPot(testKalah);
         }
 
@@ -172,14 +171,22 @@ public class GameRunner {
     private void runStartCase(final String msg, final Board board) throws InvalidMessageException, CloneNotSupportedException {
         this.wePlayFirst = Protocol.interpretStartMsg(msg);
 
-        this.ourSide = this.statePrinter.printStartMessage(this.wePlayFirst);
+        if (wePlayFirst) {
+            this.ourSide = Side.SOUTH;
+        } else {
+            this.ourSide = Side.NORTH;
+        }
+
+        this.statePrinter.printStartMessage(this.wePlayFirst, this.ourSide);
 
         if (this.wePlayFirst) {
             this.messageHelper.sendMsg(Protocol.createMoveMsg(4));
             this.opponentWentLast = false;
             this.ourMoveCount++;
-            this.totalMovesBothPlayers++;
         }
+
+        // In the start case, regardless of who goes first, a move is made.
+        this.totalMovesBothPlayers++;
 
         if (WRITE_TREE) {
             System.err.println("Writing Tree to tree.json");
@@ -208,6 +215,10 @@ public class GameRunner {
                 break;
             }
         }
+    }
+
+    private void moveInitialPotBasedOnTheirFirstMove(final Kalah kalah) {
+
     }
 
     private boolean moveBestGuess(final Kalah kalah) {

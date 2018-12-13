@@ -24,6 +24,8 @@ public class TreeGenerator implements Runnable {
 
         this.threadedQueue = new LinkedBlockingDeque<>();
         final int logicalCores = Runtime.getRuntime().availableProcessors();
+        // TODO : Do we want to reduce this keep alive time? its longer than the entire game timeout.
+        // TODO : Should we catch this and deal with it?
         this.threadPool = new ThreadPoolExecutor(logicalCores, logicalCores, 10000L, TimeUnit.SECONDS, this.threadedQueue);
     }
 
