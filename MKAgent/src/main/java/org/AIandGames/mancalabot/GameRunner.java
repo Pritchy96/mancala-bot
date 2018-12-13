@@ -16,7 +16,7 @@ import java.util.List;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 10;
+    private static final int OVERALL_DEPTH = 9;
     private static final Boolean WRITE_TREE = false;
     private static final boolean USE_SOCKETS = true;
     private PrintWriter output;
@@ -31,7 +31,7 @@ public class GameRunner {
     private final StatePrinter statePrinter = new StatePrinter();
     private final TreeHelper treeHelper = new TreeHelper(OVERALL_DEPTH);
     private int totalMovesBothPlayers = 0;
-    private final int depthOfStaticTree = 4;
+    private final int depthOfStaticTree = 2;
 
 
     private void setupServerIO() {
