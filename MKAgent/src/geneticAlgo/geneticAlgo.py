@@ -8,6 +8,14 @@ nInInitialGeneration = 4
 winDict = {}
 ourRunArg = 'java -jar ../../target/mancalaBot-1.0-SNAPSHOT-jar-with-dependencies.jar'
 
+def clamp(n):
+    if n < 0.0:
+        return 0
+    elif n > 1.0:
+        return 1
+    else:
+        return n
+
 def deviate(w):
     dev1 = random.triangular(-0.3, 0.3, 0.0)
     dev2 = random.triangular(-0.3, 0.3, 0.0)
@@ -15,7 +23,7 @@ def deviate(w):
     dev4 = random.triangular(-0.3, 0.3, 0.0)
     dev5 = random.triangular(-0.3, 0.3, 0.0)
     temp = w.split(" ")
-    wNew = " " + str(float(temp[1]) + dev1) + " " + str(float(temp[2]) + dev2) + " " + str(float(temp[3]) + dev3) + " " + str(float(temp[4]) + dev4) + " " + str(float(temp[5]) + dev5)
+    wNew = " " + str(clamp(float(temp[1]) + dev1)) + " " + str(clamp(float(temp[2]) + dev2)) + " " + str(clamp(float(temp[3]) + dev3)) + " " + str(clamp(float(temp[4]) + dev4)) + " " + str(clamp(float(temp[5]) + dev5))
     return wNew
 
 def deviate_one(w):
@@ -45,6 +53,7 @@ def play(w, wPrime):
 
 
 winDict[" 0.5 0.5 0.5 0.5 0.5"] = 0
+winDict[" -0.04 -0.077 0.66 0.01 0.39"] = 0
 
 for x in range(0, nInInitialGeneration):
     h1 = str(random.random())
@@ -66,7 +75,7 @@ for x in range(1, nGenerations):
     winDict = dict([(k, winDict[k]) for k in sorted(winDict, key=winDict.get, reverse=True)])
     print(winDict)
     print("end of generation: ", x)
-    twentyPercent = int(math.ceil(len(winDict) * 0.4))
+    twentyPercent = int(math.ceil(len(winDict) * 0.55))
 
     remove = []
     count = 0
@@ -77,6 +86,15 @@ for x in range(1, nGenerations):
 
     for rmk in remove:
         del winDict[rmk]
+
+    winDict[" 0.5 0.5 0.5 0.5 0.5"] = 0
+    h1 = str(random.random())
+    h2 = str(random.random())
+    h3 = str(random.random())
+    h4 = str(random.random())
+    h5 = str(random.random())
+    weight = " " + h1 + " " + h2 + " " + h3 + " " + h4 + " " + h5
+    winDict[weight] = 0
 
     if x is not nGenerations - 1:
         newWinDict = {}
