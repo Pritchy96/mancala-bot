@@ -31,7 +31,7 @@ public class GameRunner {
     private final StatePrinter statePrinter = new StatePrinter();
     private final TreeHelper treeHelper = new TreeHelper(OVERALL_DEPTH);
     private int totalMovesBothPlayers = 0;
-    private final int depthOfStaticTree = 4;
+    private final int depthOfStaticTree = 2;
 
 
     private void setupServerIO() {
