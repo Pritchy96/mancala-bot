@@ -8,7 +8,7 @@ public class Main {
     public static void main(final String[] args) {
         final HeuristicWeightings heuristicWeightings = HeuristicWeightings.getInstance();
 
-        if (args.length == 5) {
+        if (args.length == 6) {
             heuristicWeightings.init(Double.parseDouble(args[0]),
                     Double.parseDouble(args[1]),
                     Double.parseDouble(args[2]),
