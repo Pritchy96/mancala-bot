@@ -1,7 +1,7 @@
 # Group 11
 ## Team Members
  - Nathan Oldfield
- - Thomas Prichard
+ - Thomas Pritchard
  - Samuel Robinson
  - William Lynch
 
