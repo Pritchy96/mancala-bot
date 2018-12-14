@@ -90,7 +90,6 @@ public class GameTreeNode {
         return new Move(ourSide, bestChild.holeNumber);
     }
 
-
     public void runHeuristics(final Side ourSide) {
         this.hValues = new HashMap<>();
 
@@ -100,35 +99,29 @@ public class GameTreeNode {
         hs.add(new CumulativeSteal(this));
         hs.add(new RepeatMoveAvailable(this));
         hs.add(new MaxSteal(this));
+        hs.add(new SeedsOnSide(this));
 
         hs.forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
     }
 
-    public void generateChildren(final int depth, final boolean allowSwap, final Side ourSide) throws CloneNotSupportedException {
+    public void generateChildren(final int depth, final Side ourSide) {
         if (depth == 0) {
             return;
         }
 
         if (this.children.isEmpty()) {
             this.generateUpTo7Children(ourSide);
-            this.addSwapNodeIfApplicable(allowSwap);
         }
 
         final int newDepth = depth - 1;
 
         this.getChildren().stream()
                 .filter(Objects::nonNull)
-                .forEach(child -> {
-                    try {
-                        child.generateChildren(newDepth, allowSwap, ourSide);
-                    } catch (final CloneNotSupportedException e) {
-                        e.printStackTrace();
-                    }
-                });
+                .forEach(child -> child.generateChildren(newDepth, ourSide));
 
     }
 
-    private void generateUpTo7Children(final Side ourSide) throws CloneNotSupportedException {
+    private void generateUpTo7Children(final Side ourSide) {
         for (int i = 1; i <= 7; i++) {
             if (this.board.getSeeds(this.currentSide, i) > 0) {
                 final GameTreeNodeBuilder newChildNBuilder = this.toBuilder();
@@ -159,24 +152,6 @@ public class GameTreeNode {
             }
         }
     }
-
-    private void addSwapNodeIfApplicable(final boolean allowSwap) throws CloneNotSupportedException {
-        if (this.isSwapPossible() && allowSwap) {
-            final GameTreeNode swapNode = this.toBuilder()
-                    .board(this.board.clone())
-                    .children(new ArrayList<>())
-                    .terminalState(TerminalState.NON_TERMINAL)
-                    .currentSide(this.currentSide)
-                    .depth(this.depth + 1)
-                    .build();
-            this.children.add(swapNode);
-        }
-    }
-
-    private boolean isSwapPossible() {
-        return this.getDepth() == 1;
-    }
-
 
     private Side makeMove(final Board board, final int hole, final Side side) {
         /* from the documentation:

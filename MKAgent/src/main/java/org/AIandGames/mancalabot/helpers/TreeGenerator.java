@@ -14,19 +14,18 @@ public class TreeGenerator implements Runnable {
     private BlockingDeque<Runnable> threadedQueue;
     private ExecutorService threadPool;
     private GameTreeNode rootNode;
-    private int overallDepth;
-    private boolean allowSwap;
+    private int relativeOverallDepth;
     private Side ourSide;
 
-    public TreeGenerator(final GameTreeNode rootNode, final int overallDepth, final boolean allowSwap, final Side ourSide) {
+    public TreeGenerator(final GameTreeNode rootNode, final int overallDepth, final Side ourSide) {
         this.rootNode = rootNode;
-        this.overallDepth = overallDepth;
-        this.allowSwap = allowSwap;
+        this.relativeOverallDepth = overallDepth;
         this.ourSide = ourSide;
 
         this.threadedQueue = new LinkedBlockingDeque<>();
         final int logicalCores = Runtime.getRuntime().availableProcessors();
-        this.threadPool = new ThreadPoolExecutor(logicalCores, logicalCores, 10000L, TimeUnit.SECONDS, this.threadedQueue);
+
+        this.threadPool = new ThreadPoolExecutor(logicalCores, logicalCores, 300L, TimeUnit.SECONDS, this.threadedQueue);
     }
 
     public TreeGenerator() {
@@ -34,33 +33,28 @@ public class TreeGenerator implements Runnable {
 
     @Override
     public void run() {
-        try {
-            final int depthPerThread = this.overallDepth - SINGLE_THREAD_DEPTH;
+        final int depthPerThread = this.relativeOverallDepth - SINGLE_THREAD_DEPTH;
 
-            final ArrayList<Runnable> runnables = new ArrayList<>();
-            final List<GameTreeNode> leafNodesToRunThreaded = new ArrayList<>();
+        final ArrayList<Runnable> runnables = new ArrayList<>();
+        final List<GameTreeNode> leafNodesToRunThreaded = new ArrayList<>();
 
-            this.rootNode.generateChildren(2, this.allowSwap, this.ourSide);
+        this.rootNode.generateChildren(2, this.ourSide);
 
-            this.rootNode.getChildren().stream()
-                    .filter(Objects::nonNull)
-                    .forEach(childNode -> leafNodesToRunThreaded.addAll(childNode.getChildren()));
+        this.rootNode.getChildren().stream()
+                .filter(Objects::nonNull)
+                .forEach(childNode -> leafNodesToRunThreaded.addAll(childNode.getChildren()));
 
-            leafNodesToRunThreaded.stream()
-                    .filter(Objects::nonNull)
-                    .forEach(node -> runnables.add(new GeneratorRunnable(node, depthPerThread, this.allowSwap, this.ourSide)));
+        leafNodesToRunThreaded.stream()
+                .filter(Objects::nonNull)
+                .forEach(node -> runnables.add(new GeneratorRunnable(node, depthPerThread, this.ourSide)));
 
-            runnables.forEach(this.threadPool::submit);
+        runnables.forEach(this.threadPool::submit);
 
 
-            while (this.threadedQueue.size() > 0) {
-            } // nasty but works
+        while (!this.threadedQueue.isEmpty()) {
+        } // nasty but works
 
-            this.threadPool.shutdown();
-
-        } catch (final CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+        this.threadPool.shutdown();
     }
 
     public GameTreeNode getRootNode() {

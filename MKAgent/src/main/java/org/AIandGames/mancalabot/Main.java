@@ -8,15 +8,16 @@ public class Main {
     public static void main(final String[] args) {
         final HeuristicWeightings heuristicWeightings = HeuristicWeightings.getInstance();
 
-        if (args.length == 5) {
+        if (args.length == 6) {
             heuristicWeightings.init(Double.parseDouble(args[0]),
                     Double.parseDouble(args[1]),
                     Double.parseDouble(args[2]),
                     Double.parseDouble(args[3]),
-                    Double.parseDouble(args[4]));
+                    Double.parseDouble(args[4]),
+                    Double.parseDouble(args[5]));
         }
-        final GameRunner gr = new GameRunner();
-        gr.run();
+        final GameRunner gameRunner = new GameRunner();
+        gameRunner.run();
     }
 
 }
