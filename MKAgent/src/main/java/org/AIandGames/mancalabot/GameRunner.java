@@ -16,7 +16,7 @@ import java.util.List;
 
 
 public class GameRunner {
-    private static final int OVERALL_DEPTH = 9;
+    private static final int OVERALL_DEPTH = 10;
     private static final Boolean WRITE_TREE = false;
     private static final boolean USE_SOCKETS = true;
     private PrintWriter output;
@@ -30,9 +30,6 @@ public class GameRunner {
     private MessageHelper messageHelper;
     private final StatePrinter statePrinter = new StatePrinter();
     private final TreeHelper treeHelper = new TreeHelper(OVERALL_DEPTH);
-    private int totalMovesBothPlayers = 0;
-    private final static int DEPTH_OF_STATIC_MOVES = 2;
-
 
     private void setupServerIO() {
         if (USE_SOCKETS) {
@@ -47,12 +44,12 @@ public class GameRunner {
                 this.output = new PrintWriter(clientSocket.getOutputStream(), true);
             } catch (final IOException e) {
                 e.printStackTrace();
-            } 
+            }
         } else {
             this.input = new BufferedReader(new InputStreamReader(System.in));
             this.output = new PrintWriter(new OutputStreamWriter(System.out));
         }
-         this.messageHelper = new MessageHelper(this.input, this.output, USE_SOCKETS);
+        this.messageHelper = new MessageHelper(this.input, this.output, USE_SOCKETS);
     }
 
     void run() {
@@ -78,7 +75,7 @@ public class GameRunner {
                         this.statePrinter.printEndState();
                         return;
                 }
-            } catch (final InvalidMessageException | IOException  e) {
+            } catch (final InvalidMessageException | IOException e) {
                 e.printStackTrace();
             }
         }
@@ -96,11 +93,9 @@ public class GameRunner {
             // TODO: Check if we can update the tree at this point, including pruning
             this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
             this.opponentWentLast = true;
-            this.totalMovesBothPlayers++;
         } else if (this.canWeSwap() && this.shouldWeSwap(moveTurn)) {
             this.performSwap();
-        }
-        else {
+        } else {
             try {
                 // Flow:
                 // Wait for thread join
@@ -134,18 +129,15 @@ public class GameRunner {
         if (childrenNoNulls.size() == 1) {
             System.err.println("one non null child");
             this.makeMoveIfLegal(new Move(this.ourSide, childrenNoNulls.get(0).getHoleNumber()), kalah);
-        }
-        else if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
+        } else if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
             System.err.println("Terminal state");
             this.moveRightMostPot(kalah);
-        }
-        else if (!this.moveBestGuess(kalah)) {
+        } else if (!this.moveBestGuess(kalah)) {
             this.statePrinter.printBestGuessError();
             this.moveRightMostPot(kalah);
         }
         this.opponentWentLast = false;
         this.ourMoveCount++;
-        this.totalMovesBothPlayers++;
     }
 
     private void runStartCase(final String msg, final Board board) throws InvalidMessageException {
@@ -163,9 +155,6 @@ public class GameRunner {
             this.makeStartCaseFirstMoveOfGame();
         }
 
-        // In the start case, regardless of who goes first, a move is made.
-        this.totalMovesBothPlayers++;
-
         if (WRITE_TREE) {
             writeTreeToFile();
         }
@@ -174,7 +163,7 @@ public class GameRunner {
         generateInitialTree(board);
     }
 
-    private void generateInitialTree(Board board) {
+    private void generateInitialTree(final Board board) {
         this.tree = this.treeHelper.loadOrGenerateRootNodeAtGameStart(this.ourSide, board);
         final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, this.ourSide);
         this.thread = new Thread(createTreeRunner);

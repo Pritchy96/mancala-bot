@@ -32,8 +32,9 @@ public class TreeHelper {
             reader.close();
             return root;
         } catch (IOException fileException) {
-            return generateRootNodeWithoutLoading(ourSide, board, true);
+            System.err.println("tree.json not found, generating from scratch.");
         }
+        return generateRootNodeWithoutLoading(ourSide, board, true);
     }
 
     public GameTreeNode generateRootNodeWithoutLoading(final Side ourSide, final Board board, boolean southSide) {
@@ -88,10 +89,10 @@ public class TreeHelper {
         // the node was not found at a depth > 0. Return the current root if the move was in the past else null.
         if (this.moveWasInThePast(board, tree)) {
             if (moveTurn.ourTurn){
-                return this.generateRootNodeWithoutLoading(ourSide, board, ourSide == Side.SOUTH);
+                return this.generateRootNodeWithoutLoading(ourSide, board, ourSide.equals(Side.SOUTH));
             }
             else {
-                return this.generateRootNodeWithoutLoading(ourSide, board, ourSide.opposite() == Side.SOUTH);
+                return this.generateRootNodeWithoutLoading(ourSide, board, ourSide.opposite().equals(Side.SOUTH));
             }
         }
         return tree;
