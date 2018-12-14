@@ -90,7 +90,6 @@ public class GameRunner {
 
         // is it opponents turn?
         if (!moveTurn.ourTurn) {
-            // TODO: Check if we can update the tree at this point, including pruning
             this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
             this.opponentWentLast = true;
         } else if (this.canWeSwap() && this.shouldWeSwap(moveTurn)) {
@@ -99,18 +98,20 @@ public class GameRunner {
             try {
                 // Flow:
                 // Wait for thread join
+
+                this.thread.join();
+
                 // find root node
                 // prune to that node
                 // update generate to depth OVERALL_DEPTH
                 // Wait for thread join
-                // perform minimax
-                // Make move
-
-                this.thread.join();
 
                 // Will update root node to correct place (BFS)
                 // then generates the last level of depth, waiting for thread to join before continuing.
                 ensureCorrectTreeDepth(board, moveTurn);
+
+                // perform minimax
+                // Make move
 
                 this.makeAMove(board, moveTurn);
 
