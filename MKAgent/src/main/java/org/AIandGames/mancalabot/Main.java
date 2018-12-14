@@ -13,7 +13,8 @@ public class Main {
                     Double.parseDouble(args[1]),
                     Double.parseDouble(args[2]),
                     Double.parseDouble(args[3]),
-                    Double.parseDouble(args[4]));
+                    Double.parseDouble(args[4]),
+                    Double.parseDouble(args[5]));
         }
         final GameRunner gr = new GameRunner();
         gr.run();

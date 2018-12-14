@@ -99,6 +99,7 @@ public class GameTreeNode {
         hs.add(new CumulativeSteal(this));
         hs.add(new RepeatMoveAvailable(this));
         hs.add(new MaxSteal(this));
+        hs.add(new SeedsOnSide(this));
 
         hs.forEach(h -> this.hValues.put(h.getName(), h.getValue(ourSide)));
     }
