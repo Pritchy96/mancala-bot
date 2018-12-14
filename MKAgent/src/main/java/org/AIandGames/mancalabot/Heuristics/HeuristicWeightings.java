@@ -35,12 +35,13 @@ public class HeuristicWeightings {
 
     private static void setupTempMap() {
         weightings = new HashMap<>();
-        weightings.put(Heuristics.MK_POINT_DIFFERENCE, 3.9);
-        weightings.put(Heuristics.MAX_STEAL, 1.6);
-        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 1.1);
-        weightings.put(Heuristics.CUMULATIVE_STEAL, 1.2);
-        weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 1.5);
+        weightings.put(Heuristics.MK_POINT_DIFFERENCE, 3.1);
+        weightings.put(Heuristics.MAX_STEAL, 1.0);
+        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 1.0);
+        weightings.put(Heuristics.CUMULATIVE_STEAL, 0.5);
+        weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 1.0);
         weightings.put(Heuristics.SEEDS_ON_SIDE, 0.9);
+
     }
 
     public double applyWeightings(final Map<Heuristics, Integer> hValues, final GameTreeNode node, final Side ourSide) {
@@ -54,26 +55,14 @@ public class HeuristicWeightings {
 
         double overallValue = 0;
         for (final Heuristics key : hValues.keySet()) {
-            final double value1 = hValues.get(key);
-            final double value2 = weightings.get(key);
+            final double value1 = hValues.getOrDefault(key, 0);
+            final double value2 = weightings.getOrDefault(key, 0.0);
             // TODO: Check what happens when null, should auto to 0
 
             overallValue += value1 * value2;
 
         }
         return overallValue;
-    }
-
-    //A measure of how close either player is to winning.
-    public static int getProgressBasedWeighting(final GameTreeNode node, final Side ourSide) {
-        return node.getBoard().getSeedsInStore(ourSide)
-                + node.getBoard().getSeedsInStore(ourSide.opposite()) / 98;
-    }
-
-    //A ratio of how close we are winning compared to the opponent.
-    public static int getWinBasedWeighting(final GameTreeNode node, final Side ourSide) {
-        return node.getBoard().getSeedsInStore(ourSide)
-                / node.getBoard().getSeedsInStore(ourSide.opposite());
     }
 
 }

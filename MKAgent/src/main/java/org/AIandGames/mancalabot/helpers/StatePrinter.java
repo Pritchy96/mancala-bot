@@ -10,33 +10,29 @@ public class StatePrinter {
 
     public void printCurrentState(final Board board, final Boolean opponentWentLast, final Long ourMoveCount, final MoveTurn moveTurn) {
         System.err.println("||----------------STATE----------------||");
-        if (Kalah.gameWon(board))
+        if (Kalah.gameWon(board)) {
             System.err.println("We've already reached a terminal node!");
-        if (opponentWentLast)
+        }
+        if (opponentWentLast) {
             System.err.println("Opponent played last with hole :: " + moveTurn.move
                     + "\nnumber of moves we have made: " + ourMoveCount);
-        else
+        } else {
             System.err.println("We played last with hole :: " + moveTurn.move
                     + "\nnumber of moves we have made: " + ourMoveCount);
+        }
         System.err.println("The board ::\n " + board);
 
-        System.err.println("Not our turn - continuing to make tree");
-        System.err.println("||-------------------------------------||\n");
+        if (!moveTurn.ourTurn) {
+            System.err.println("Not our turn - continuing to make tree");
+            System.err.println("||-------------------------------------||\n");
+        }
     }
 
-    public Side printStartMessage(final Boolean wePlayFirst) {
-        final Side ourSide;
-        if (wePlayFirst) {
-            ourSide = Side.SOUTH;
-        } else {
-            ourSide = Side.NORTH;
-        }
+    public void printStartMessage(final Boolean wePlayFirst, Side ourSide) {
         System.err.println("||--------------GAME START-------------||");
         System.err.println("Us to go first :: " + wePlayFirst);
         System.err.println("We are :: " + ourSide);
         System.err.println("||-------------------------------------||\n");
-
-        return ourSide;
     }
 
     public void printBestGuessError() {

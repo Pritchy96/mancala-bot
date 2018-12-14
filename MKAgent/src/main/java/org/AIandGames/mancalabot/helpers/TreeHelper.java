@@ -13,16 +13,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.google.gson.GsonBuilder;
 
 import org.AIandGames.mancalabot.Board;
+import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.GameTreeNode;
 import org.AIandGames.mancalabot.Enums.Side;
 
 import lombok.AllArgsConstructor;
+import org.AIandGames.mancalabot.Protocol;
 
 @AllArgsConstructor
 public class TreeHelper {
-    private final int overallDepth;
+    private final int relativeOverallDepth;
 
-    public GameTreeNode generateRootNode(final Side ourSide, final Board board) throws CloneNotSupportedException {
+    public GameTreeNode loadOrGenerateRootNodeAtGameStart(final Side ourSide, final Board board) {
 
         try {
             final Reader reader = new FileReader("tree.json");
@@ -30,15 +32,38 @@ public class TreeHelper {
             reader.close();
             return root;
         } catch (IOException fileException) {
-            return GameTreeNode.builder()
-                    .board(board)
-                    .children(new ArrayList<>())
-                    .currentSide(ourSide.opposite())
-                    .build();
+            System.err.println("tree.json not found, generating from scratch.");
         }
+        return generateRootNodeWithoutLoading(ourSide, board, true);
     }
 
-    public GameTreeNode updateRootNode(final Board board, final GameTreeNode tree, final Side ourSide) throws CloneNotSupportedException { // BFS
+    public GameTreeNode generateRootNodeWithoutLoading(final Side ourSide, final Board board, boolean southSide) {
+        TerminalState terminalState;
+
+        if (board.getSeedsInStore(ourSide) >= 50) {
+            terminalState = TerminalState.WIN_TERMINAL;
+        } else if (board.getSeedsInStore(ourSide.opposite()) >= 50) {
+            terminalState = TerminalState.LOSE_TERMINAL;
+        } else {
+            terminalState = TerminalState.NON_TERMINAL;
+        }
+
+        Side theSide;
+        if (southSide) {
+            theSide = Side.SOUTH;
+        } else {
+            theSide = Side.NORTH;
+        }
+
+        return GameTreeNode.builder()
+                .board(board.clone())
+                .children(new ArrayList<>())
+                .currentSide(theSide)
+                .terminalState(terminalState)
+                .build();
+    }
+
+    public GameTreeNode updateRootNode(final Board board, final GameTreeNode tree, final Side ourSide, Protocol.MoveTurn moveTurn) { // BFS
         final Queue<GameTreeNode> nodesToVisit = new LinkedBlockingQueue<>();
         final HashSet<GameTreeNode> visitedNodes = new HashSet<>();
 
@@ -51,21 +76,24 @@ public class TreeHelper {
                 return visitingNode;
             }
 
-            try {
-                visitingNode.getChildren().stream()
-                        .filter(Objects::nonNull)
-                        .filter(child -> !visitedNodes.contains(child))
-                        .forEach(nodesToVisit::add);
-            } catch (final Exception e) {
-                System.err.println("Err");
-            }
+
+            visitingNode.getChildren().stream()
+                    .filter(Objects::nonNull)
+                    .filter(child -> !visitedNodes.contains(child))
+                    .forEach(nodesToVisit::add);
+
 
             visitedNodes.add(visitingNode);
         }
 
         // the node was not found at a depth > 0. Return the current root if the move was in the past else null.
         if (this.moveWasInThePast(board, tree)) {
-            return this.generateRootNode(ourSide, board);
+            if (moveTurn.ourTurn){
+                return this.generateRootNodeWithoutLoading(ourSide, board, ourSide.equals(Side.SOUTH));
+            }
+            else {
+                return this.generateRootNodeWithoutLoading(ourSide, board, ourSide.opposite().equals(Side.SOUTH));
+            }
         }
         return tree;
     }
@@ -80,10 +108,6 @@ public class TreeHelper {
         } else {
             return false;
         }
-
-
-        //        return (visitingNode.getBoard().equals(board) && !visitingNode.equals(tree)) ||
-//                (visitingNode.getBoard().equals(board) && (visitingNode.equals(tree) && visitingNode.getCurrentSide().equals(ourSide)));
     }
 
     private boolean moveWasInThePast(final Board board, final GameTreeNode tree) {
@@ -102,12 +126,12 @@ public class TreeHelper {
         }
     }
 
-    public UpdateReturnable updateGameTree(final Board board, GameTreeNode tree, final Side ourSide) {
+    public UpdateReturnable updateGameTree(final Board board, GameTreeNode tree, final Side ourSide, Protocol.MoveTurn moveTurn) {
         try {
             final Thread thread;
-            tree = this.updateRootNode(board, tree, ourSide);
+            tree = this.updateRootNode(board, tree, ourSide, moveTurn);
 
-            final Runnable createTreeRunner = new TreeGenerator(tree, this.overallDepth - 1, false, ourSide);
+            final Runnable createTreeRunner = new TreeGenerator(tree, this.relativeOverallDepth - 1, ourSide);
             thread = new Thread(createTreeRunner);
             thread.start();
             return new UpdateReturnable(tree, thread);
