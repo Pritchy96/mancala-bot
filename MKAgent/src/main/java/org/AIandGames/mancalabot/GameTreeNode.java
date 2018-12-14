@@ -90,7 +90,6 @@ public class GameTreeNode {
         return new Move(ourSide, bestChild.holeNumber);
     }
 
-
     public void runHeuristics(final Side ourSide) {
         this.hValues = new HashMap<>();
 

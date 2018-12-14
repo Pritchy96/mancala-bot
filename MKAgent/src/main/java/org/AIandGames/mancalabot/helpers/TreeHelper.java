@@ -18,6 +18,7 @@ import org.AIandGames.mancalabot.GameTreeNode;
 import org.AIandGames.mancalabot.Enums.Side;
 
 import lombok.AllArgsConstructor;
+import org.AIandGames.mancalabot.Protocol;
 
 @AllArgsConstructor
 public class TreeHelper {
@@ -25,6 +26,7 @@ public class TreeHelper {
 
     public GameTreeNode generateRootNode(final Side ourSide, final Board board) {
         TerminalState terminalState;
+
         if (board.getSeedsInStore(ourSide) >= 50) {
             terminalState = TerminalState.WIN_TERMINAL;
         } else if (board.getSeedsInStore(ourSide.opposite()) >= 50) {
@@ -32,6 +34,7 @@ public class TreeHelper {
         } else {
             terminalState = TerminalState.NON_TERMINAL;
         }
+
         try {
             final Reader reader = new FileReader("tree.json");
             final GameTreeNode root = new GsonBuilder().create().fromJson(reader, GameTreeNode.class);
@@ -39,9 +42,9 @@ public class TreeHelper {
             return root;
         } catch (IOException fileException) {
             return GameTreeNode.builder()
-                    .board(board)
+                    .board(board.clone())
                     .children(new ArrayList<>())
-                    .currentSide(ourSide.opposite())
+                    .currentSide(Side.SOUTH) //TODO : Confirm logic with this
                     .terminalState(terminalState)
                     .build();
         }
@@ -87,10 +90,6 @@ public class TreeHelper {
         } else {
             return false;
         }
-
-
-        //        return (visitingNode.getBoard().equals(board) && !visitingNode.equals(tree)) ||
-//                (visitingNode.getBoard().equals(board) && (visitingNode.equals(tree) && visitingNode.getCurrentSide().equals(ourSide)));
     }
 
     private boolean moveWasInThePast(final Board board, final GameTreeNode tree) {

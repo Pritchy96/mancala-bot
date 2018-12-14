@@ -206,6 +206,7 @@ public class GameRunner {
 
     private boolean shouldWeSwap(MoveTurn moveTurn) {
         return (moveTurn.move >= 4); // TODO Should we consider 3? Run against a few bots to see how it does.
+        //return true;
     }
 
     private boolean canWeSwap() {
