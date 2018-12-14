@@ -18,7 +18,7 @@ import java.util.List;
 public class GameRunner {
     private static final int OVERALL_DEPTH = 10;
     private static final Boolean WRITE_TREE = false;
-    private static final boolean USE_SOCKETS = true;
+    private static final boolean USE_SOCKETS = false;
     private PrintWriter output;
     private Reader input;
     private Boolean wePlayFirst = false;
@@ -188,14 +188,13 @@ public class GameRunner {
     }
 
     private void makeStartCaseFirstMoveOfGame() {
-        this.messageHelper.sendMsg(Protocol.createMoveMsg(4));
+        this.messageHelper.sendMsg(Protocol.createMoveMsg(3));
         this.opponentWentLast = false;
         this.ourMoveCount++;
     }
 
     private boolean shouldWeSwap(MoveTurn moveTurn) {
-        return (moveTurn.move >= 4); // TODO Should we consider 3? Run against a few bots to see how it does.
-        //return true;
+        return (moveTurn.move >= 3);
     }
 
     private boolean canWeSwap() {

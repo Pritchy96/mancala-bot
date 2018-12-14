@@ -40,7 +40,7 @@ public class HeuristicWeightings {
         weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 1.0);
         weightings.put(Heuristics.CUMULATIVE_STEAL, 0.5);
         weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 1.0);
-        weightings.put(Heuristics.SEEDS_ON_SIDE, 0.9);
+        weightings.put(Heuristics.SEEDS_ON_SIDE, 0.8);
 
     }
 

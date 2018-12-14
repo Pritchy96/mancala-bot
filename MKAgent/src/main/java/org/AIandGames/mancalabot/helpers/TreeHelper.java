@@ -48,17 +48,17 @@ public class TreeHelper {
             terminalState = TerminalState.NON_TERMINAL;
         }
 
-        Side theSide;
+        Side currentSide;
         if (southSide) {
-            theSide = Side.SOUTH;
+            currentSide = Side.SOUTH;
         } else {
-            theSide = Side.NORTH;
+            currentSide = Side.NORTH;
         }
 
         return GameTreeNode.builder()
                 .board(board.clone())
                 .children(new ArrayList<>())
-                .currentSide(theSide)
+                .currentSide(currentSide)
                 .terminalState(terminalState)
                 .build();
     }

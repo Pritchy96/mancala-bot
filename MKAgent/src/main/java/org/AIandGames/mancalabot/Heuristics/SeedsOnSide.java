@@ -44,7 +44,7 @@ public class SeedsOnSide implements Heuristic {
         int totalPottedSeeds = this.node.getBoard().getSeedsInStore(this.node.getCurrentSide())
                 +  this.node.getBoard().getSeedsInStore(this.node.getCurrentSide().opposite());
 
-        float progressRatio = ((float) totalPottedSeeds / 98);
+        float progressRatio = totalPottedSeeds / 0.98f;
 
         return unweightedReturnValue * Math.round(progressRatio);
 

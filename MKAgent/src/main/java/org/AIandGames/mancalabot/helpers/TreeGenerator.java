@@ -52,7 +52,7 @@ public class TreeGenerator implements Runnable {
         runnables.forEach(this.threadPool::submit);
 
 
-        while (this.threadedQueue.size() > 0) {
+        while (!this.threadedQueue.isEmpty()) {
         } // nasty but works
 
         this.threadPool.shutdown();
