@@ -22,14 +22,14 @@ def deviate(w):
     dev3 = random.triangular(-0.3, 0.3, 0.0)
     dev4 = random.triangular(-0.3, 0.3, 0.0)
     dev5 = random.triangular(-0.3, 0.3, 0.0)
+    dev6 = random.triangular(-0.3, 0.3, 0.0)
     temp = w.split(" ")
-    wNew = " " + str(clamp(float(temp[1]) + dev1)) + " " + str(clamp(float(temp[2]) + dev2)) + " " + str(clamp(float(temp[3]) + dev3)) + " " + str(clamp(float(temp[4]) + dev4)) + " " + str(clamp(float(temp[5]) + dev5))
+    wNew = " " + str(clamp(float(temp[1]) + dev1)) + " " + str(clamp(float(temp[2]) + dev2)) + " " + str(clamp(float(temp[3]) + dev3)) + " " + str(clamp(float(temp[4]) + dev4)) + " " + str(clamp(float(temp[5]) + dev5)) + " " + str(clamp(float(temp[6]) + dev6))
     return wNew
 
 def deviate_one(w):
     dev1 = random.triangular(-0.1, 0.1, 0.0)
     return w + dev1
-
 
 
 def play(w, wPrime):
@@ -52,8 +52,8 @@ def play(w, wPrime):
         winDict[wPrime] = winDict[wPrime] + 3
 
 
-winDict[" 0.5 0.5 0.5 0.5 0.5"] = 0
-winDict[" -0.04 -0.077 0.66 0.01 0.39"] = 0
+winDict[" 0.5 0.5 0.5 0.5 0.5 0.5"] = 0
+winDict[" -0.04 -0.077 0.66 0.01 0.39 0.4"] = 0
 
 for x in range(0, nInInitialGeneration):
     h1 = str(random.random())
@@ -61,7 +61,8 @@ for x in range(0, nInInitialGeneration):
     h3 = str(random.random())
     h4 = str(random.random())
     h5 = str(random.random())
-    weight = " " + h1 + " " + h2 + " " + h3 + " " + h4 + " " + h5
+    h6 = str(random.random())
+    weight = " " + h1 + " " + h2 + " " + h3 + " " + h4 + " " + h5 + " " + h6
     winDict[weight] = 0
 
 
@@ -87,13 +88,14 @@ for x in range(1, nGenerations):
     for rmk in remove:
         del winDict[rmk]
 
-    winDict[" 0.5 0.5 0.5 0.5 0.5"] = 0
+    winDict[" 0.5 0.5 0.5 0.5 0.5 0.5"] = 0
     h1 = str(random.random())
     h2 = str(random.random())
     h3 = str(random.random())
     h4 = str(random.random())
     h5 = str(random.random())
-    weight = " " + h1 + " " + h2 + " " + h3 + " " + h4 + " " + h5
+    h6 = str(random.random())
+    weight = " " + h1 + " " + h2 + " " + h3 + " " + h4 + " " + h5 + " " + h6
     winDict[weight] = 0
 
     if x is not nGenerations - 1:
