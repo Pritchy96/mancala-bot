@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.google.gson.GsonBuilder;
 
 import org.AIandGames.mancalabot.Board;
+import org.AIandGames.mancalabot.Enums.TerminalState;
 import org.AIandGames.mancalabot.GameTreeNode;
 import org.AIandGames.mancalabot.Enums.Side;
 
@@ -23,7 +24,14 @@ public class TreeHelper {
     private final int relativeOverallDepth;
 
     public GameTreeNode generateRootNode(final Side ourSide, final Board board) {
-
+        TerminalState terminalState;
+        if (board.getSeedsInStore(ourSide) >= 50) {
+            terminalState = TerminalState.WIN_TERMINAL;
+        } else if (board.getSeedsInStore(ourSide.opposite()) >= 50) {
+            terminalState = TerminalState.LOSE_TERMINAL;
+        } else {
+            terminalState = TerminalState.NON_TERMINAL;
+        }
         try {
             final Reader reader = new FileReader("tree.json");
             final GameTreeNode root = new GsonBuilder().create().fromJson(reader, GameTreeNode.class);
@@ -34,6 +42,7 @@ public class TreeHelper {
                     .board(board)
                     .children(new ArrayList<>())
                     .currentSide(ourSide.opposite())
+                    .terminalState(terminalState)
                     .build();
         }
     }
@@ -51,14 +60,12 @@ public class TreeHelper {
                 return visitingNode;
             }
 
-            try {
-                visitingNode.getChildren().stream()
-                        .filter(Objects::nonNull)
-                        .filter(child -> !visitedNodes.contains(child))
-                        .forEach(nodesToVisit::add);
-            } catch (final Exception e) {
-                System.err.println("Err");
-            }
+
+            visitingNode.getChildren().stream()
+                    .filter(Objects::nonNull)
+                    .filter(child -> !visitedNodes.contains(child))
+                    .forEach(nodesToVisit::add);
+
 
             visitedNodes.add(visitingNode);
         }

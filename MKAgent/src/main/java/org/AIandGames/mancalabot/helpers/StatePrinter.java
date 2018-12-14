@@ -16,8 +16,7 @@ public class StatePrinter {
         if (opponentWentLast) {
             System.err.println("Opponent played last with hole :: " + moveTurn.move
                     + "\nnumber of moves we have made: " + ourMoveCount);
-        }
-        else {
+        } else {
             System.err.println("We played last with hole :: " + moveTurn.move
                     + "\nnumber of moves we have made: " + ourMoveCount);
         }

@@ -31,7 +31,7 @@ public class GameRunner {
     private final StatePrinter statePrinter = new StatePrinter();
     private final TreeHelper treeHelper = new TreeHelper(OVERALL_DEPTH);
     private int totalMovesBothPlayers = 0;
-    private final int DEPTH_OF_STATIC_MOVES = 2;
+    private final static int DEPTH_OF_STATIC_MOVES = 2;
 
 
     private void setupServerIO() {
@@ -106,78 +106,44 @@ public class GameRunner {
                 // Wait for thread join
                 // find root node
                 // prune to that node
-                // NEW : update generate to depth OVERALL_DEPTH
-                // NEW : Wait for thread join
+                // update generate to depth OVERALL_DEPTH
+                // Wait for thread join
                 // perform minimax
                 // Make move
+
                 this.thread.join();
 
                 // Will update root node to correct place (BFS)
                 // then generates the last level of depth, waiting for thread to join before continuing.
                 ensureCorrectTreeDepth(board);
 
-                // TODO : Fix make a move method
                 this.makeAMove(board, moveTurn);
 
             } catch (final InterruptedException e) {
                 e.printStackTrace();
             }
-
-
-
-
-            // NO LONGER USED:::
-            /*
-            if (this.totalMovesBothPlayers > this.DEPTH_OF_STATIC_MOVES) {
-                try {
-                    this.thread.join();
-                    this.tree = this.treeHelper.updateRootNode(board, this.tree, this.ourSide);
-
-                    this.makeAMove(board, moveTurn);
-                    final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
-                    this.thread = returnable.getThread();
-                    this.tree = returnable.getGameTreeNode();
-                } catch (final InterruptedException  e) {
-                    e.printStackTrace();
-                }
-            } else { // static move
-                this.makeAMove(board, moveTurn);
-
-                if (this.totalMovesBothPlayers >= this.DEPTH_OF_STATIC_MOVES) {
-                    // if thread isn't running - generate root node and start thread.
-                    if (!this.thread.isAlive()) {
-                        generateInitialTree(board);
-                    }
-                }
-            }
-            */
         }
     }
 
     private void makeAMove(final Board board, final MoveTurn moveTurn) {
         this.statePrinter.printCurrentState(board, this.opponentWentLast, this.ourMoveCount, moveTurn);
-        final Kalah testKalah = new Kalah(board);
+        final Kalah kalah = new Kalah(board);
 
-        if (this.totalMovesBothPlayers > this.DEPTH_OF_STATIC_MOVES) {
-            //If there is only one valid move available, make it without doing any checks.
-            final List<GameTreeNode> childrenNoNulls = this.tree.getChildren();
-            childrenNoNulls.removeAll(Collections.singleton(null));
-            if (childrenNoNulls.size() == 1) {
-                this.makeMoveIfLegal(new Move(this.ourSide, childrenNoNulls.get(0).getHoleNumber()), testKalah);
-            }
-            // Tries to make the best guess move, if its not legal, defaults to right most pot.
-            else if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
-                this.moveRightMostPot(testKalah);
-            } else if (!this.moveBestGuess(testKalah)) {
-                this.statePrinter.printBestGuessError();
-                this.moveRightMostPot(testKalah);
-            }
-            this.opponentWentLast = false;
-        } else {
-            // TODO : Make initial move in response to their opening move
-            this.moveRightMostPot(testKalah);
+        final List<GameTreeNode> childrenNoNulls = this.tree.getChildren();
+        childrenNoNulls.removeAll(Collections.singleton(null));
+        if (childrenNoNulls.size() == 1) {
+            System.err.println("one non null child");
+            this.makeMoveIfLegal(new Move(this.ourSide, childrenNoNulls.get(0).getHoleNumber()), kalah);
         }
-
+        else if (this.tree.getTerminalState() != TerminalState.NON_TERMINAL) {
+            System.err.println("Terminal state");
+            this.moveRightMostPot(kalah);
+        }
+        else if (!this.moveBestGuess(kalah)) {
+            this.statePrinter.printBestGuessError();
+            this.moveRightMostPot(kalah);
+        }
+        this.opponentWentLast = false;
         this.ourMoveCount++;
         this.totalMovesBothPlayers++;
     }
@@ -239,11 +205,11 @@ public class GameRunner {
     }
 
     private boolean shouldWeSwap(MoveTurn moveTurn) {
-        return (moveTurn.move >= 4); // TODO Should we consider 3?
+        return (moveTurn.move >= 4); // TODO Should we consider 3? Run against a few bots to see how it does.
     }
 
     private boolean canWeSwap() {
-        return !this.wePlayFirst && this.ourMoveCount == 0;
+        return this.ourMoveCount == 0 && !this.wePlayFirst;
     }
 
     private void performSwap() {
@@ -253,10 +219,10 @@ public class GameRunner {
         this.statePrinter.printPerformedSwap(this.ourSide);
     }
 
-    private void moveRightMostPot(final Kalah testKalah) {
+    private void moveRightMostPot(final Kalah kalah) {
         for (int i = 7; i > 0; i--) {
             final Move testMove = new Move(this.ourSide, i);
-            if (this.makeMoveIfLegal(testMove, testKalah)) {
+            if (this.makeMoveIfLegal(testMove, kalah)) {
                 break;
             }
         }
