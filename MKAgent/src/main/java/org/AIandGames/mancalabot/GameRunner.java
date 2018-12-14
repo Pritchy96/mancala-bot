@@ -108,12 +108,13 @@ public class GameRunner {
 
                 // Will update root node to correct place (BFS)
                 // then generates the last level of depth, waiting for thread to join before continuing.
-                ensureCorrectTreeDepth(board, moveTurn);
+                this.ensureCorrectTreeDepth(board, moveTurn);
 
                 // perform minimax
                 // Make move
 
                 this.makeAMove(board, moveTurn);
+                this.setOffTreeUpdate(board, moveTurn);
 
             } catch (final InterruptedException e) {
                 e.printStackTrace();
@@ -172,10 +173,14 @@ public class GameRunner {
     }
 
     private void ensureCorrectTreeDepth(Board board, MoveTurn moveTurn) throws InterruptedException {
+        setOffTreeUpdate(board, moveTurn);
+        this.thread.join();
+    }
+
+    private void setOffTreeUpdate(Board board, MoveTurn moveTurn) {
         final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide, moveTurn);
         this.thread = returnable.getThread();
         this.tree = returnable.getGameTreeNode();
-        this.thread.join();
     }
 
     private boolean hasOpponentSwapped(MoveTurn moveTurn) {
