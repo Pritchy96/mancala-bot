@@ -16,8 +16,8 @@ public class Main {
                     Double.parseDouble(args[4]),
                     Double.parseDouble(args[5]));
         }
-        final GameRunner gr = new GameRunner();
-        gr.run();
+        final GameRunner gameRunner = new GameRunner();
+        gameRunner.run();
     }
 
 }
