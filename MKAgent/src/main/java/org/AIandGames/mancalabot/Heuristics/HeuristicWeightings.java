@@ -37,7 +37,7 @@ public class HeuristicWeightings {
         weightings = new HashMap<>();
         weightings.put(Heuristics.MK_POINT_DIFFERENCE, 3.1);
         weightings.put(Heuristics.MAX_STEAL, 1.0);
-        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 1.0);
+        weightings.put(Heuristics.NUMBER_OF_EMPTY_POTS, 2.0);
         weightings.put(Heuristics.CUMULATIVE_STEAL, 0.5);
         weightings.put(Heuristics.REPEAT_MOVE_AVAILABLE, 1.0);
         weightings.put(Heuristics.SEEDS_ON_SIDE, 0.8);
