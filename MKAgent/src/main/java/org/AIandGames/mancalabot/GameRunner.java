@@ -115,7 +115,7 @@ public class GameRunner {
 
                 // Will update root node to correct place (BFS)
                 // then generates the last level of depth, waiting for thread to join before continuing.
-                ensureCorrectTreeDepth(board);
+                ensureCorrectTreeDepth(board, moveTurn);
 
                 this.makeAMove(board, moveTurn);
 
@@ -175,14 +175,14 @@ public class GameRunner {
     }
 
     private void generateInitialTree(Board board) {
-        this.tree = this.treeHelper.generateRootNode(this.ourSide, board);
+        this.tree = this.treeHelper.loadOrGenerateRootNodeAtGameStart(this.ourSide, board);
         final Runnable createTreeRunner = new TreeGenerator(this.tree, OVERALL_DEPTH, this.ourSide);
         this.thread = new Thread(createTreeRunner);
         this.thread.start();
     }
 
-    private void ensureCorrectTreeDepth(Board board) throws InterruptedException {
-        final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide);
+    private void ensureCorrectTreeDepth(Board board, MoveTurn moveTurn) throws InterruptedException {
+        final UpdateReturnable returnable = this.treeHelper.updateGameTree(board, this.tree, this.ourSide, moveTurn);
         this.thread = returnable.getThread();
         this.tree = returnable.getGameTreeNode();
         this.thread.join();
